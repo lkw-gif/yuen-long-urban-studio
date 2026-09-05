@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: '元朗街區 · Urban Studio',
-  description: '依照地圖藍線範圍探索元朗康樂路的互動 3D 街區，並匯入 Blender。',
+  description: '沿街道邊緣探索元朗康樂路的互動 3D 街區，並匯入 Blender。',
 };
 
 export default function RootLayout({
@@ -32,4 +32,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 

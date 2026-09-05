@@ -1,23 +1,29 @@
 import * as THREE from 'three';
-import { BUILDINGS, BOUNDARY, world } from './model-data';
+import { BUILDINGS, BOUNDARY, STREET_INNER_EDGE, world } from './model-data';
+import { insetContour } from './road-contour';
 
-export type LayerName = 'buildings' | 'parks' | 'roads' | 'boundary';
+export type LayerName = 'buildings' | 'parks' | 'roads' | 'curbs';
 export function createUrbanModel() {
  const root = new THREE.Group(); root.name = 'Yuen_Long_Urban_Study';
  root.userData = { source:'User-provided map screenshots', accuracy:'Illustrative heights and dimensions; not a survey', axis:'Y up, north -Z' };
- const layers = Object.fromEntries(['buildings','parks','roads','boundary'].map(n=>{const g=new THREE.Group();g.name=n;root.add(g);return [n,g];})) as Record<LayerName,THREE.Group>;
+ const layers = Object.fromEntries(['buildings','parks','roads','curbs'].map(n=>{const g=new THREE.Group();g.name=n;root.add(g);return [n,g];})) as Record<LayerName,THREE.Group>;
  const material = (color:string, extra={})=>new THREE.MeshStandardMaterial({color,roughness:.88,...extra});
- const mats={base:material('#8c938b'),paving:material('#b6b8a9'),road:material('#858d8c'),line:material('#d6d5be'),grass:material('#889c72'),court:material('#b37e68'),field:material('#788d73'),roof:material('#a3a79a'),trim:material('#b2b5a7'),glass:material('#647978'),trunk:material('#766b56'),water:material('#79a6a3'),blue:material('#42a3ff',{emissive:'#1488ee',emissiveIntensity:1.4})};
+ const mats={base:material('#697374'),paving:material('#b6b8a9'),road:material('#596469'),line:material('#e5e5d9'),grass:material('#889c72'),court:material('#b37e68'),field:material('#788d73'),roof:material('#a3a79a'),trim:material('#b2b5a7'),glass:material('#647978'),trunk:material('#766b56'),water:material('#79a6a3'),curb:material('#c8cbbf')};
  const cube = new THREE.BoxGeometry(1,1,1);
  function box(g:THREE.Group,x:number,y:number,z:number,w:number,h:number,d:number,m:THREE.Material,name='') {const o=new THREE.Mesh(cube,m);o.position.set(x,y,z);o.scale.set(w,h,d);o.castShadow=true;o.receiveShadow=true;o.name=name;g.add(o);return o;}
  function rect(g:THREE.Group,x:number,z:number,w:number,d:number,m:THREE.Material,y=.5,h=.3){const [wx,wz]=world(x,z);return box(g,wx,y,wz,w*.4,h,d*.4,m);}
- function polygon(points:[number,number][],depth:number,mat:THREE.Material,y:number,g:THREE.Group){const sh=new THREE.Shape();points.forEach(([x,z],i)=>{const [wx,wz]=world(x,z);if(i===0)sh.moveTo(wx,-wz);else sh.lineTo(wx,-wz);});sh.closePath();const geo=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false});geo.rotateX(-Math.PI/2);const o=new THREE.Mesh(geo,mat);o.position.y=y;o.receiveShadow=true;o.castShadow=true;g.add(o);return o;}
+ function polygon(points:[number,number][],depth:number,mat:THREE.Material,y:number,g:THREE.Group,holes:[number,number][][]=[]){const sh=new THREE.Shape();const trace=(path:THREE.Path,contour:[number,number][])=>{contour.forEach(([x,z],i)=>{const [wx,wz]=world(x,z);if(i===0)path.moveTo(wx,-wz);else path.lineTo(wx,-wz);});path.closePath();};trace(sh,points);for(const hole of holes){const path=new THREE.Path();trace(path,hole);sh.holes.push(path);}const geo=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false});geo.rotateX(-Math.PI/2);const o=new THREE.Mesh(geo,mat);o.position.y=y;o.receiveShadow=true;o.castShadow=true;g.add(o);return o;}
  const plinth=polygon(BOUNDARY,3.5,mats.base,-3.5,root);plinth.name='Study_area_plinth';
- polygon(BOUNDARY,.15,mats.paving,0,layers.roads);
+ polygon(BOUNDARY,.18,mats.road,0,layers.roads).name='Continuous_perimeter_road';
+ polygon(STREET_INNER_EDGE,.18,mats.paving,.18,layers.roads).name='Inner_street_block';
+ polygon(BOUNDARY,.38,mats.curb,.18,layers.curbs,[insetContour(BOUNDARY,1.8)]).name='Outer_road_curb';
+ polygon(insetContour(STREET_INNER_EDGE,-1.6),.3,mats.curb,.18,layers.curbs,[STREET_INNER_EDGE]).name='Inner_road_curb';
+ polygon(insetContour(BOUNDARY,5),.025,mats.line,.195,layers.curbs,[insetContour(BOUNDARY,5.8)]).name='Road_edge_markings';
  const roads:[number,number][][]=[[[16,48],[840,48],[977,63]],[[19,482],[795,482]],[[450,91],[449,205],[445,330],[440,478]],[[100,89],[98,269],[94,393],[96,478]],[[448,329],[625,327],[676,241],[700,233],[873,238]],[[448,200],[552,202],[576,216],[590,326]],[[625,327],[674,327],[695,308],[724,249]],[[978,104],[937,173],[895,224],[859,279],[831,359],[812,424],[799,478]],[[443,341],[400,346],[281,344],[261,350],[246,383],[246,469]]];
  const roadWidths=[67,22,22,12,17,16,12,26,13];
  function strip(points:number[][],width:number,mat:THREE.Material,y:number,g:THREE.Group){for(let i=1;i<points.length;i++){const [ax,az]=world(points[i-1][0],points[i-1][1]);const [bx,bz]=world(points[i][0],points[i][1]);const dx=bx-ax,dz=bz-az;const o=box(g,(ax+bx)/2,y,(az+bz)/2,width*.4,.15,Math.hypot(dx,dz)+width*.12,mat);o.rotation.y=Math.atan2(dx,dz);}}
- roads.forEach((p,i)=>strip(p,roadWidths[i],mats.road,.28,layers.roads));
+ // Perimeter streets use the closed contour above, so no road segments project beyond the base.
+ roads.forEach((p,i)=>{if(![0,1,7].includes(i))strip(p,roadWidths[i],mats.road,.4,layers.roads);});
  for(let x=26;x<950;x+=21)rect(layers.roads,x,48,10,1.4,mats.line,.43,.08);
  for(let x=28;x<790;x+=19)rect(layers.roads,x,482,8,1,mats.line,.43,.08);
  for(let z=99;z<470;z+=22)rect(layers.roads,447,z,1,8,mats.line,.44,.08);
@@ -59,8 +65,6 @@ export function createUrbanModel() {
  const rows=Math.max(2,Math.floor((h-4)/3)),cols=Math.max(2,Math.floor((w-2)/3.1)),sideCols=Math.max(1,Math.floor((d-2)/3.1));const panels=new THREE.InstancedMesh(cube,mats.glass,rows*(cols+sideCols)*2);let n=0;const dummy=new THREE.Object3D();for(let r=0;r<rows;r++){for(const s of [-1,1]){for(let c=0;c<cols;c++){dummy.position.set((c-(cols-1)/2)*((w-2)/cols),4+r*3,s*(d/2+.04));dummy.scale.set(Math.min(1.45,(w-2)/cols*.56),1.4,.07);dummy.rotation.set(0,0,0);dummy.updateMatrix();panels.setMatrixAt(n++,dummy.matrix);}for(let c=0;c<sideCols;c++){dummy.position.set(s*(w/2+.04),4+r*3,(c-(sideCols-1)/2)*((d-2)/sideCols));dummy.scale.set(.07,1.4,Math.min(1.45,(d-2)/sideCols*.56));dummy.updateMatrix();panels.setMatrixAt(n++,dummy.matrix);}}}panels.name='Facade_windows';g.add(panels);
  for(let floor=6;floor<h-1;floor+=6){box(g,0,floor,0,w+.15,.2,d+.15,mats.trim,'Floor_band');}
  });
- // Thin continuous blue study perimeter, exported as mesh geometry.
- const boundaryPoints=BOUNDARY.map(([x,z])=>{const [wx,wz]=world(x,z);return new THREE.Vector3(wx,.65,wz);});boundaryPoints.push(boundaryPoints[0].clone());const path=new THREE.CurvePath<THREE.Vector3>();for(let i=1;i<boundaryPoints.length;i++)path.add(new THREE.LineCurve3(boundaryPoints[i-1],boundaryPoints[i]));const edge=new THREE.Mesh(new THREE.TubeGeometry(path,250,.53,6,false),mats.blue);edge.name='Map_blue_boundary';layers.boundary.add(edge);
  // Light-rail track and modest street furniture along the northern road.
  for(const off of [-6,6]){strip([[30,48+off],[850,48+off]],.65,mats.trim,.58,layers.roads);}
  for(let x=35;x<850;x+=11)rect(layers.roads,x,48,.6,15,mats.roof,.49,.1);

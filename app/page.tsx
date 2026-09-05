@@ -18,7 +18,7 @@ export default function Home() {
  const [view,setView]=useState<'iso'|'top'>('iso');
  const [mode,setMode]=useState<'material'|'clay'|'wire'>('material');
  const [selected,setSelected]=useState('lee-king');
- const [visibility,setVisibility]=useState<Record<LayerName,boolean>>({buildings:true,parks:true,roads:true,boundary:true});
+ const [visibility,setVisibility]=useState<Record<LayerName,boolean>>({buildings:true,parks:true,roads:true,curbs:true});
  const [labels,setLabels]=useState(true);
  const [heightScale,setHeightScale]=useState(1);
  const [daylight,setDaylight]=useState(13);
@@ -51,7 +51,7 @@ export default function Home() {
      <div className="layer-item"><ChevronDown size={13}/><TreePine size={16} className="green-icon"/><span>公園與綠化</span><Switch className="layer-switch" size="sm" aria-label="顯示公園與綠化" checked={visibility.parks} onCheckedChange={v=>toggle('parks',v)}/></div>
      <div className="park-item">元朗兒童遊樂場<br/>鐘聲徑遊樂場</div>
      <div className="layer-item"><ChevronRight size={13}/><Route size={16}/><span>道路與地面</span><Switch className="layer-switch" size="sm" aria-label="顯示道路與地面" checked={visibility.roads} onCheckedChange={v=>toggle('roads',v)}/></div>
-     <div className="layer-item"><ChevronRight size={13}/><Scan size={16} className="blue-icon"/><span>藍線研究範圍</span><Switch className="layer-switch" size="sm" aria-label="顯示藍色邊界" checked={visibility.boundary} onCheckedChange={v=>toggle('boundary',v)}/></div>
+     <div className="layer-item"><ChevronRight size={13}/><Scan size={16} className="curb-icon"/><span>馬路邊線</span><Switch className="layer-switch" size="sm" aria-label="顯示馬路邊線" checked={visibility.curbs} onCheckedChange={v=>toggle('curbs',v)}/></div>
     </div>
     <div className="sidebar-note"><CircleHelp size={15}/><span>依提供地圖描繪。<br/>建築高度與外觀為示意。</span></div>
    </aside>
@@ -66,11 +66,11 @@ export default function Home() {
     </div>
     <div className="scene-shell">
      <UrbanViewer ref={viewer} view={view} mode={mode} selected={selected} visibility={visibility} labels={labels} heightScale={heightScale} daylight={daylight} onSelect={setSelected} onReady={onReady}/>
-     <div className="scene-caption"><div className="eyebrow">URBAN MODEL / 01</div><h2>康樂路街區</h2><small>{view==='iso'?'等角視圖':'正上方視圖'}<span style={{padding:'0 7px',opacity:.6}}>/</span>{mode==='material'?'材質預覽':mode==='clay'?'白模預覽':'線框預覽'}</small><br/><div className="scene-tag"><span/>地圖藍線範圍</div></div>
+     <div className="scene-caption"><div className="eyebrow">URBAN MODEL / 01</div><h2>康樂路街區</h2><small>{view==='iso'?'等角視圖':'正上方視圖'}<span style={{padding:'0 7px',opacity:.6}}>/</span>{mode==='material'?'材質預覽':mode==='clay'?'白模預覽':'線框預覽'}</small><br/><div className="scene-tag"><span/>沿街道邊緣建模</div></div>
      <div className="compass"><span>N</span><div className="compass-rose"><Navigation2 data-compass size={24} strokeWidth={1.4} style={{transform:view==='iso'?'rotate(-27deg)':'none'}}/></div></div>
      <div className="navigation-tools"><button className="icon-button" aria-label="放大" title="放大 (+)" onClick={()=>viewer.current?.zoom(1.2)}><Plus size={17}/></button><button className="icon-button" aria-label="縮小" title="縮小 (-)" onClick={()=>viewer.current?.zoom(1/1.2)}><Minus size={17}/></button><button className="icon-button" aria-label="聚焦選取建築" title="聚焦選取建築" onClick={()=>viewer.current?.focus()}><Focus size={16}/></button><button className="icon-button" aria-label="重設全景" title="重設全景 (Home)" onClick={reset}><Maximize2 size={15}/></button></div>
-     <button className="reference-map" onClick={()=>setDialog('reference')} aria-label="開啟地圖與衛星圖對照"><img src="/reference-map.png" alt="使用者提供的元朗地圖及藍線範圍"/><span className="map-caption"><span>參考地圖 · 原始範圍</span><Maximize2 size={11}/></span></button>
-     <div className="canvas-legend"><span><i className="legend-dot" style={{background:'#bfc4b5'}}/>建築</span><span><i className="legend-dot" style={{background:'#91a47e'}}/>綠化</span><span><i className="legend-dot" style={{background:'#54abf4'}}/>研究範圍</span></div>
+     <button className="reference-map" onClick={()=>setDialog('reference')} aria-label="開啟地圖與衛星圖對照"><img src="/reference-map.png?v=20260905-213223" alt="本次上傳的元朗街區平面地圖"/><span className="map-caption"><span>原始地圖對照</span><Maximize2 size={11}/></span></button>
+     <div className="canvas-legend"><span><i className="legend-dot" style={{background:'#bfc4b5'}}/>建築</span><span><i className="legend-dot" style={{background:'#91a47e'}}/>綠化</span><span><i className="legend-dot" style={{background:'#d5d6c9'}}/>馬路邊線</span></div>
      <div className="view-help"><span><Mouse size={12}/>拖曳旋轉</span><span><Move size={12}/>右鍵平移</span><span><Plus size={12}/>滾輪縮放</span></div>
     </div>
    </section>
@@ -92,15 +92,16 @@ export default function Home() {
      <div className="slider-label"><span><Sun size={13}/>日照時間</span><b>{String(daylight).padStart(2,'0')}:00</b></div><Slider min={8} max={17} step={1} value={[daylight]} onValueChange={v=>setDaylight(Array.isArray(v)?v[0]:v)} aria-label="日照時間"/><div className="slider-endpoints"><span>早晨</span><span>傍晚</span></div>
      <div className="slider-label"><span>建築高度倍率</span><b>{heightScale.toFixed(2)} ×</b></div><Slider min={.4} max={2} step={.05} value={[heightScale]} onValueChange={v=>setHeightScale(Array.isArray(v)?v[0]:v)} aria-label="建築高度倍率"/><div className="slider-endpoints"><span>0.4 ×</span><span>2.0 ×</span></div>
     </section>
-    <section className="inspector-section"><h3><MapPin size={14}/>研究範圍</h3><p className="reference-detail">北至大棠路，南至教育路。<br/>西沿鐘聲徑，東沿阜財街。</p><div className="boundary-card"><Scan size={25} strokeWidth={1.4}/><div><strong>依照藍線邊界建立</strong><p>兩張參考圖片 · 概念量體</p></div></div></section>
+    <section className="inspector-section"><h3><MapPin size={14}/>研究範圍</h3><p className="reference-detail">北至大棠路，南至教育路。<br/>西沿鐘聲徑，東沿阜財街。</p><div className="boundary-card"><Scan size={25} strokeWidth={1.4}/><div><strong>沿馬路邊緣收齊</strong><p>兩張參考圖片 · 概念量體</p></div></div></section>
    </aside>
   </div>
   <footer className="status-bar"><span><span className="status-dot"/>{ready?'場景就緒':'準備中'}</span><span>{BUILDINGS.length} 組建築</span><span>2 個遊樂場</span><span className="optional-status">Y UP · 概念模型</span><button className="status-end" style={{background:'none',border:0,display:'flex',alignItems:'center',gap:6}} onClick={()=>setDialog('help')}><CircleHelp size={12}/>操作指南</button></footer>
   {toast&&<div className="toast-message" role="status">{toast}</div>}
   <Dialog open={dialog!==null} onOpenChange={open=>{if(!open&&!exporting)setDialog(null);}}><DialogContent className={'dialog-large '+(dialog==='reference'?'':'export-dialog')}>
-   {dialog==='reference'?<><DialogTitle>原始地圖對照</DialogTitle><DialogDescription>藍線定義此次建模範圍。平面地圖用於定位，衛星圖用於判讀街區形態。</DialogDescription><Tabs defaultValue="map" className="reference-tabs"><TabsList><TabsTrigger value="map">平面地圖</TabsTrigger><TabsTrigger value="satellite">衛星圖</TabsTrigger></TabsList><TabsContent value="map"><img src="/reference-map.png" alt="使用者提供的平面地圖，藍線圈選康樂路街區"/></TabsContent><TabsContent value="satellite"><img src="/reference-satellite.png" alt="使用者提供的衛星圖，藍線圈選相同街區"/></TabsContent></Tabs><p className="dialog-note">{MODEL_NOTICE}</p></>:dialog==='export'?<><DialogTitle>把街區帶進 Blender</DialogTitle><DialogDescription>匯出目前可見的場景圖層，保留建築名稱、材質及高度倍率。</DialogDescription><div className="export-format"><Box size={36} strokeWidth={1.25}/><div><strong>glTF Binary · .glb</strong><p>單一 3D 檔案，包含模型與材質。<br/>可在 Blender 中繼續編輯及儲存為 .blend。</p></div></div><ol className="export-steps"><li>下載街區模型。</li><li>在 Blender 選擇「檔案 → 匯入 → glTF 2.0」。</li><li>選取下載的 .glb 檔案，開始編輯。</li></ol><p className="dialog-note">尺寸及樓高為示意。匯出不包含參考地圖圖片、操作格線或選取外框。</p><button className="export-button" onClick={exportModel} disabled={exporting||!ready}><Download size={16}/>{exporting?'正在準備模型…':'下載 Blender 相容模型'}</button></>:<><DialogTitle>探索你的街區</DialogTitle><DialogDescription>滑鼠、觸控與鍵盤皆可操作。點選任一建築可查看其屬性。</DialogDescription><div className="help-rows"><div><Mouse size={18}/><span>左鍵拖曳 / 單指拖曳</span><b>旋轉</b></div><div><Move size={18}/><span>右鍵拖曳 / 雙指拖曳</span><b>平移</b></div><div><Plus size={18}/><span>滾輪 / 雙指縮放</span><b>縮放</b></div><div><RotateCcw size={18}/><span>Home</span><b>回到全景</b></div></div><p className="dialog-note">先點一下 3D 視窗，即可使用方向鍵平移及 + / − 縮放。俯視模式會固定旋轉方向。此網站提供 Blender 相容模型，並非 Blender 網頁版。</p></>}
+   {dialog==='reference'?<><DialogTitle>原始地圖對照</DialogTitle><DialogDescription>本次上傳的原始平面地圖與衛星圖。模型沿原定街區的道路外緣收齊。</DialogDescription><Tabs defaultValue="map" className="reference-tabs"><TabsList><TabsTrigger value="map">平面地圖</TabsTrigger><TabsTrigger value="satellite">衛星圖</TabsTrigger></TabsList><TabsContent value="map"><img src="/reference-map.png?v=20260905-213223" alt="本次上傳的平面地圖，顯示元朗康樂路街區"/></TabsContent><TabsContent value="satellite"><img src="/reference-satellite.png?v=20260905-213203" alt="本次上傳的衛星圖，顯示相同街區"/></TabsContent></Tabs><p className="dialog-note">{MODEL_NOTICE}</p></>:dialog==='export'?<><DialogTitle>把街區帶進 Blender</DialogTitle><DialogDescription>匯出目前可見的場景圖層，保留建築名稱、材質及高度倍率。</DialogDescription><div className="export-format"><Box size={36} strokeWidth={1.25}/><div><strong>glTF Binary · .glb</strong><p>單一 3D 檔案，包含模型與材質。<br/>可在 Blender 中繼續編輯及儲存為 .blend。</p></div></div><ol className="export-steps"><li>下載街區模型。</li><li>在 Blender 選擇「檔案 → 匯入 → glTF 2.0」。</li><li>選取下載的 .glb 檔案，開始編輯。</li></ol><p className="dialog-note">尺寸及樓高為示意。匯出不包含參考地圖圖片、操作格線或選取外框。</p><button className="export-button" onClick={exportModel} disabled={exporting||!ready}><Download size={16}/>{exporting?'正在準備模型…':'下載 Blender 相容模型'}</button></>:<><DialogTitle>探索你的街區</DialogTitle><DialogDescription>滑鼠、觸控與鍵盤皆可操作。點選任一建築可查看其屬性。</DialogDescription><div className="help-rows"><div><Mouse size={18}/><span>左鍵拖曳 / 單指拖曳</span><b>旋轉</b></div><div><Move size={18}/><span>右鍵拖曳 / 雙指拖曳</span><b>平移</b></div><div><Plus size={18}/><span>滾輪 / 雙指縮放</span><b>縮放</b></div><div><RotateCcw size={18}/><span>Home</span><b>回到全景</b></div></div><p className="dialog-note">先點一下 3D 視窗，即可使用方向鍵平移及 + / − 縮放。俯視模式會固定旋轉方向。此網站提供 Blender 相容模型，並非 Blender 網頁版。</p></>}
   </DialogContent></Dialog>
  </main>;
 }
+
 
 

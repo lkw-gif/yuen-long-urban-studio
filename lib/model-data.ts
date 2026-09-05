@@ -1,6 +1,9 @@
 export type Building = { id: string; name: string; en: string; x: number; z: number; w: number; d: number; h: number; rotation?: number; named?: boolean };
 // Normalized coordinates traced from the supplied map. Horizontal scale and all heights are illustrative.
-export const BOUNDARY: [number, number][] = [[12,8],[288,9],[414,5],[840,6],[899,20],[990,27],[997,82],[994,103],[969,135],[943,164],[920,189],[895,233],[870,290],[851,342],[835,391],[819,447],[808,497],[15,498],[8,481],[10,335],[7,170],[9,35]];
+// Clean road-aligned outer edge, retaining the original study area and eastern street turns.
+export const BOUNDARY: [number, number][] = [[12,14],[840,14],[991,31],[994,90],[949,163],[907,216],[871,275],[844,356],[827,422],[812,494],[12,494]];
+// Inner pavement edge: the area between these two contours is the continuous perimeter road/path.
+export const STREET_INNER_EDGE: [number, number][] = [[24,84],[841,84],[967,90],[927,153],[884,207],[849,267],[823,350],[806,417],[789,470],[24,470]];
 export const BUILDINGS: Building[] = [
  {id:'lee-king',name:'利景樓',en:'Lee King Building',x:530,z:171,w:118,d:36,h:30,named:true},
  {id:'cheung-fat',name:'祥發大廈',en:'Cheung Fat Building',x:674,z:172,w:126,d:36,h:34,named:true},
