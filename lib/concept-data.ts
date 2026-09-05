@@ -1,11 +1,12 @@
 import type { Building } from './model-data';
+import { sitePath } from './site-path';
 export type ConceptId='vibrant'|'skybridge'|'vertical';
 export type ConceptBuilding=Building & {kind:'white'|'blue'|'wood'|'brown'|'cylinder'|'station';feature?:boolean};
 export type Bridge={points:[number,number,number][];width:number;covered?:boolean};
 export type Concept={id:ConceptId;name:string;en:string;description:string;image:string;accent:string;buildings:ConceptBuilding[];bridges:Bridge[];features:string[];initial:string;};
 const building=(id:string,name:string,x:number,z:number,w:number,d:number,h:number,kind:ConceptBuilding['kind']='white',feature=false):ConceptBuilding=>({id,name,en:name,x,z,w,d,h,kind,feature});
 function blocks(prefix:string,items:number[][],kind:ConceptBuilding['kind']='white'):ConceptBuilding[]{return items.map((v,i)=>building(prefix+'-'+i,(kind==='blue'?'藍色地標塔樓':kind==='brown'?'組合式建築':'住宅建築')+' '+(i+1),v[0],v[1],v[2],v[3],v[4],kind));}
-const vibrant:Concept={id:'vibrant',name:'生活社區',en:'LIVING COMMUNITY',description:'河岸步道串連生活，商場、運動場與社區中心成為街區核心。',image:'/concepts/vibrant.png',accent:'#b99b6b',initial:'v-mall',features:['河岸休憩與小型木屋','商場、社區中心及體育館','高低錯落的住宅街廓'],buildings:[
+const vibrant:Concept={id:'vibrant',name:'生活社區',en:'LIVING COMMUNITY',description:'河岸步道串連生活，商場、運動場與社區中心成為街區核心。',image:sitePath('/concepts/vibrant.png'),accent:'#b99b6b',initial:'v-mall',features:['河岸休憩與小型木屋','商場、社區中心及體育館','高低錯落的住宅街廓'],buildings:[
  building('v-mall','購物商場',385,292,188,134,30,'wood',true),building('v-sports','體育館',366,476,130,94,23,'wood',true),building('v-community','社區中心',598,338,76,67,18,'wood',true),
  ...blocks('v-north',[[280,102,40,42,38],[327,90,32,34,49],[368,137,26,31,20],[428,91,26,30,57],[478,107,59,39,31],[470,166,54,37,33]]),
  ...blocks('v-east',[[581,110,37,43,46],[625,127,31,36,39],[603,197,57,34,30],[632,254,29,37,46],[565,258,25,29,24],[748,237,33,39,42],[780,104,27,32,36],[906,88,28,32,51],[913,159,39,45,42],[728,351,85,45,34],[854,347,30,39,49],[702,475,30,37,35],[820,480,27,38,40],[592,472,47,40,29],[651,471,39,40,27],[617,557,85,42,30],[809,555,44,41,22],[904,546,65,57,42]]),
@@ -14,7 +15,7 @@ const vibrant:Concept={id:'vibrant',name:'生活社區',en:'LIVING COMMUNITY',de
  ...blocks('v-gold',[[695,246,32,38,45],[800,384,28,39,42]],'wood'),
  ...[95,187,303,415,523].flatMap((z,i)=>[building('v-bank-left-'+i,'河岸木屋 '+(i*2+1),40,z,31,33,11,'wood'),building('v-bank-right-'+i,'河岸木屋 '+(i*2+2),183,z+18,36,36,13,'wood')]),
  ],bridges:[{points:[[45,195,5],[170,195,5]],width:12},{points:[[45,412,5],[170,412,5]],width:12}],};
-const skybridge:Concept={id:'skybridge',name:'天橋社區',en:'SKYBRIDGE COMMUNITY',description:'以架空步道連接河岸、運動中心、商場與社區樞紐。',image:'/concepts/skybridge.png',accent:'#a2b8c0',initial:'s-hub',features:['連續架空步道網絡','八角形社區樞紐','公共設施與住宅的立體連接'],buildings:[
+const skybridge:Concept={id:'skybridge',name:'天橋社區',en:'SKYBRIDGE COMMUNITY',description:'以架空步道連接河岸、運動中心、商場與社區樞紐。',image:sitePath('/concepts/skybridge.png'),accent:'#a2b8c0',initial:'s-hub',features:['連續架空步道網絡','八角形社區樞紐','公共設施與住宅的立體連接'],buildings:[
  building('s-sports','運動中心',408,186,131,98,26,'wood',true),building('s-mall','購物商場',751,251,173,117,29,'wood',true),building('s-hub','社區樞紐',545,349,89,85,23,'wood',true),building('s-round','圓形地標大樓',575,168,46,46,42,'cylinder',true),
  ...blocks('s-white',[[211,92,67,31,24],[275,91,32,30,22],[204,168,31,36,44],[265,173,35,37,43],[202,262,46,45,38],[265,259,44,44,40],[389,85,47,32,26],[452,83,48,33,26],[561,77,30,32,28],[602,81,30,31,31],[650,80,37,33,29],[690,75,39,38,35],[773,83,31,36,42],[814,81,28,32,44],[853,89,34,35,39],[902,93,35,32,28],[947,95,29,33,28],[773,164,36,34,26],[860,166,49,33,27],[925,167,40,31,25],[970,211,29,36,23],[388,353,32,33,35],[440,345,34,34,42],[384,411,36,33,33],[451,409,41,35,32],[222,529,58,36,25],[367,485,39,38,34],[414,482,34,35,31],[460,482,31,32,31],[365,553,36,37,29],[606,574,41,38,27],[670,574,40,39,26],[777,563,34,35,30],[844,571,51,34,29],[910,572,44,38,32],[958,496,28,38,37],[956,325,27,37,23]]),
  ...blocks('s-blue',[[695,370,36,40,54],[755,354,36,40,61],[820,377,39,40,55],[889,365,38,40,60],[640,470,38,44,58],[725,499,37,42,61],[835,500,40,45,60],[908,510,38,45,63],[283,531,48,41,26],[434,555,52,46,30]],'blue'),
@@ -31,7 +32,7 @@ const skybridge:Concept={id:'skybridge',name:'天橋社區',en:'SKYBRIDGE COMMUN
  {points:[[840,290,19],[870,290,19],[925,337,19],[925,527,19],[888,541,19],[800,541,19]],width:13,covered:true},
  {points:[[470,550,10],[499,520,19],[500,456,19]],width:11,covered:true},
  ],};
-const vertical:Concept={id:'vertical',name:'垂直城市',en:'VERTICAL CITY',description:'密集高樓、多層空中連廊與交通樞紐，組成向上發展的城市。',image:'/concepts/vertical.png',accent:'#899bda',initial:'t-station',features:['高密度塔樓與混合用途街廓','高低兩層的空中連接','拱形交通樞紐與公共設施'],buildings:[
+const vertical:Concept={id:'vertical',name:'垂直城市',en:'VERTICAL CITY',description:'密集高樓、多層空中連廊與交通樞紐，組成向上發展的城市。',image:sitePath('/concepts/vertical.png'),accent:'#899bda',initial:'t-station',features:['高密度塔樓與混合用途街廓','高低兩層的空中連接','拱形交通樞紐與公共設施'],buildings:[
  building('t-sports','體育館',262,475,103,82,24,'wood',true),building('t-mall','購物商場',744,547,132,90,28,'wood',true),building('t-station','交通樞紐',559,538,73,115,16,'station',true),
  ...blocks('t-landmark',[[373,135,32,36,106],[439,125,29,33,119],[536,128,35,40,147],[647,160,32,37,128],[718,119,28,31,134],[323,297,29,35,100],[402,322,31,34,112],[505,340,28,31,96],[637,339,29,32,118],[730,367,31,34,106],[833,296,32,35,103],[800,460,32,35,114],[410,493,31,35,105]]),
  ...blocks('t-blue',[[488,162,35,40,110],[824,99,41,47,103],[779,270,36,44,95],[455,433,38,44,101],[883,351,34,42,79]],'blue'),
