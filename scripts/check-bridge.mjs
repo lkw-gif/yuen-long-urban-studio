@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createBridgeLessonModel, BRIDGE_SIZE } from '../lib/bridge-model.ts';
+import { createBridgeLessonModel, BRIDGE_SIZE, BRIDGE_LAYOUT } from '../lib/bridge-model.ts';
 import { disposeScene } from '../lib/three-disposal.ts';
 import { exportSceneBinary } from '../lib/export-scene.ts';
 
@@ -20,14 +20,48 @@ for (let step = 0; step < 8; step++) {
   model.stages.forEach((group, index) => assert.equal(group.visible, index <= step));
 }
 model.update(7, false, false);
-assert.equal(bounds('Plywood_deck_200x60x2').getSize(new THREE.Vector3()).x, BRIDGE_SIZE.deckLength);
-assert.equal(bounds('Plywood_deck_200x60x2').min.y, 58);
-assert.equal(bounds('Plywood_deck_200x60x2').max.y, BRIDGE_SIZE.deckTop);
-assert.ok(Math.abs(bounds('Canopy_crossbeam_60mm').max.y + .2 - bounds('Clear_roof_220x80x1').min.y) < 1e-6, 'Roof rests on 0.2 mm tape above beams');
+const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-5, `${actual} ≈ ${expected}`);
+for (const name of ['Acrylic_main_deck', 'Acrylic_branch_deck', ...['A', 'B', 'C'].map(id => `Acrylic_building_${id}_landing`)]) {
+  near(bounds(name).min.y, BRIDGE_SIZE.deckBottom);
+  near(bounds(name).max.y, BRIDGE_SIZE.deckTop);
+  const mesh = model.root.getObjectByName(name);
+  assert.ok(mesh.material.transparent && mesh.material.opacity < .5, `${name}: transparent acrylic`);
+}
+near(bounds('Bamboo_crossbearer').max.y, BRIDGE_SIZE.deckBottom);
+near(bounds('Bamboo_support_column').max.y, 67.8);
+near(bounds('Bamboo_support_column').min.y, 0);
+near(bounds('Acrylic_building_A_landing').min.x, -140);
+near(bounds('Acrylic_building_B_landing').max.x, 128);
+near(bounds('Acrylic_building_C_landing').max.z, 87);
+assert.ok(!model.root.getObjectByName('Clear_roof_220x80x1'), 'No canopy or plywood deck in the new design');
+// Walk each route's centreline. Ray intersections prove decks remain continuous
+// through both bends, the three-way junction and all three building thresholds.
+const decks = [];
+model.root.traverse(o => { if (o.isMesh && /Acrylic_(main_deck|branch_deck|building_.*_landing)/.test(o.name)) decks.push(o); });
+const routes = [[[-139.99,-24],[-20,-24],[56,-85],[127.99,-85]], [[-20,-24],[42,26],[42,86.99]]];
+for (const route of routes) for (let i = 0; i < route.length - 1; i++) {
+  const a = route[i], b = route[i+1];
+  for (let t = .001; t < 1; t += .025) {
+    const x = a[0]+(b[0]-a[0])*t, z = a[1]+(b[1]-a[1])*t;
+    const ray = new THREE.Raycaster(new THREE.Vector3(x, 100, z), new THREE.Vector3(0,-1,0));
+    assert.ok(ray.intersectObjects(decks).length, `Connected walkway at ${x}, ${z}`);
+  }
+}
+function crosses(a,b,c,d) {
+  const u=[b[0]-a[0],b[1]-a[1]], v=[d[0]-c[0],d[1]-c[1]], determinant=u[0]*v[1]-u[1]*v[0];
+  if (Math.abs(determinant)<1e-6) return false;
+  const t=((c[0]-a[0])*v[1]-(c[1]-a[1])*v[0])/determinant;
+  const s=((c[0]-a[0])*u[1]-(c[1]-a[1])*u[0])/determinant;
+  return t>0 && t<1 && s>=0 && s<=1;
+}
+for (const run of [...BRIDGE_LAYOUT.guardRuns, ...BRIDGE_LAYOUT.entrances.flatMap(e => e.rails)]) for (let i=0;i<run.length-1;i++) {
+  for (const route of routes) for (let j=0;j<route.length-1;j++) assert.ok(!crosses(route[j],route[j+1],run[i],run[i+1]), 'Side panels do not block an entrance or the junction');
+}
 const originalMaterials = new Map();
 model.root.traverse(o => { if (o.isMesh) originalMaterials.set(o, o.material); });
 model.update(3, true, true);
-assert.equal(model.stages[3].position.y, 38);
+assert.equal(model.stages[3].position.y, 26);
+assert.ok(model.root.getObjectByName('Acrylic_main_deck').material.transparent, 'Highlight preserves transparency');
 model.update(7, false, false);
 for (const [mesh, material] of originalMaterials) assert.equal(mesh.material, material, 'Highlight restores materials');
 assert.ok(model.stages.every(group => group.position.y === 0), 'Assembly resets exploded offsets');
@@ -48,11 +82,11 @@ async function glb(step) {
   return json.nodes.map(node => node.name);
 }
 const first = await glb(0), last = await glb(7);
-assert.ok(!first.includes('Clear_roof_220x80x1'));
-assert.ok(last.includes('Clear_roof_220x80x1'));
-assert.ok(last.includes('Toothpick_diagonal_A'));
+assert.ok(!first.includes('Acrylic_main_deck'));
+assert.ok(last.includes('Acrylic_side_panel'));
+assert.ok(last.includes('Bamboo_support_column'));
 model.update(0, false, false);
-assert.ok(!visibleNames().includes('Plywood_deck_200x60x2'), 'Going backward hides later stages');
+assert.ok(!visibleNames().includes('Acrylic_main_deck'), 'Going backward hides later stages');
 const scene = new THREE.Group();
 const instance = new THREE.InstancedMesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial(), 1);
 let disposedInstance = false, disposedShadow = false;
@@ -62,4 +96,4 @@ scene.add(instance, sun, model.root);
 disposeScene(scene);
 assert.ok(disposedInstance && disposedShadow, 'Instance buffers and shadow targets are released');
 model.materials.forEach(material => material.dispose());
-console.log('Passed: 8 progressive stages, dimensions, assembly, highlights, GLB units/visibility, finite geometry and GPU cleanup.');
+console.log('Passed: 8 stages, connected routes, open junction, bamboo supports, transparent acrylic, GLB units/visibility and GPU cleanup.');

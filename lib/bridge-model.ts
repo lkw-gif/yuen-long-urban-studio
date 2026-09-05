@@ -1,86 +1,149 @@
 import * as THREE from 'three';
 
-// Model units are millimetres. Y is up; the bridge runs along X.
-export const BRIDGE_SIZE = { deckLength: 200, deckWidth: 60, deckTop: 60, clearSpan: 160, canopyTop: 112 };
+type Point = [number, number];
+// Millimetres, Y up. Three routes meet at an open junction.
+const MAIN: Point[] = [[-128, -24], [-20, -24], [56, -85], [116, -85]];
+const BRANCH: Point[] = [[-20, -24], [42, 26], [42, 75]];
+export const BRIDGE_SIZE = { width: 26, deckBottom: 74, deckTop: 76, guardTop: 88, baseWidth: 440, baseDepth: 320 };
+function intersection(a: Point, b: Point, c: Point, d: Point): Point {
+  const ux = b[0] - a[0], uz = b[1] - a[1], vx = d[0] - c[0], vz = d[1] - c[1];
+  const t = ((c[0] - a[0]) * vz - (c[1] - a[1]) * vx) / (ux * vz - uz * vx);
+  return [a[0] + t * ux, a[1] + t * uz];
+}
+function banks(points: Point[], width: number) {
+  const offset = (side: number) => {
+    const lines = points.slice(0, -1).map((a, i) => {
+      const b = points[i + 1], length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const dx = -(b[1] - a[1]) / length * width / 2 * side, dz = (b[0] - a[0]) / length * width / 2 * side;
+      return [[a[0] + dx, a[1] + dz], [b[0] + dx, b[1] + dz]] as [Point, Point];
+    });
+    return [lines[0][0], ...lines.slice(1).map((line, i) => intersection(...lines[i], ...line)), lines.at(-1)![1]];
+  };
+  return { left: offset(1), right: offset(-1) };
+}
+const main = banks(MAIN, 26), branch = banks(BRANCH, 26);
+const leftJoin = intersection(branch.left[0], branch.left[1], main.left[0], main.left[1]);
+const rightJoin = intersection(branch.right[0], branch.right[1], main.left[1], main.left[2]);
+const mainOutline = [...main.left, ...[...main.right].reverse()];
+// Shared seam, without overlapping transparent surfaces at the junction.
+const branchOutline = [leftJoin, ...branch.left.slice(1), ...branch.right.slice(1).reverse(), rightJoin, main.left[1]];
+const guardRuns: Point[][] = [[main.left[0], leftJoin, ...branch.left.slice(1)], [...branch.right.slice(1).reverse(), rightJoin, ...main.left.slice(2)], [...main.right].reverse()];
+const entrances = [
+  { id: 'A', outline: [[-140, -11], [-128, -11], [-128, -37], [-140, -37]] as Point[], rails: [[[-140, -11], [-128, -11]], [[-140, -37], [-128, -37]]] as Point[][] },
+  { id: 'B', outline: [[116, -72], [128, -72], [128, -98], [116, -98]] as Point[], rails: [[[116, -72], [128, -72]], [[116, -98], [128, -98]]] as Point[][] },
+  { id: 'C', outline: [[29, 75], [29, 87], [55, 87], [55, 75]] as Point[], rails: [[[29, 75], [29, 87]], [[55, 75], [55, 87]]] as Point[][] },
+];
+export const BRIDGE_LAYOUT = { main: mainOutline, branch: branchOutline, guardRuns, entrances };
 
 export function createBridgeLessonModel() {
-  const root = new THREE.Group();
-  root.name = 'School_Skybridge_200mm';
-  root.userData = { units: 'millimetres', deckLength: 200, clearSpan: 160, purpose: 'Display model only' };
-  const stages = Array.from({ length: 8 }, (_, i) => {
-    const group = new THREE.Group(); group.name = `Step_${i + 1}`; root.add(group); return group;
-  });
-  const wood = new THREE.MeshStandardMaterial({ color: '#c4a36d', roughness: .8 });
-  const card = new THREE.MeshStandardMaterial({ color: '#c3c3b8', roughness: .9 });
-  const deck = new THREE.MeshStandardMaterial({ color: '#ddc397', roughness: .8 });
-  const blue = new THREE.MeshStandardMaterial({ color: '#578c93', roughness: .6 });
-  const glass = new THREE.MeshStandardMaterial({ color: '#a5dae1', transparent: true, opacity: .38, roughness: .22, metalness: .05, depthWrite: false, side: THREE.DoubleSide });
-  const paper = new THREE.MeshStandardMaterial({ color: '#f5f0df', roughness: 1 });
-  const orange = new THREE.MeshStandardMaterial({ color: '#f3ab63', roughness: .7 });
-  const highlightedGlass = glass.clone(); highlightedGlass.color.set('#f3ab63');
+  const root = new THREE.Group(); root.name = 'Hong_Kong_Acrylic_Skybridge';
+  root.userData = { units: 'millimetres', buildingsConnected: 3, purpose: 'Architectural display model' };
+  const stages = Array.from({ length: 8 }, (_, i) => { const group = new THREE.Group(); group.name = `Step_${i + 1}`; root.add(group); return group; });
+  const material = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: .8 });
+  const bamboo = material('#c7a574'), bambooNode = material('#ab8c62'), white = material('#e5e3d9'), facade = material('#9baaaa'), ground = material('#c8c5b7'), road = material('#777d7c'), green = material('#74866a'), darkGreen = material('#52644c'), orange = material('#eeae73');
+  const acrylic = new THREE.MeshPhysicalMaterial({ color: '#c6e0de', transparent: true, opacity: .18, roughness: .16, metalness: .02, depthWrite: false, side: THREE.DoubleSide });
+  const edge = new THREE.MeshStandardMaterial({ color: '#d3e6e1', transparent: true, opacity: .74, roughness: .4, depthWrite: false });
+  const highlightedGlass = acrylic.clone(); highlightedGlass.color.set('#efd1a4'); highlightedGlass.opacity = .4;
   const cube = new THREE.BoxGeometry(1, 1, 1);
-  function box(step: number, name: string, size: number[], pos: number[], material: THREE.Material) {
-    const mesh = new THREE.Mesh(cube, material); mesh.name = name;
-    mesh.scale.set(size[0], size[1], size[2]); mesh.position.set(pos[0], pos[1], pos[2]);
-    mesh.castShadow = material !== glass; mesh.receiveShadow = true; stages[step].add(mesh); return mesh;
+  const materials = [bamboo, bambooNode, white, facade, ground, road, green, darkGreen, acrylic, edge, orange, highlightedGlass];
+  function box(stage: number, name: string, size: [number, number, number], pos: [number, number, number], mat: THREE.Material) {
+    const mesh = new THREE.Mesh(cube, mat); mesh.name = name; mesh.scale.set(...size); mesh.position.set(...pos);
+    mesh.castShadow = mat !== acrylic && mat !== edge; mesh.receiveShadow = true; stages[stage].add(mesh); return mesh;
   }
-  function rod(step: number, name: string, a: number[], b: number[], radius = .8) {
-    const start = new THREE.Vector3(...a as [number, number, number]);
-    const end = new THREE.Vector3(...b as [number, number, number]);
-    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, start.distanceTo(end), 8), wood);
-    mesh.name = name; mesh.position.copy(start).add(end).multiplyScalar(.5);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.sub(start).normalize());
-    mesh.castShadow = true; stages[step].add(mesh); return mesh;
+  function rod(stage: number, name: string, a: [number, number, number], b: [number, number, number], radius = 1.6, mat: THREE.Material = bamboo) {
+    const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b);
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, start.distanceTo(end), 12), mat);
+    mesh.name = name; mesh.position.copy(start).add(end).multiplyScalar(.5); mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.sub(start).normalize());
+    mesh.castShadow = mat === bamboo; stages[stage].add(mesh); return mesh;
   }
-  box(0, 'Base_320x180x5', [320, 5, 180], [0, -2.5, 0], card);
-  // Pencil layout marks remain visible around the bridge.
-  for (const x of [-100, 100]) box(0, 'Deck_layout_mark', [.5, .1, 72], [x, .12, 0], blue);
-  for (const z of [-30, 30]) box(0, 'Deck_layout_mark', [220, .1, .5], [0, .12, z], blue);
-  for (const x of [-90, 90]) {
-    box(1, 'Pier_front_wall', [20, 58, 2], [x, 29, -29], card);
-    box(1, 'Pier_back_wall', [20, 58, 2], [x, 29, 29], card);
-    for (const dx of [-9, 9]) box(1, 'Pier_side_wall', [2, 58, 56], [x + dx, 29, 0], card);
-    box(1, 'Pier_top_cap', [16, 2, 56], [x, 57, 0], card);
+  function slab(stage: number, name: string, outline: Point[], bottom: number, thickness: number, mat: THREE.Material) {
+    const shape = new THREE.Shape(); outline.forEach(([x, z], i) => i ? shape.lineTo(x, -z) : shape.moveTo(x, -z)); shape.closePath();
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false, steps: 1 }); geometry.rotateX(-Math.PI / 2);
+    const mesh = new THREE.Mesh(geometry, mat); mesh.name = name; mesh.position.y = bottom; mesh.receiveShadow = mat !== acrylic; mesh.castShadow = mat !== acrylic;
+    if (mat === acrylic) { mesh.renderOrder = 2; mesh.userData.acrylic = true; }
+    stages[stage].add(mesh); return mesh;
   }
-  box(2, 'Plywood_deck_200x60x2', [200, 2, 60], [0, 59, 0], deck);
-  for (const z of [-28, 28]) {
-    for (const x of [-100, -50, 0, 50, 100]) {
-      box(3, 'Timber_post_50mm', [2, 50, 2], [x, 85, z], wood);
-      box(3, 'Paper_L_tab_foot', [8, .4, 8], [x, 60.2, z], paper);
-      box(3, 'Paper_L_tab_upright', [6, 8, .4], [x, 64, z + 1.2], paper);
+  function line(stage: number, name: string, a: Point, b: Point, y: number, width: number, height: number, mat: THREE.Material) {
+    const mesh = box(stage, name, [Math.hypot(b[0] - a[0], b[1] - a[1]), height, width], [(a[0] + b[0]) / 2, y, (a[1] + b[1]) / 2], mat);
+    mesh.rotation.y = -Math.atan2(b[1] - a[1], b[0] - a[0]); return mesh;
+  }
+  function outlineEdge(stage: number, outline: Point[]) { outline.forEach((a, i) => line(stage, 'Polished_deck_edge', a, outline[(i + 1) % outline.length], 75, .55, 2, edge)); }
+  function guard(stage: number, a: Point, b: Point) {
+    const count = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 28);
+    const at = (i: number): Point => [a[0] + (b[0] - a[0]) * i / count, a[1] + (b[1] - a[1]) * i / count];
+    for (let i = 0; i < count; i++) {
+      const panel = line(stage, 'Acrylic_side_panel', at(i), at(i + 1), 82, .85, 12, acrylic); panel.renderOrder = 3; panel.userData.acrylic = true;
     }
-    const side = Math.sign(z);
-    for (const y of [61, 90]) box(3, 'Side_rail_200mm', [200, 2, 2], [0, y, z + side * 2], wood);
-    for (let x = -100; x < 100; x += 50) {
-      rod(3, 'Toothpick_diagonal_A', [x, 60, z + side * 3.8], [x + 50, 90, z + side * 3.8]);
-      rod(3, 'Toothpick_diagonal_B', [x, 90, z - side * 1.8], [x + 50, 60, z - side * 1.8]);
-    }
+    line(stage, 'Polished_guard_top', a, b, 88, .65, .65, edge);
+    for (let i = 0; i <= count; i++) { const p = at(i); rod(stage, 'Clear_panel_joint', [p[0], 76, p[1]], [p[0], 88, p[1]], .4, edge); }
   }
-  for (const z of [-30, 30]) box(4, 'Canopy_longitudinal_rail', [200, 2, 2], [0, 109, z], wood);
-  for (const x of [-100, -50, 0, 50, 100]) box(4, 'Canopy_crossbeam_60mm', [2, 2, 60], [x, 111, 0], wood);
-  box(5, 'Clear_roof_220x80x1', [220, 1, 80], [0, 112.7, 0], glass);
-  for (const x of [-100, 100]) for (const z of [-27, 27]) box(5, 'Removable_roof_tape', [2, .2, 5], [x, 112.1, z], blue);
-  for (const x of [-110, 110]) box(6, 'Building_connection_landing', [20, 60, 60], [x, 30, 0], card);
-  for (let x = -105; x < 110; x += 15) box(6, 'Paper_wayfinding_line', [8, .1, 1.2], [x, 60.3, 0], paper);
-  box(6, 'Paper_person_body', [5, 13, 1], [15, 66.5, 7], blue);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(2.7, 12, 8), blue); head.position.set(15, 76, 7); head.name = 'Paper_person_head'; stages[6].add(head);
-  box(6, 'Bridge_sign', [28, 8, 1], [0, 102, -30], blue);
-  // An empty folded paper card is a placement check, not a load rating.
-  box(7, 'Empty_paper_check_card', [26, .4, 18], [-22, 60.4, 0], orange);
-  for (const x of [-90, 90]) box(7, 'Inspection_marker', [8, .2, 8], [x, .3, 40], orange);
-  const offsets = [0, 10, 24, 38, 50, 64, 0, 24];
-  const highlights = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
+  box(0, 'Model_base', [440, 5, 320], [0, -2.5, 0], ground);
+  const avenue: Point[] = [[-85, 155], [-85, -40], [-50, -105], [-50, -155]];
+  const street = banks(avenue, 33); slab(0, 'Street_below_bridge', [...street.left, ...street.right.reverse()], .05, .2, road);
+  avenue.slice(0, -1).forEach((a, i) => {
+    const b = avenue[i + 1], distance = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    for (let d = 3; d < distance - 6; d += 17) {
+      const at = (t: number): Point => [a[0] + (b[0] - a[0]) * t / distance, a[1] + (b[1] - a[1]) * t / distance];
+      line(0, 'Road_marking', at(d), at(d + 7), .32, .65, .1, white);
+    }
+  });
+  function building(id: string, x: number, z: number, w: number, d: number, h: number) {
+    box(0, `Building_${id}_core`, [w - 14, h, d - 14], [x, h / 2, z], facade);
+    box(0, `Building_${id}_plinth`, [w + 8, 1.5, d + 8], [x, .75, z], white);
+    for (let y = 3; y < h; y += 24) {
+      box(0, `Building_${id}_floor`, [w, 2, d], [x, y, z], white);
+      // Balcony at Y=76 is the bridge entrance, without a planter across it.
+      if (y !== 75) for (const side of [-1, 1]) box(0, `Building_${id}_green_terrace`, [w - 14, 2.5, 4], [x, y + 2.2, z + side * (d / 2 - 4)], green);
+    }
+    for (let dx = -w / 2 + 13; dx < w / 2 - 6; dx += 12) for (const side of [-1, 1]) box(0, `Building_${id}_facade_mullion`, [1.15, h - 3, 1.15], [x + dx, h / 2, z + side * (d / 2 - 6.8)], white);
+    box(0, `Building_${id}_roof`, [w, 2, d], [x, h + 1, z], white);
+    box(0, `Building_${id}_roof_garden`, [w - 12, 1.5, d - 12], [x, h + 2.7, z], green);
+    box(0, `Building_${id}_roof_core`, [w * .36, 9, d * .35], [x - 4, h + 6, z - 3], white);
+  }
+  building('A', -170, -24, 60, 72, 124); building('B', 162, -85, 68, 64, 148); building('C', 42, 112, 82, 50, 100);
+  for (const [x, z] of [[-168, 86], [-145, 107], [144, 37], [161, 61], [121, 124], [-10, -120]]) {
+    box(0, 'Street_planter', [14, 1, 14], [x, .8, z], green); rod(0, 'Tree_trunk', [x, 1, z], [x, 13, z], 1.4, bambooNode);
+    const tree = new THREE.Mesh(new THREE.IcosahedronGeometry(8, 1), darkGreen); tree.position.set(x, 17, z); tree.name = 'Street_tree'; tree.castShadow = true; stages[0].add(tree);
+  }
+  const supports: { p: Point; n: Point }[] = [];
+  const addSupports = (path: Point[], locations: [number, number][]) => locations.forEach(([index, t]) => {
+    const a = path[index], b = path[index + 1], length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    supports.push({ p: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], n: [-(b[1] - a[1]) / length, (b[0] - a[0]) / length] });
+  });
+  addSupports(MAIN, [[0, .15], [0, .58], [1, .16], [1, .7], [2, .64]]); addSupports(BRANCH, [[0, .6], [1, .5]]);
+  for (const { p, n } of supports) {
+    for (const sign of [-1, 1]) {
+      const x = p[0] + n[0] * 9 * sign, z = p[1] + n[1] * 9 * sign;
+      rod(1, 'Bamboo_support_column', [x, 0, z], [x, 67.8, z], 1.7);
+      for (const y of [18, 39, 60]) rod(1, 'Bamboo_node', [x, y, z], [x, y + .7, z], 1.83, bambooNode);
+      rod(7, 'Bamboo_knee_brace', [x, 49, z], [p[0] + n[0] * 3 * sign, 70.8, p[1] + n[1] * 3 * sign], 1.05);
+    }
+    rod(2, 'Bamboo_crossbearer', [p[0] - n[0] * 14, 72.4, p[1] - n[1] * 14], [p[0] + n[0] * 14, 72.4, p[1] + n[1] * 14], 1.6);
+  }
+  for (const path of [MAIN, BRANCH]) {
+    const beams = banks(path, 18);
+    for (const bank of [beams.left, beams.right]) bank.slice(0, -1).forEach((a, i) => rod(2, 'Bamboo_longitudinal_bearer', [a[0], 69.3, a[1]], [bank[i + 1][0], 69.3, bank[i + 1][1]], 1.5));
+  }
+  slab(3, 'Acrylic_main_deck', mainOutline, 74, 2, acrylic); outlineEdge(3, mainOutline);
+  slab(4, 'Acrylic_branch_deck', branchOutline, 74, 2, acrylic); outlineEdge(4, branchOutline);
+  for (const run of guardRuns) run.slice(0, -1).forEach((a, i) => guard(5, a, run[i + 1]));
+  for (const entrance of entrances) {
+    slab(6, `Acrylic_building_${entrance.id}_landing`, entrance.outline, 74, 2, acrylic); entrance.rails.forEach(([a, b]) => guard(6, a, b));
+  }
+  box(6, 'Building_A_recessed_entry', [.3, 18, 15], [-146.85, 85, -24], road);
+  box(6, 'Building_B_recessed_entry', [.3, 18, 15], [134.85, 85, -85], road);
+  box(6, 'Building_C_recessed_entry', [15, 18, .3], [42, 85, 93.85], road);
+  const originals = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>(), offsets = [0, 0, 14, 26, 26, 44, 26, 0];
   function update(step: number, exploded: boolean, highlight: boolean) {
-    for (const [mesh, original] of highlights) mesh.material = original;
-    highlights.clear();
+    for (const [mesh, mat] of originals) mesh.material = mat;
+    originals.clear();
     stages.forEach((group, i) => {
       group.visible = i <= step; group.position.y = exploded ? offsets[i] : 0;
-      if (i === step && highlight && step < 7) group.traverse(object => {
-        if (object instanceof THREE.Mesh) { highlights.set(object, object.material); object.material = object.material === glass ? highlightedGlass : orange; }
+      if (i === step && highlight && step > 0 && step < 7) group.traverse(o => {
+        if (o instanceof THREE.Mesh) { originals.set(o, o.material); o.material = o.userData.acrylic ? highlightedGlass : orange; }
       });
-    });
-    root.updateMatrixWorld(true);
+    }); root.updateMatrixWorld(true);
   }
   update(0, false, false);
-  return { root, stages, update, materials: [wood, card, deck, blue, glass, paper, orange, highlightedGlass] };
+  return { root, stages, update, materials };
 }

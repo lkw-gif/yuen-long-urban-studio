@@ -36,9 +36,9 @@ export default function BridgeLessonViewer(props: Props) {
     const camera = new THREE.OrthographicCamera(-230, 230, 180, -180, .1, 2000);
     function draw() { frame = 0; if (disposed || lost || document.hidden || !renderer) return; controls?.update(); renderer.render(scene, camera); }
     function reset(isTop = false) {
-      const target = new THREE.Vector3(0, 48, 0);
+      const target = new THREE.Vector3(0, 50, 0);
       controls?.target.copy(target); camera.zoom = 1;
-      camera.position.copy(target).add(isTop ? new THREE.Vector3(0, 600, .1) : new THREE.Vector3(310, 265, 380));
+      camera.position.copy(target).add(isTop ? new THREE.Vector3(0, 650, .1) : new THREE.Vector3(280, 410, 470));
       if (controls) controls.enableRotate = !isTop;
       camera.updateProjectionMatrix(); controls?.update(); invalidate();
     }
@@ -50,27 +50,27 @@ export default function BridgeLessonViewer(props: Props) {
         camera.position.add(delta); controls?.target.add(delta); controls?.update(); invalidate();
       }
     };
-    const contextLost = (event: Event) => { event.preventDefault(); lost = true; cancelAnimationFrame(frame); frame = 0; setReady(false); setError('3D 顯示暫時中斷。可重新載入模型，右方文字教學仍可閱讀。'); };
+    const contextLost = (event: Event) => { event.preventDefault(); lost = true; cancelAnimationFrame(frame); frame = 0; setReady(false); setError('3D 顯示暫時中斷，請重新載入模型。'); };
     const contextRestored = () => { lost = false; setError(''); setReady(true); if (renderer) renderer.shadowMap.needsUpdate = true; invalidate(); };
     const visibility = () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else invalidate(); };
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'low-power' });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
       renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
       host.appendChild(renderer.domElement);
-      scene.add(new THREE.HemisphereLight('#ffffff', '#7c8074', 2.7));
-      const sun = new THREE.DirectionalLight('#fff2d8', 3.2); sun.position.set(-160, 330, 180); sun.castShadow = true;
-      sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -230, right: 230, top: 260, bottom: -180, near: 10, far: 700 }); sun.shadow.normalBias = .5; scene.add(sun);
+      scene.add(new THREE.HemisphereLight('#ffffff', '#7c8074', 2.1));
+      const sun = new THREE.DirectionalLight('#fff1dc', 2.6); sun.position.set(-200, 410, 180); sun.castShadow = true;
+      sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -320, right: 320, top: 320, bottom: -260, near: 10, far: 900 }); sun.shadow.normalBias = .3; scene.add(sun);
       model = createBridgeLessonModel(); scene.add(model.root); model.update(latest.current.step, latest.current.exploded, latest.current.highlight);
       const floor = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), new THREE.MeshStandardMaterial({ color: '#bdc5bf', roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -5.1; floor.receiveShadow = true; scene.add(floor);
       controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = .12; controls.minZoom = .5; controls.maxZoom = 4; controls.maxPolarAngle = Math.PI / 2.05; controls.addEventListener('change', invalidate);
-      const resize = () => { if (!host.clientWidth || !host.clientHeight || !renderer) return; const aspect = host.clientWidth / host.clientHeight; const span = Math.max(310, 440 / aspect); camera.left = -span * aspect / 2; camera.right = span * aspect / 2; camera.top = span / 2; camera.bottom = -span / 2; camera.updateProjectionMatrix(); renderer.setSize(host.clientWidth, host.clientHeight); invalidate(); };
+      const resize = () => { if (!host.clientWidth || !host.clientHeight || !renderer) return; const aspect = host.clientWidth / host.clientHeight; const span = Math.max(430, 580 / aspect); camera.left = -span * aspect / 2; camera.right = span * aspect / 2; camera.top = span / 2; camera.bottom = -span / 2; camera.updateProjectionMatrix(); renderer.setSize(host.clientWidth, host.clientHeight); invalidate(); };
       observer = new ResizeObserver(resize); observer.observe(host); resize(); reset();
       runtime.current = { model, renderer, camera, controls, invalidate, reset };
       host.addEventListener('keydown', onKey); renderer.domElement.addEventListener('webglcontextlost', contextLost); renderer.domElement.addEventListener('webglcontextrestored', contextRestored); document.addEventListener('visibilitychange', visibility);
       setReady(true);
-    } catch { setError('這個瀏覽器未能開啟 3D 模型。請重試或換用支援 WebGL 的瀏覽器；文字教學仍可使用。'); }
+    } catch { setError('這個瀏覽器未能開啟 3D 模型。請重試或換用支援 WebGL 的瀏覽器。'); }
     return () => {
       disposed = true; cancelAnimationFrame(frame); observer?.disconnect(); controls?.dispose();
       document.removeEventListener('visibilitychange', visibility); host.removeEventListener('keydown', onKey);
@@ -100,7 +100,7 @@ export default function BridgeLessonViewer(props: Props) {
   }
   return <div className="bridge-viewer">
     <div ref={hostRef} className="bridge-canvas" role="application" tabIndex={0} aria-label={`第 ${props.step + 1} 步：${props.title} 3D 模型。拖曳旋轉，雙指平移縮放，方向鍵平移，Home 重設。`} />
-    <div className="bridge-scene-caption"><span>STEP {String(props.step + 1).padStart(2, '0')} / 08</span><strong>{props.title}</strong><small>{props.exploded ? '分解視圖 · 垂直間距已放大' : '組裝視圖 · 尺寸單位 mm'}</small></div>
+    <div className="bridge-scene-caption"><span>STEP {String(props.step + 1).padStart(2, '0')} / 08</span><strong aria-live="polite">{props.title}</strong>{props.exploded && <small>分解視圖</small>}</div>
     <div className="bridge-view-tools">
       <button aria-label="放大教學模型" title="放大" disabled={!ready} onClick={() => zoom(1.2)}><Plus size={18}/></button>
       <button aria-label="縮小教學模型" title="縮小" disabled={!ready} onClick={() => zoom(1 / 1.2)}><Minus size={18}/></button>
@@ -109,7 +109,7 @@ export default function BridgeLessonViewer(props: Props) {
     </div>
     {!ready && !error && <output className="bridge-loading">正在組裝本步驟的 3D 示範…</output>}
     {error && <div className="bridge-error" role="alert"><p>{error}</p><button onClick={() => setAttempt(a => a + 1)}>重新載入模型</button></div>}
-    <div className="bridge-scene-footer"><span><i/> {props.highlight ? '橙色：本步新增部分' : '材料原色'}</span><button onClick={download} disabled={!ready || exporting}><Download size={15}/>{exporting ? '準備中…' : '下載本步 3D'}</button></div>
+    <div className="bridge-scene-footer"><button onClick={download} disabled={!ready || exporting}><Download size={15}/>{exporting ? '準備中…' : '下載本步 3D'}</button></div>
     {notice && <output className="bridge-download-notice">{notice}</output>}
   </div>;
 }
