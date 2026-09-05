@@ -30,18 +30,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check teaching model and Blender export
+        run: node --experimental-strip-types scripts/check-bridge.mjs
+
       - name: Build static site
         run: npm run build
         env:
           GITHUB_PAGES: 'true'
           NEXT_PUBLIC_BASE_PATH: /yuen-long-urban-studio
 
-      - name: Disable Jekyll processing
-        run: |
-          mv dist/client/yuen-long-urban-studio/_next dist/client/_next
-          rmdir dist/client/yuen-long-urban-studio
-          cp dist/client/concepts.html dist/client/concepts/index.html
-          touch dist/client/.nojekyll
+      - name: Prepare Pages routes and assets
+        run: node scripts/prepare-pages.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
