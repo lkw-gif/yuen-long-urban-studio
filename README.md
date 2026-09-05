@@ -19,3 +19,8 @@ Production build and TypeScript checks passed. Model checks verify all building 
 
 Optional WebMCP tools inspect and configure the same visible scene state. Registration, invalid inputs, state changes and lifecycle cleanup have unit contract coverage. No supported browser WebMCP validation context was available; live WebMCP integration and browser interaction/visual QA were not performed.
 
+## Concept models
+
+The /concepts page reconstructs three supplied design images as independent 3D scenes: Vibrant Community (riverside timber pavilions, civic buildings and sports grounds), Skybridge Community (covered pedestrian network and octagonal hub), and Vertical City (dense towers, multilevel connections and an arched transit station). Each model retains its source image and can export the visible scene as GLB. These are interpretive reconstructions, not photogrammetric replicas.
+
+All three model factories and binary exports were validated for finite geometry, bounds within the base, named objects, model-specific landmarks, source-image byte equality and the omission of hidden bridge layers. The existing street perimeter and GLB checks also pass after the shared viewer extension. Browser interaction and visual QA were not requested or performed.

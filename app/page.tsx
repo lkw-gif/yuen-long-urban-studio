@@ -37,9 +37,9 @@ export default function Home() {
  return <main className="studio">
   <header className="main-header">
    <div className="brand"><Box size={30} strokeWidth={1.55}/><strong>街區<span>URBAN<br/>STUDIO</span></strong></div>
-   <div className="breadcrumb"><span>工作空間</span><ChevronRight size={13}/><span>香港・元朗</span><ChevronRight size={13}/><b>康樂路街區</b></div>
+   <nav className="studio-nav" aria-label="工作空間"><a href="/" aria-current="page">街區現況</a><a href="/concepts">概念模型<span>03</span></a></nav>
    <div className="header-status"><span className="status-dot"/>{ready?'場景已就緒':'建立場景中'}</div>
-   <button className="export-button" onClick={()=>setDialog('export')} disabled={!ready}><Download size={15}/>匯出至 Blender<ArrowUpRight size={14}/></button>
+   <button className="export-button" aria-label="匯出至 Blender" onClick={()=>setDialog('export')} disabled={!ready}><Download size={15}/><span className="export-label">匯出至 Blender</span><ArrowUpRight size={14}/></button>
   </header>
   <div className="workspace">
    <aside className="left-panel" aria-label="場景圖層">
@@ -102,6 +102,8 @@ export default function Home() {
   </DialogContent></Dialog>
  </main>;
 }
+
+
 
 
 
