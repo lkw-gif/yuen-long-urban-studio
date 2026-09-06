@@ -104,7 +104,7 @@ export const TOWER_STEPS: TowerStep[] = [
     stage: 1,
     where: '格仔板右下的 Settings（設定）；部分版本叫 Edit Grid。',
     action:
-      '開啟格線設定，將單位設為 Millimeters（毫米），保留至少 200 × 200 mm 的工作平面，再關閉設定。',
+      '開啟 Settings，Units 選 Metric，Scale 保留 1:1 (millimeters)，Width 和 Length 設 200，再關閉設定。這裡的 Scale 是單位顯示，並非社區模型的 1:700 比例。',
     expect: '接下來全部輸入 mm。本例總高 114.3 mm，約等於 1:700 的 80 m 建築。',
     help: '厘米換毫米要乘 10。這是參考圖片設計的示範大樓，不是真實大廈的測量模型。',
     values: [
@@ -131,7 +131,7 @@ export const TOWER_STEPS: TowerStep[] = [
     action:
       '點尺寸數字，輸入後按 Enter：左右寬 W=48、前後深 D=48、物件高度 H=2。不要拖拉估尺寸。',
     expect: '原本的方塊變成 48 × 48 × 2 mm 的薄板。',
-    help: '先單擊白點，不用拖動。高度 H 是物件本身多高；之後的 Z 是底部離格仔板多高，兩者不同。',
+    help: '也可像實作截圖，在 Box 面板輸入 Width（W）、Length（D）、Height（H）。高度 H 是物件本身多高；之後的 Z 是底部離格仔板多高，兩者不同。',
     values: [
       {
         label: '寬 W',
@@ -285,7 +285,7 @@ export const TOWER_STEPS: TowerStep[] = [
     action:
       '只選左翼，按 Duplicate 一次。新副本仍被選中，將它的位置 X 改為 32，Y=16、Z=2 不變。',
     expect: '左右各一塊相同的住宅翼。',
-    help: '剛複製時兩件會重疊，看似只有一件。不要再點其他地方，直接改新副本 X；如果原件被搬走，按 Undo 後重新複製。',
+    help: '窄視窗可能把按鈕收進頂部「⋯」選單；可放大瀏覽器視窗，或用 Ctrl+D／⌘D。剛複製時兩件重疊，直接改副本 X；若原件被搬走，Undo 後重新複製。',
     values: [
       {
         label: '副本 X / Y / Z',
@@ -473,10 +473,12 @@ export const TOWER_STEPS: TowerStep[] = [
     title: '只選取這一排孔洞',
     tool: 'workplane',
     stage: 14,
-    where: '前翼外側露出的三個灰色孔洞部分。',
-    action: '按 FRONT 看正面，點空白處。按住 Shift，逐個點這一排的 3 個孔洞。',
+    where:
+      '選中藍色大樓後，Shape 面板右邊劃線燈泡 Hide selected（隱藏所選物件）。',
+    action:
+      '點空白處，再只選藍色大樓。按 Hide selected（Windows：Ctrl+H），暫時隱藏大樓；點空白處後按 Ctrl+A／⌘A，選取畫面剩下的三個孔洞。',
     expect: '只有三個孔洞被選取，大樓本體沒有選取框。',
-    help: '不要用 Ctrl+A，否則大樓也會被選到。選錯時點空白取消，放大前翼，再 Shift 逐個點孔洞露在牆外的部分。',
+    help: '必須先隱藏大樓才全選；右邊應顯示 Shapes(3)。隱藏不會刪除模型，頂部主工具列的燈泡 Show all 可讓大樓重新出現。',
     diagram: 'selection',
   },
   {
@@ -553,11 +555,11 @@ export const TOWER_STEPS: TowerStep[] = [
     title: '整理整面孔洞群組',
     tool: 'group',
     stage: 16,
-    where: '正面視角中，各排露在前翼外側的孔洞。',
+    where: '大樓保持隱藏，畫面只顯示二十六排孔洞。',
     action:
-      '點空白處，按住 Shift 逐一選取 26 排孔洞群組。選完按 Union group，確認仍為 Hole。',
+      '確認大樓仍隱藏，點空白處，按 Ctrl+A／⌘A。右邊應顯示 Shapes(26)，再按 Union group，確認仍為 Hole。',
     expect: '整面 78 個孔洞變成一個可選取的孔洞群組，底部 Z=3.5。',
-    help: '這一步慢慢做；不要選大樓。下方數值可檢查有沒有漏選最頂或最底一排。',
+    help: '若顯示 27 件，可能沒有隱藏大樓；取消選取，先隱藏大樓再全選。下方數值可檢查有沒有漏掉最頂或最底一排。',
     values: [
       {
         label: '整面 W × D × H',
@@ -577,7 +579,7 @@ export const TOWER_STEPS: TowerStep[] = [
     stage: 17,
     where: '選取前面整片孔洞群組；Duplicate 和底部旋轉箭頭。',
     action:
-      '點空白取消選取，再選前面孔洞群組，複製一次。按住 Shift 拖底部旋轉箭頭，在格仔板上轉 90°；再設 X=43.1、Y=17.4、Z=3.5。',
+      '點空白取消選取，再選前面孔洞群組，複製一次。拖底部旋轉箭頭，在格仔板上轉 90°（−90° 亦可）；再設 X=43.1、Y=17.4、Z=3.5。按頂部燈泡 Show all，顯示大樓作對照。',
     expect: '右翼外側也有 26 排孔洞，前面的一片仍保留。',
     help: '旋轉會改變位置參照，所以先轉、後輸入位置。若窗戶橫躺，旋轉軸選錯了，按 Undo。',
     values: [
@@ -603,7 +605,7 @@ export const TOWER_STEPS: TowerStep[] = [
     stage: 18,
     where: '選取右側整片孔洞，按 Duplicate。',
     action:
-      '點空白取消選取，再重新選右側孔洞，以中斷剛才的旋轉變換。複製後把 X 改為 3.8；Y=17.4、Z=3.5 不變，不用再旋轉。',
+      '先選藍色大樓，按 Shape 面板的 Hide selected 再次隱藏它。點空白取消選取，再選右側整片孔洞。複製後把 X 改為 3.8；Y=17.4、Z=3.5 不變，不用再旋轉。',
     expect: '左右兩面都有相同窗戶排列。',
     help: '左右側都是矩形孔洞，複製移位即可。用 TOP 檢查孔洞貼在左右翼最外側。',
     values: [
@@ -620,7 +622,8 @@ export const TOWER_STEPS: TowerStep[] = [
     tool: 'duplicate',
     stage: 19,
     where: '轉到能看見前面孔洞的角度，選取最初的前面整片孔洞。',
-    action: '選前面那片孔洞，複製一次；把 Y 改為 43.1，X=17.4、Z=3.5 不變。',
+    action:
+      '大樓保持隱藏，取消選取再選前面那片孔洞，複製一次；把 Y 改為 43.1，X=17.4、Z=3.5 不變。最後按頂部燈泡 Show all，重新顯示大樓。',
     expect: '四個方向各有 78 個孔洞，共 312 個。',
     help: '要複製前面那片，不是剛剛左側那片。檢查 W=13.2、D=1.1；若反過來，選錯立面了。',
     values: [
@@ -642,7 +645,7 @@ export const TOWER_STEPS: TowerStep[] = [
     stage: 20,
     where: '點空白處，使用全選，再按頂部 Union group。',
     action:
-      '按 Ctrl+A／⌘A，選大樓和四片孔洞。按 Union group（Ctrl+G／⌘G），等待運算完成。',
+      '確認大樓已顯示，按 Ctrl+A／⌘A，選大樓和四片孔洞，右邊應顯示 Shapes(5)。按 Union group（Ctrl+G／⌘G），等待運算完成。',
     expect: '所有孔洞預覽消失，四個側翼真正出現一排排淺凹窗戶。',
     help: '如整座樓消失或變斜紋，先 Undo，檢查大樓是 Solid、四片窗戶是 Hole。很多孔洞合併可能需要稍等。',
     diagram: 'hole',
@@ -690,7 +693,7 @@ export const TOWER_STEPS: TowerStep[] = [
     action:
       '只選完成的大樓，按 Export。若有匯出範圍選項，選所選物件；再選 .STL，等待檔案下載。',
     expect: '電腦 Downloads／下載資料夾出現大樓的 .stl 檔。',
-    help: '匯出面板版面可能不同，以 STL 格式名稱為準。下載的是你在 Tinkercad 製作的模型；本頁示範 STL 是另一份參考檔。',
+    help: '實作截圖中的範圍選項是 The selected shape；下方 For 3D Print 有 .STL 按鈕。下一步亦可下載這次實作在 Tinkercad 匯出的完成模型作對照。',
     diagram: 'export',
   },
   {

@@ -5,8 +5,30 @@ import { useState } from 'react';
 import { TowerStep, TOOL_SPOTS } from '@/lib/tower-lesson';
 import { TinkercadDetail } from '@/components/tinkercad-detail';
 import { sitePath } from '@/lib/site-path';
-export function TinkercadGuide({ step }: { step: TowerStep }) {
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+export function TinkercadGuide({
+  step,
+  stepNumber,
+}: {
+  step: TowerStep;
+  stepNumber: number;
+}) {
   const tool = step.tool;
+  const [live, setLive] = useState(true);
+  const [open, setOpen] = useState(false);
+  const capture = sitePath(
+    `/tinkercad/live/step-${String(stepNumber).padStart(2, '0')}.jpg`,
+  );
+  const caption = [24, 25, 26, 27, 28, 30].includes(stepNumber)
+    ? '大樓暫時隱藏，方便選取及複製窗洞。'
+    : stepNumber === 36
+      ? 'Tinkercad 完成模型；STL 已匯出，尚未實體打印。'
+      : '點圖片放大，查看實際按鈕、選取狀態與尺寸。';
   const [zoom, setZoom] = useState(false),
     [detail, setDetail] = useState(
       Boolean(step.diagram && ['rotate', 'color', 'workplane'].includes(tool)),
@@ -21,21 +43,44 @@ export function TinkercadGuide({ step }: { step: TowerStep }) {
   return (
     <div className="tc-guide">
       <div className="tc-panel-bar">
-        <span>① 在 Tinkercad 找這裡</span>
+        <span>① {live ? 'Tinkercad 實作截圖' : '按鈕位置參考'}</span>
         <div>
-          {step.diagram && (
+          <button aria-pressed={live} onClick={() => setLive(!live)}>
+            {live ? '找按鈕' : '實作截圖'}
+          </button>
+          {live && <button onClick={() => setOpen(true)}>放大查看</button>}
+          {!live && step.diagram && (
             <button aria-pressed={detail} onClick={() => setDetail(!detail)}>
               {detail ? '工具位置' : '操作近鏡'}
             </button>
           )}
-          {!detail && (
+          {!live && !detail && (
             <button onClick={() => setZoom(!zoom)}>
               {zoom ? '顯示全圖' : '放大位置'}
             </button>
           )}
         </div>
       </div>
-      {detail && step.diagram ? (
+      {live ? (
+        <>
+          <button
+            className="tc-live-capture"
+            onClick={() => setOpen(true)}
+            aria-label={`放大步驟 ${stepNumber}：${step.title}的實作截圖`}
+          >
+            <img
+              src={capture}
+              alt={`步驟 ${stepNumber}：${step.title}，Tinkercad 真實操作畫面`}
+            />
+          </button>
+          <div className="tc-spot-label">
+            <strong>
+              STEP {String(stepNumber).padStart(2, '0')} · {step.title}
+            </strong>
+            <span>{caption}</span>
+          </div>
+        </>
+      ) : detail && step.diagram ? (
         <TinkercadDetail step={step} />
       ) : (
         <>
@@ -73,6 +118,20 @@ export function TinkercadGuide({ step }: { step: TowerStep }) {
           </div>
         </>
       )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="tc-capture-dialog">
+          <DialogTitle>
+            STEP {String(stepNumber).padStart(2, '0')} · {step.title}
+          </DialogTitle>
+          <DialogDescription>
+            {caption} 截圖中的數字請配合下方操作指示辨認。
+          </DialogDescription>
+          <img src={capture} alt={`${step.title}的完整 Tinkercad 實作截圖`} />
+          <a href={capture} target="_blank" rel="noreferrer">
+            開啟原始截圖 ↗
+          </a>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

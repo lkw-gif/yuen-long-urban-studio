@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 import {
@@ -43,6 +43,64 @@ for (const file of [
   'official-align-selected.png',
 ])
   assert.ok(existsSync('public/tinkercad/' + file));
+
+// Keep screenshot bytes untouched and serve them with their actual JPEG extension.
+for (let n = 1; n <= TOWER_STEPS.length; n++) {
+  const jpeg = readFileSync(
+    `public/tinkercad/live/step-${String(n).padStart(2, '0')}.jpg`,
+  );
+  assert.equal(jpeg.readUInt16BE(0), 0xffd8);
+  assert.equal(jpeg.readUInt16BE(jpeg.length - 2), 0xffd9);
+  let foundSize = false;
+  for (let offset = 2; offset < jpeg.length - 9;) {
+    const marker = jpeg.readUInt16BE(offset);
+    const length = jpeg.readUInt16BE(offset + 2);
+    if ([0xffc0, 0xffc1, 0xffc2].includes(marker)) {
+      assert.ok(jpeg.readUInt16BE(offset + 5) >= 600);
+      assert.ok(jpeg.readUInt16BE(offset + 7) >= 800);
+      foundSize = true;
+      break;
+    }
+    assert.ok(length >= 2);
+    offset += length + 2;
+  }
+  assert.ok(foundSize, 'JPEG must contain a valid size header');
+}
+
+// Validate the actual Tinkercad download independently of the viewer factory.
+const liveStl = readFileSync(
+  'public/tinkercad/blue-residential-tower-tinkercad.stl',
+);
+const liveCount = liveStl.readUInt32LE(80);
+assert.equal(liveStl.length, 84 + 50 * liveCount);
+const liveMin = [Infinity, Infinity, Infinity],
+  liveMax = [-Infinity, -Infinity, -Infinity];
+const liveEdges = new Map();
+for (let i = 0; i < liveCount; i++) {
+  const vertices = [];
+  for (let v = 0; v < 3; v++) {
+    const point = [0, 1, 2].map((axis) =>
+      liveStl.readFloatLE(84 + i * 50 + 12 + v * 12 + axis * 4),
+    );
+    point.forEach((n, axis) => {
+      assert.ok(Number.isFinite(n));
+      liveMin[axis] = Math.min(liveMin[axis], n);
+      liveMax[axis] = Math.max(liveMax[axis], n);
+    });
+    vertices.push(point.map((n) => n.toFixed(4)).join(','));
+  }
+  for (let e = 0; e < 3; e++) {
+    const key = [vertices[e], vertices[(e + 1) % 3]].sort().join('|');
+    liveEdges.set(key, (liveEdges.get(key) || 0) + 1);
+  }
+}
+[48, 48, 114.3].forEach((n, axis) => near(liveMax[axis] - liveMin[axis], n));
+near(liveMin[2], 0);
+for (const count of liveEdges.values())
+  assert.equal(count, 2, 'Actual Tinkercad STL has closed edges');
+console.log(
+  `Live assets passed: 36 JPEG screenshots, Tinkercad STL ${liveCount} triangles, closed edges and correct dimensions.`,
+);
 
 // Forward and reverse navigation must produce self-contained, finite stages.
 for (const stage of [...new Set(TOWER_STEPS.map((s) => s.stage))].concat([
@@ -140,7 +198,7 @@ near(ray.intersectObject(mesh)[0].point.z, 19.1); // Window recess is 0.9 mm dee
 ray.ray.origin.x = 21.5 - 24;
 near(ray.intersectObject(mesh)[0].point.z, 20); // Wall between windows stays intact.
 
-// The download rotates the Y-up display back to a Z-up, millimetre STL.
+// The illustrative factory can also rotate from Y-up into a Z-up millimetre STL.
 model.root.rotation.x = Math.PI / 2;
 model.root.updateMatrixWorld(true);
 const stl = new STLExporter().parse(model.root, { binary: true }),

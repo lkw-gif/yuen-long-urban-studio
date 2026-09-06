@@ -46,7 +46,7 @@ export default function TowerWorkshop() {
             <span>3D DESIGN / TINKERCAD</span>
             <h1>從第一個方塊，到藍色住宅大樓</h1>
             <p>
-              8 個階段 · 36 個小步驟 · 在 Tinkercad 動手做，與本頁 3D
+              8 個階段 · 36 張真實操作截圖 · 跟着 Tinkercad 實作畫面，與 3D
               示範逐步對照。
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function TowerWorkshop() {
           </span>
         </div>
         <div className="tc-visuals">
-          <TinkercadGuide key={index} step={step} />
+          <TinkercadGuide key={index} step={step} stepNumber={index + 1} />
           <div className="tc-model-panel">
             <div className="tc-panel-bar">
               <span>② 對照 3D 模型</span>
@@ -171,7 +171,10 @@ export default function TowerWorkshop() {
           </div>
         </section>
         <footer className="tc-sources">
-          <span>介面參考：你上載的截圖及官方示例。操作示意另有標示。</span>
+          <span>
+            實作截圖：2026-09-06 於 Tinkercad
+            逐步製作。按鈕位置參考及操作示意可另外切換。
+          </span>
           <a
             href={TINKERCAD_SOURCES.shortcuts}
             target="_blank"

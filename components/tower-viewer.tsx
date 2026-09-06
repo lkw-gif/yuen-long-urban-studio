@@ -5,8 +5,8 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createTowerModel, FINAL_TOWER_STAGE } from '@/lib/tower-model';
-import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import { createTowerModel } from '@/lib/tower-model';
+import { sitePath } from '@/lib/site-path';
 import { disposeScene } from '@/lib/three-disposal';
 import { RotateCcw, Plus, Minus, Grid2X2, Box, Download } from 'lucide-react';
 
@@ -261,27 +261,11 @@ export default function TowerViewer(props: Props) {
     r.invalidate();
   }
   function downloadExample() {
-    const example = createTowerModel(FINAL_TOWER_STAGE);
-    try {
-      // STL uses Z-up in the slicer: undo the display's X/Z/-Y rotation.
-      example.root.rotation.x = Math.PI / 2;
-      example.root.updateMatrixWorld(true);
-      const buffer = new STLExporter().parse(example.root, { binary: true });
-      const url = URL.createObjectURL(
-        new Blob([buffer.buffer as ArrayBuffer], { type: 'model/stl' }),
-      );
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'blue-residential-tower-114.3mm.stl';
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setNotice('示範 STL 已下載。自己的作品請從 Tinkercad 匯出。');
-    } catch {
-      setNotice('未能下載示範，請再試一次。');
-    } finally {
-      disposeScene(example.root);
-      example.materials.forEach((m) => m.dispose());
-    }
+    const link = document.createElement('a');
+    link.href = sitePath('/tinkercad/blue-residential-tower-tinkercad.stl');
+    link.download = 'blue-residential-tower-tinkercad.stl';
+    link.click();
+    setNotice('已開始下載 Tinkercad 實作模型。自己的作品請在 Tinkercad 匯出。');
   }
   return (
     <div className="tower-viewer">
@@ -302,7 +286,7 @@ export default function TowerViewer(props: Props) {
       {props.allowDownload && (
         <button className="tower-example-download" onClick={downloadExample}>
           <Download size={15} />
-          下載完成示範 STL
+          下載 Tinkercad 實作 STL
         </button>
       )}
       {notice && props.allowDownload && (
