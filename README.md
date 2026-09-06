@@ -15,6 +15,7 @@ Rotate with a drag, zoom with the wheel, pan with right-drag. Select a building 
 - npm run build
 - npx tsc --noEmit
 - node --experimental-strip-types scripts/check-bridge.mjs
+- node --experimental-strip-types scripts/check-tower.mjs
 
 ## Validation
 
@@ -34,4 +35,10 @@ All three model factories and binary exports were validated for finite geometry,
 
 Checks cover progressive geometry, transparent highlights, assembled/exploded transitions, continuous routes at bends and junctions, unobstructed entrances, support heights and GLB visibility/units. Desktop and mobile layouts retain rotation, zoom, top view and stage selection. The shared urban viewer renders on demand and releases GPU resources when switching scenes.
 
-GitHub Actions builds the static site and `scripts/prepare-pages.mjs` prepares directory indexes for all three routes. Sites uses the regular Worker build without the GitHub Pages base path.
+## Tinkercad 3D design
+
+[/3d-design/](https://lkw-gif.github.io/yuen-long-urban-studio/3d-design/) teaches a blue residential tower through eight chapters and 36 small steps. Each step pairs a tool locator on the supplied Tinkercad screenshot with a progressive, interactive 3D result. Clearly labelled operation diagrams explain dimensions versus elevation, rotation, selection and export; historical official screenshot crops include their source and distinguish example values from lesson values. Every step includes a location, action, expected result and troubleshooting guidance.
+
+The basic tower leads into duplicate/repeat window arrays, Hole subtraction, Union grouping and Tinkercad STL export. A separate completed example STL is available on the final step. It is a single connected, watertight solid with 312 shallow recesses and a 48 × 48 × 114.3 mm envelope; STL coordinates use Z-up and millimetres. Tests cover progressive/reverse stages, bounds, material, closed edges, connectivity, recess depth, volume and binary STL output. These are programmatic checks, not a live Tinkercad automation test. Actual printing settings and detail resolution are checked with the teacher in the slicer.
+
+GitHub Actions builds the static site and `scripts/prepare-pages.mjs` prepares directory indexes for all four routes. Sites uses the regular Worker build without the GitHub Pages base path.

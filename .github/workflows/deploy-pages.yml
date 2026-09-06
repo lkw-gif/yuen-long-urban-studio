@@ -33,6 +33,9 @@ jobs:
       - name: Check teaching model and Blender export
         run: node --experimental-strip-types scripts/check-bridge.mjs
 
+      - name: Check Tinkercad course and printable tower
+        run: node --experimental-strip-types scripts/check-tower.mjs
+
       - name: Build static site
         run: npm run build
         env:
