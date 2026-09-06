@@ -84,9 +84,22 @@ export default function TowerWorkshop() {
               ))}
             </select>
           </label>
-          <span>
-            {index + 1} / {TOWER_STEPS.length}
-          </span>
+          <div className="tc-pagination">
+            <button disabled={!index} onClick={() => select(index - 1)}>
+              <ArrowLeft size={17} />
+              上一步
+            </button>
+            <span aria-live="polite">
+              {index + 1} / {TOWER_STEPS.length}
+            </span>
+            <button
+              disabled={index === TOWER_STEPS.length - 1}
+              onClick={() => select(index + 1)}
+            >
+              下一步
+              <ArrowRight size={17} />
+            </button>
+          </div>
         </div>
         <div className="tc-visuals">
           <TinkercadGuide key={index} step={step} stepNumber={index + 1} />
@@ -151,24 +164,11 @@ export default function TowerWorkshop() {
             <summary>我做不到／找不到按鈕</summary>
             <p>{step.help}</p>
           </details>
-          <div className="tc-pagination">
-            <button disabled={!index} onClick={() => select(index - 1)}>
-              <ArrowLeft size={17} />
-              上一步
-            </button>
-            <span>
-              {index === TOWER_STEPS.length - 1
-                ? '完成！你已走過整個建模流程。'
-                : '在 Tinkercad 完成後再繼續'}
-            </span>
-            <button
-              disabled={index === TOWER_STEPS.length - 1}
-              onClick={() => select(index + 1)}
-            >
-              下一步
-              <ArrowRight size={17} />
-            </button>
-          </div>
+          <p className="tc-completion-hint">
+            {index === TOWER_STEPS.length - 1
+              ? '完成！你已走過整個建模流程。'
+              : '在 Tinkercad 完成後再繼續'}
+          </p>
         </section>
         <footer className="tc-sources">
           <span>

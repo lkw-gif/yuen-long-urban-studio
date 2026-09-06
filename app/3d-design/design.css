@@ -70,6 +70,8 @@
 }
 .tc-step-navigation {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   align-items: center;
   justify-content: space-between;
   margin: 18px 0;
@@ -289,7 +291,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 20px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.tc-completion-hint {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #74849a;
 }
 .tc-pagination button {
   display: flex;
@@ -375,7 +384,7 @@
     padding: 18px 12px 30px;
   }
   .tc-pagination > span {
-    display: none;
+    white-space: nowrap;
   }
   .tc-step-navigation label {
     display: grid;
