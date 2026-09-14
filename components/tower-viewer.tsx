@@ -2,6 +2,7 @@
 /* oxlint-disable react/react-compiler -- This effect owns a mutable Three.js runtime outside React's rendering model. */
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- The labelled 3D application supports keyboard navigation via its native keydown handler. */
 
+import { Localized } from '@/components/language-provider';
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -267,7 +268,7 @@ export default function TowerViewer(props: Props) {
     link.click();
     setNotice('已開始下載 Tinkercad 實作模型。自己的作品請在 Tinkercad 匯出。');
   }
-  return (
+  return <Localized>{(
     <div className="tower-viewer">
       <div
         ref={hostRef}
@@ -342,5 +343,5 @@ export default function TowerViewer(props: Props) {
         </div>
       )}
     </div>
-  );
+  )}</Localized>;
 }

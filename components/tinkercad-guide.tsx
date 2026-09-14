@@ -1,6 +1,7 @@
 'use client';
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- SVG contains an image and an annotated locator, labelled as a single graphic. */
 /* oxlint-disable next/no-img-element -- Display the user's original editor reference without image transformations. */
+import { Localized } from '@/components/language-provider';
 import { useState } from 'react';
 import { TowerStep, TOOL_SPOTS } from '@/lib/tower-lesson';
 import { TinkercadDetail } from '@/components/tinkercad-detail';
@@ -40,7 +41,7 @@ export function TinkercadGuide({
     height = Math.max(h + 100, 260);
   const vx = Math.max(0, Math.min(1912 - width, x + w / 2 - width / 2)),
     vy = Math.max(0, Math.min(901 - height, y + h / 2 - height / 2));
-  return (
+  return <Localized>{(
     <div className="tc-guide">
       <div className="tc-panel-bar">
         <span>① {live ? 'Tinkercad 實作截圖' : '按鈕位置參考'}</span>
@@ -133,5 +134,5 @@ export function TinkercadGuide({
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )}</Localized>;
 }

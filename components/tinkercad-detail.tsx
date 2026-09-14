@@ -1,6 +1,7 @@
 'use client';
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- These labelled SVG diagrams cannot be represented by an img element. */
 /* oxlint-disable next/no-img-element -- These are unaltered historical reference crops with explicit provenance. */
+import { Localized } from '@/components/language-provider';
 import { useState } from 'react';
 import { TowerStep, TINKERCAD_SOURCES } from '@/lib/tower-lesson';
 import { sitePath } from '@/lib/site-path';
@@ -18,7 +19,7 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
         : kind === 'hole'
           ? ['official-solid-hole-panel.png', 'Solid 是實體，Hole 是挖空工具']
           : null;
-  return (
+  return <Localized>{(
     <div className="tc-detail">
       <div className="tc-detail-label">操作示意 · 配合本步數值使用</div>
       {(kind === 'dimensions' || kind === 'position') && (
@@ -246,5 +247,5 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
         </p>
       )}
     </div>
-  );
+  )}</Localized>;
 }

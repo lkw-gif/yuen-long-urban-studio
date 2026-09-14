@@ -1,6 +1,7 @@
 'use client';
 /* oxlint-disable react/react-compiler -- Scene refs and model definitions bridge React state to the mutable Three.js runtime. */
 /* oxlint-disable next/no-img-element -- Serve original user reference images directly on both static Pages and Sites. */
+import { Localized } from '@/components/language-provider';
 import { StudioNav } from '@/components/studio-nav';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
@@ -40,7 +41,7 @@ export default function HomeWorkspace() {
  const toggle=(key:LayerName,value:boolean)=>setVisibility(v=>({...v,[key]:value}));
  async function exportModel(){if(!viewer.current)return;setExporting(true);try{await viewer.current.exportGLB();setDialog(null);setToast('模型已下載，可在 Blender 中匯入 .glb 檔案。');}catch{setToast('匯出未完成，請稍後再試一次。');}finally{setExporting(false);}}
  function reset(){setView('iso');setHeightScale(1);viewer.current?.reset();}
- return <main className={'studio '+(inspectorOpen?'show-inspector':'')}>
+ return <Localized>{<main className={'studio '+(inspectorOpen?'show-inspector':'')}>
   <header className="main-header">
    <div className="brand"><Box size={30} strokeWidth={1.55}/><strong>街區<span>URBAN<br/>STUDIO</span></strong></div>
    <StudioNav current="home"/>
@@ -106,7 +107,7 @@ export default function HomeWorkspace() {
   <Dialog open={dialog!==null} onOpenChange={open=>{if(!open&&!exporting)setDialog(null);}}><DialogContent className={'dialog-large '+(dialog==='reference'?'':'export-dialog')}>
    {dialog==='reference'?<><DialogTitle>原始地圖對照</DialogTitle><DialogDescription>本次上傳的原始平面地圖與衛星圖。模型沿原定街區的道路外緣收齊。</DialogDescription><Tabs defaultValue="map" className="reference-tabs"><TabsList><TabsTrigger value="map">平面地圖</TabsTrigger><TabsTrigger value="satellite">衛星圖</TabsTrigger></TabsList><TabsContent value="map"><img src={sitePath('/reference-map.png?v=20260905-213223')} alt="本次上傳的平面地圖，顯示元朗康樂路街區"/></TabsContent><TabsContent value="satellite"><img src={sitePath('/reference-satellite.png?v=20260905-213203')} alt="本次上傳的衛星圖，顯示相同街區"/></TabsContent></Tabs><p className="dialog-note">{MODEL_NOTICE}</p></>:dialog==='export'?<><DialogTitle>把街區帶進 Blender</DialogTitle><DialogDescription>匯出目前可見的場景圖層，保留建築名稱、材質及高度倍率。</DialogDescription><div className="export-format"><Box size={36} strokeWidth={1.25}/><div><strong>glTF Binary · .glb</strong><p>單一 3D 檔案，包含模型與材質。<br/>可在 Blender 中繼續編輯及儲存為 .blend。</p></div></div><ol className="export-steps"><li>下載街區模型。</li><li>在 Blender 選擇「檔案 → 匯入 → glTF 2.0」。</li><li>選取下載的 .glb 檔案，開始編輯。</li></ol><p className="dialog-note">尺寸及樓高為示意。匯出不包含參考地圖圖片、操作格線或選取外框。</p><button className="export-button" onClick={exportModel} disabled={exporting||!ready}><Download size={16}/>{exporting?'正在準備模型…':'下載 Blender 相容模型'}</button></>:<><DialogTitle>探索你的街區</DialogTitle><DialogDescription>滑鼠、觸控與鍵盤皆可操作。點選任一建築可查看其屬性。</DialogDescription><div className="help-rows"><div><Mouse size={18}/><span>左鍵拖曳 / 單指拖曳</span><b>旋轉</b></div><div><Move size={18}/><span>右鍵拖曳 / 雙指拖曳</span><b>平移</b></div><div><Plus size={18}/><span>滾輪 / 雙指縮放</span><b>縮放</b></div><div><RotateCcw size={18}/><span>Home</span><b>回到全景</b></div></div><p className="dialog-note">先點一下 3D 視窗，即可使用方向鍵平移及 + / − 縮放。俯視模式會固定旋轉方向。此網站提供 Blender 相容模型，並非 Blender 網頁版。</p></>}
   </DialogContent></Dialog>
- </main>;
+ </main>}</Localized>;
 }
 
 

@@ -1,6 +1,7 @@
 'use client';
 /* oxlint-disable react/react-compiler -- This effect owns a mutable Three.js runtime outside React's rendering model. */
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- The labelled 3D application supports keyboard navigation via its native keydown handler. */
+import { Localized } from '@/components/language-provider';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -57,7 +58,7 @@ export const UrbanViewer = forwardRef<ViewerApi, ViewerProps>(function UrbanView
  useEffect(()=>{const r=runtime.current;if(!r)return;r.originals.forEach((c,m)=>{m.wireframe=props.mode==='wire';m.color.copy(props.mode==='clay'?new THREE.Color('#c8cbd0'):c);});r.invalidate();},[props.mode,ready]);
  useEffect(()=>{const sun=runtime.current?.sun;if(!sun)return;const angle=(props.daylight-6)/12*Math.PI;sun.position.set(Math.cos(angle)*240,Math.max(55,Math.sin(angle)*310),-150);sun.intensity=2.2+Math.sin(angle)*.8;sun.color.set(props.daylight>15?'#ffd2a0':'#fff0d7');runtime.current!.renderer.shadowMap.needsUpdate=true;runtime.current!.invalidate();},[props.daylight,ready]);
  const selected=(props.definition?.buildings??BUILDINGS).find(b=>b.id===props.selected);
- return <><div ref={mount} className="scene-canvas" tabIndex={0} role="application" aria-label={(props.definition?.title??"元朗 3D 街區")+"。拖曳旋轉，滾輪縮放，右鍵平移。方向鍵平移，Home 重設。"}/>{!ready&&!error&&<div className="scene-loading">正在建立 3D 街區…</div>}{error&&<div className="canvas-error" role="alert">{error}<p>請使用支援 WebGL 的瀏覽器並啟用硬體加速。原圖對照仍可使用。</p></div>}{[...(props.definition?.labels.map(l=>l.text)??['元朗兒童遊樂場','鐘聲徑遊樂場']),selected?.name||''].map((label,i)=><div key={i} ref={el=>{labelRefs.current[i]=el;}} className={'scene-label '+(i===(props.definition?.labels.length??2)?'selected-label':'')} style={{display:'none'}}><span className="label-dot"/>{label}</div>)}</>;
+ return <Localized>{<><div ref={mount} className="scene-canvas" tabIndex={0} role="application" aria-label={(props.definition?.title??"元朗 3D 街區")+"。拖曳旋轉，滾輪縮放，右鍵平移。方向鍵平移，Home 重設。"}/>{!ready&&!error&&<div className="scene-loading">正在建立 3D 街區…</div>}{error&&<div className="canvas-error" role="alert">{error}<p>請使用支援 WebGL 的瀏覽器並啟用硬體加速。原圖對照仍可使用。</p></div>}{[...(props.definition?.labels.map(l=>l.text)??['元朗兒童遊樂場','鐘聲徑遊樂場']),selected?.name||''].map((label,i)=><div key={i} ref={el=>{labelRefs.current[i]=el;}} className={'scene-label '+(i===(props.definition?.labels.length??2)?'selected-label':'')} style={{display:'none'}}><span className="label-dot"/>{label}</div>)}</>}</Localized>;
 });
 
 

@@ -37,7 +37,8 @@ jobs:
         run: node --experimental-strip-types scripts/check-tower.mjs
 
       - name: Build static site
-        run: npm run build
+        # Both language versions must remain complete.
+        run: node scripts/check-i18n.cjs && npm run build
         env:
           GITHUB_PAGES: 'true'
           NEXT_PUBLIC_BASE_PATH: /yuen-long-urban-studio

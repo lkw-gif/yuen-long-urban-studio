@@ -1,4 +1,5 @@
 'use client';
+import { Localized } from '@/components/language-provider';
 import { lazy, Suspense, useState } from 'react';
 import {
   Box,
@@ -24,7 +25,7 @@ export default function TowerWorkshop() {
     setIndex(next);
     setFinished(false);
   };
-  return (
+  return <Localized>{(
     <main className="tower-workshop">
       <header className="main-header">
         <a className="brand" href={sitePath('/')}>
@@ -192,5 +193,5 @@ export default function TowerWorkshop() {
         </footer>
       </div>
     </main>
-  );
+  )}</Localized>;
 }

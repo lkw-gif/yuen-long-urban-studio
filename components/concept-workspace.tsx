@@ -1,6 +1,7 @@
 'use client';
 /* oxlint-disable react/react-compiler -- Scene refs and model definitions bridge React state to the mutable Three.js runtime. */
 /* oxlint-disable next/no-img-element -- Serve original user reference images directly on both static Pages and Sites. */
+import { Localized } from '@/components/language-provider';
 import { StudioNav } from '@/components/studio-nav';
 import {useState,useRef,useMemo,useCallback,useEffect} from 'react';
 import {Box,Download,ArrowUpRight,Layers3,Plus,Minus,Maximize2,Focus,Grid2X2,Eye,EyeOff,Navigation2,Mouse,Move,Sun,TreePine,Route,GitBranch,Image as ImageIcon,Check,ChevronRight,SlidersHorizontal} from 'lucide-react';
@@ -27,7 +28,7 @@ export default function ConceptWorkspace(){
  function choose(next:ConceptId){if(next===id)return;setReady(false);setId(next);setSelected(CONCEPT_BY_ID[next].initial);setView('iso');setMessage('');}
  useEffect(()=>{if(!message)return;const timer=window.setTimeout(()=>setMessage(''),5000);return()=>clearTimeout(timer);},[message]);
  async function download(){if(!viewer.current||!ready)return;setExporting(true);try{await viewer.current.exportGLB();setDialog(null);setMessage(concept.name+'模型已下載，可匯入 Blender。');}catch{setMessage('模型匯出未完成，請再試一次。');}finally{setExporting(false);}}
- return <main className={'studio concept-studio '+(inspectorOpen?'show-inspector':'')}>
+ return <Localized>{<main className={'studio concept-studio '+(inspectorOpen?'show-inspector':'')}>
   <header className="main-header"><a className="brand" href={sitePath('/')} aria-label="回到元朗街區"><Box size={30} strokeWidth={1.55}/><strong>街區<span>URBAN<br/>STUDIO</span></strong></a><StudioNav current="concepts"/><div className="header-status"><span className="status-dot"/>{ready?'模型已就緒':'正在建立模型'}</div><button className="export-button" aria-label="匯出至 Blender" disabled={!ready} onClick={()=>setDialog('export')}><Download size={15}/><span>匯出至 Blender</span><ArrowUpRight size={14}/></button><button className="mobile-inspector-toggle" aria-expanded={inspectorOpen} aria-controls="scene-inspector" onClick={()=>setInspectorOpen(v=>!v)}>{inspectorOpen?'關閉設定':'場景設定'}</button></header>
   <div className="concept-mobile-switch"><RadioGroup value={id} onValueChange={v=>choose(v as ConceptId)} aria-label="選擇概念模型">{CONCEPTS.map((c,i)=><label key={c.id} className={id===c.id?'active':''}><RadioGroupItem value={c.id} className="sr-only"/><span>0{i+1}</span>{c.name}</label>)}</RadioGroup></div>
   <div className="workspace">
@@ -52,7 +53,7 @@ export default function ConceptWorkspace(){
   <Dialog open={dialog!==null} onOpenChange={open=>{if(!open&&!exporting)setDialog(null);}}><DialogContent className={'dialog-large '+(dialog==='export'?'export-dialog':'concept-image-dialog')}>
    {dialog==='reference'?<><DialogTitle>{concept.name} · 概念原圖</DialogTitle><DialogDescription>依據這張圖片重建建築量體、地面分區與橋樑。單張圖片無法確定的尺寸及隱藏細節採示意處理。</DialogDescription><img className="concept-original" decoding="async" width={1448} height={1086} src={concept.image} alt={concept.name+'完整概念模型圖片'}/><a className="concept-image-link" href={concept.image} target="_blank" rel="noreferrer">開啟完整原圖<ArrowUpRight size={14}/></a></>:<><DialogTitle>匯出「{concept.name}」</DialogTitle><DialogDescription>下載目前可見的建築、橋樑與地景，保留獨立物件及材質。</DialogDescription><div className="export-format"><Box size={36}/><div><strong>Blender 相容模型 · .glb</strong><p>可繼續編輯建築及連廊，並儲存為 .blend。</p></div></div><ol className="export-steps"><li>下載目前的概念模型。</li><li>在 Blender 選擇「檔案 → 匯入 → glTF 2.0」。</li><li>選取 .glb 檔案開始編輯。</li></ol><p className="dialog-note">模型依單張概念圖重建，並非精確測繪或原始模型檔。</p><button className="export-button" onClick={download} disabled={exporting||!ready}><Download size={16}/>{exporting?'正在準備模型…':'下載此概念模型'}</button></>}
   </DialogContent></Dialog>
- </main>;
+ </main>}</Localized>;
 }
 
 

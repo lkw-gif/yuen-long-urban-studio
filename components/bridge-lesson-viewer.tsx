@@ -2,6 +2,7 @@
 /* oxlint-disable react/react-compiler -- This effect owns a mutable Three.js runtime outside React's rendering model. */
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- The labelled 3D application supports keyboard navigation via its native keydown handler. */
 
+import { Localized } from '@/components/language-provider';
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -98,7 +99,7 @@ export default function BridgeLessonViewer(props: Props) {
       } finally { exported.update(7, false, false); disposeScene(exported.root); exported.materials.forEach(material => material.dispose()); }
     } catch { setNotice('下載未完成，請重試。'); } finally { setExporting(false); }
   }
-  return <div className="bridge-viewer">
+  return <Localized>{<div className="bridge-viewer">
     <div ref={hostRef} className="bridge-canvas" role="application" tabIndex={0} aria-label={`第 ${props.step + 1} 步：${props.title} 3D 模型。拖曳旋轉，雙指平移縮放，方向鍵平移，Home 重設。`} />
     <div className="bridge-scene-caption"><span>STEP {String(props.step + 1).padStart(2, '0')} / 08</span><strong aria-live="polite">{props.title}</strong>{props.exploded && <small>分解視圖</small>}</div>
     <div className="bridge-view-tools">
@@ -111,5 +112,5 @@ export default function BridgeLessonViewer(props: Props) {
     {error && <div className="bridge-error" role="alert"><p>{error}</p><button onClick={() => setAttempt(a => a + 1)}>重新載入模型</button></div>}
     <div className="bridge-scene-footer"><button onClick={download} disabled={!ready || exporting}><Download size={15}/>{exporting ? '準備中…' : '下載本步 3D'}</button></div>
     {notice && <output className="bridge-download-notice">{notice}</output>}
-  </div>;
+  </div>}</Localized>;
 }
