@@ -47,20 +47,61 @@ export function TinkercadGuide({
       <div className="tc-panel-bar">
         <span>① {live ? 'Tinkercad 實作截圖' : '按鈕位置參考'}</span>
         <div>
-          <button aria-pressed={live} onClick={() => setLive(!live)}>
-            {live ? '找按鈕' : '實作截圖'}
+          <button
+            aria-pressed={!live && !detail && !zoom}
+            onClick={() => {
+              setLive(false);
+              setDetail(false);
+              setZoom(false);
+            }}
+          >
+            找按鈕
           </button>
-          {live && <button onClick={() => setOpen(true)}>放大查看</button>}
-          {!live && step.diagram && (
-            <button aria-pressed={detail} onClick={() => setDetail(!detail)}>
-              {detail ? '工具位置' : '操作近鏡'}
-            </button>
-          )}
-          {!live && !detail && (
-            <button onClick={() => setZoom(!zoom)}>
-              {zoom ? '顯示全圖' : '放大位置'}
-            </button>
-          )}
+          <button aria-pressed={live} onClick={() => setLive(true)}>
+            實作截圖
+          </button>
+          <button onClick={() => setOpen(true)}>放大查看</button>
+          <button
+            aria-pressed={!live && !detail && !zoom}
+            onClick={() => {
+              setLive(false);
+              setDetail(false);
+              setZoom(false);
+            }}
+          >
+            工具位置
+          </button>
+          <button
+            aria-pressed={!live && detail}
+            disabled={!step.diagram}
+            onClick={() => {
+              setLive(false);
+              setDetail(true);
+              setZoom(false);
+            }}
+          >
+            操作近鏡
+          </button>
+          <button
+            aria-pressed={!live && !detail && zoom}
+            onClick={() => {
+              setLive(false);
+              setDetail(false);
+              setZoom(true);
+            }}
+          >
+            放大位置
+          </button>
+          <button
+            aria-pressed={!live && !detail && !zoom}
+            onClick={() => {
+              setLive(false);
+              setDetail(false);
+              setZoom(false);
+            }}
+          >
+            顯示全圖
+          </button>
         </div>
       </div>
       {live ? (

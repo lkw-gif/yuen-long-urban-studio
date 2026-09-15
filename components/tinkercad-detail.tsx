@@ -2,14 +2,10 @@
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- These labelled SVG diagrams cannot be represented by an img element. */
 /* oxlint-disable next/no-img-element -- These are unaltered historical reference crops with explicit provenance. */
 import { Localized } from '@/components/language-provider';
-import { useState } from 'react';
 import { TowerStep, TINKERCAD_SOURCES } from '@/lib/tower-lesson';
 import { sitePath } from '@/lib/site-path';
 
 export function TinkercadDetail({ step }: { step: TowerStep }) {
-  const [height, setHeight] = useState<'H' | 'Z'>(
-    step.diagram === 'position' ? 'Z' : 'H',
-  );
   const kind = step.diagram;
   const example =
     kind === 'dimensions'
@@ -22,31 +18,13 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
   return <Localized>{(
     <div className="tc-detail">
       <div className="tc-detail-label">操作示意 · 配合本步數值使用</div>
-      {(kind === 'dimensions' || kind === 'position') && (
+      {kind === 'dimensions' && (
         <>
-          <div className="tc-height-tabs">
-            <button
-              aria-pressed={height === 'H'}
-              onClick={() => setHeight('H')}
-            >
-              H 物件有多高
-            </button>
-            <button
-              aria-pressed={height === 'Z'}
-              onClick={() => setHeight('Z')}
-            >
-              Z 底部離地多高
-            </button>
-          </div>
           <svg
             className="tc-dimension-diagram"
             viewBox="0 0 570 280"
             role="img"
-            aria-label={
-              height === 'H'
-                ? '尺寸示意：H 是物件頂到底的高度，W 是左右寬，D 是前後深'
-                : '位置示意：Z 是物件底部到工作平面的距離；X 向右，Y 向後'
-            }
+            aria-label="尺寸示意：H 是物件頂到底的高度，W 是左右寬，D 是前後深"
           >
             <defs>
               <marker
@@ -77,8 +55,7 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
               stroke="#859db9"
               strokeDasharray="4 3"
             />
-            {height === 'H' ? (
-              <>
+            <>
                 <path
                   d="M176 75V177"
                   stroke="#cf8126"
@@ -112,48 +89,18 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
                 <text x="397" y="187">
                   D 深
                 </text>
-              </>
-            ) : (
-              <>
-                <path
-                  d="M175 183V216"
-                  stroke="#cf8126"
-                  strokeWidth="3"
-                  markerStart="url(#tc-arrow)"
-                  markerEnd="url(#tc-arrow)"
-                />
-                <text x="33" y="178">
-                  Z 底部離地
-                </text>
-                <text x="33" y="198" className="tc-svg-small">
-                  整件升起
-                </text>
-                <path
-                  d="M78 224H169M78 224 149 180"
-                  stroke="#7193ae"
-                  strokeWidth="2"
-                />
-                <circle cx="78" cy="224" r="4" fill="#cf8126" />
-                <text x="83" y="249">
-                  尺規原點
-                </text>
-                <text x="174" y="238">
-                  X 向右
-                </text>
-                <text x="93" y="171">
-                  Y 向後
-                </text>
-              </>
-            )}
-            <text x="391" y="238" className="tc-svg-small">
-              工作平面（Z=0）
-            </text>
+            </>
+            <text x="391" y="238" className="tc-svg-small">工作平面</text>
           </svg>
           <p className="tc-diagram-note">
-            點白色控制點，再點數字輸入尺寸。尺規連到原點的數字是位置距離；先看清標示，再按
-            Enter。
+            點白色控制點，再點數字輸入尺寸。先看清標示，再按 Enter。
           </p>
         </>
+      )}
+      {kind === 'position' && (
+        <p className="tc-diagram-note">
+          本步只需依照畫面指示放置物件，完成後再繼續。
+        </p>
       )}
       {kind === 'rotation' && (
         <>
@@ -191,7 +138,7 @@ export function TinkercadDetail({ step }: { step: TowerStep }) {
               旋轉後
             </text>
             <text x="111" y="248">
-              用底部彎箭頭；保持大樓直立，先轉再輸入 X／Y。
+              用底部彎箭頭；保持大樓直立。
             </text>
           </svg>
           <p className="tc-diagram-note">
