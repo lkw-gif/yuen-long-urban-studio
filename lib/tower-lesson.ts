@@ -31,6 +31,8 @@ export type TowerStep = {
     | 'rotation'
     | 'hole'
     | 'export';
+  /** Original screenshot number; the visible lesson can omit redundant steps. */
+  screenshotStep?: number;
 };
 export const TOWER_CHAPTERS = [
   '認識介面',
@@ -42,7 +44,7 @@ export const TOWER_CHAPTERS = [
   '其餘立面',
   '完成與匯出',
 ];
-export const TOWER_STEPS: TowerStep[] = [
+const RAW_TOWER_STEPS: TowerStep[] = [
   {
     chapter: 0,
     title: '開啟空白工作平面',
@@ -723,6 +725,146 @@ export const TOWER_STEPS: TowerStep[] = [
     diagram: 'export',
   },
 ];
+
+// Two original lessons were deliberately removed from the beginner flow:
+// the ruler-origin lesson (old step 9) and the tower-elevation lesson (old
+// step 12).  The remaining lesson keeps the useful modelling actions while
+// leaving out workplane X/Y/Z coordinates, which are easy for first-time
+// learners to confuse with object dimensions.
+export const TOWER_STEP_SOURCE_INDICES = RAW_TOWER_STEPS
+  .map((_, index) => index)
+  .filter((index) => ![8, 11].includes(index));
+
+type StepTextField = 'where' | 'action' | 'expect' | 'help';
+type StepOverride = Partial<Pick<TowerStep, StepTextField | 'values'>>;
+const cleanedSteps: Record<number, StepOverride> = {
+  6: {
+    help: '也可像實作截圖，在 Box 面板輸入 Width（W）、Length（D）和 Height（H）。高度 H 是物件本身多高；不要把尺寸數字和尺規距離混在一起。',
+  },
+  7: {
+    expect: '選取物件時，會出現尺寸數字和尺規距離。',
+    help: '保持尺規預設的端點量測。靠物件的是尺寸，連到尺規的是距離。',
+  },
+  8: {
+    action: '選取底座，將它的左前角貼齊尺規原點，並平放在格仔板上。',
+    help: '若原點落在底座中央，先切回端點量測。若物件變薄，你改到了尺寸；按 Undo，再改連接尺規的距離數字。',
+    values: undefined,
+  },
+  9: {
+    action: '拖入另一個 Box；只設定尺寸 W=20、D=20、H=108。',
+    values: [{ label: 'W × D × H', value: '20 × 20 × 108 mm' }],
+  },
+  10: {
+    expect: '兩個水平方向完成對齊。',
+    values: undefined,
+  },
+  12: {
+    where: '右邊 Box 和 Ruler 的尺寸數字。',
+    action: '拖入 Box，只設定尺寸 W=12、D=16、H=104。',
+    help: '側翼應碰到塔身，並落在薄底座上。',
+    values: [{ label: 'W × D × H', value: '12 × 16 × 104 mm' }],
+  },
+  13: {
+    action: '只選左翼，按 Duplicate 一次。新副本仍被選中，將它移到右側並保持相同高度。',
+    help: '窄視窗可能把按鈕收進頂部「⋯」選單；可放大瀏覽器視窗，或用 Ctrl+D／⌘D。剛複製時兩件重疊，直接移動副本；若原件被搬走，Undo 後重新複製。',
+    values: undefined,
+  },
+  14: {
+    action: '點空白取消選取，再選右翼，複製一次。按住 Shift 拖底部旋轉箭頭，以 45° 一格轉至 90°。',
+    help: '要在格仔板上轉方向，不是把高柱放倒。轉錯軸就 Undo。旋轉後查看 3D 圖的完成方向。',
+    values: [
+      { label: '繞垂直軸', value: '90°' },
+      { label: '旋轉後 W × D', value: '16 × 12 mm' },
+    ],
+  },
+  15: {
+    action: '先點空白取消選取，再重新選前翼，以中斷上次的重複變換。複製一次，把副本移到後方並保持相同高度。',
+    help: '底座外伸出物件時，逐件點選核對，不要把整座樓一起移動。',
+    values: undefined,
+  },
+  16: {
+    where: '右邊 Box；選取後輸入尺寸。',
+    action: '新增 Box，只設定尺寸 W=10、D=10、H=4.3，放在中央塔頂。',
+    help: '機房的 H=4.3。若看不到，按 Home，再放大塔頂。',
+    values: [{ label: 'W × D × H', value: '10 × 10 × 4.3 mm' }],
+  },
+  20: {
+    action: '拖入 Hole Box，只設定尺寸 W=3.2、D=1.1、H=2。',
+    values: [
+      { label: 'W × D × H', value: '3.2 × 1.1 × 2 mm' },
+      { label: '凹入牆面', value: '0.9 mm' },
+    ],
+  },
+  21: {
+    action: '複製一次，把新副本移到右邊，並保持相同高度。完成後保持新副本被選中。',
+    expect: '同一高度有兩個窗戶，水平間隔 5 mm。',
+    values: [{ label: '水平間隔', value: '5 mm' }],
+  },
+  22: {
+    expect: '一排共有 3 個孔洞。',
+    help: '若副本仍重疊，先把它移到右邊。重複變換要保留上一個副本選取狀態；選別的物件會中斷記憶。',
+    values: undefined,
+  },
+  25: {
+    where: '選取整排孔洞後，使用 Duplicate 把它向上複製。',
+    action: '複製一排，將副本向上移動 4 mm。保持副本選中。',
+    help: '要改底部離地高度，不是孔洞本身高度 H；H 保持 2。若整排變高，Undo 再調整離地高度。',
+    values: [
+      { label: '每排升高', value: '4 mm' },
+      { label: '孔洞高 H', value: '2 mm' },
+    ],
+  },
+  26: {
+    action: '先按 Duplicate 一次，確認第三排已分開；再按 23 次，不要取消選取。完成後檢查共有 26 排。',
+    help: '若多一排，立刻 Undo 一次。若第三排重疊，先調整第二排高度；不要在未核對前連按很多次。',
+    values: [
+      { label: '總排數', value: '26 排' },
+      { label: '再按複製', value: '24 次' },
+    ],
+  },
+  27: {
+    expect: '整面 78 個孔洞變成一個可選取的孔洞群組。',
+    help: '如果顯示 27 個物件，代表大樓可能仍然顯示。取消選取、隱藏大樓，再重新全選。',
+    values: undefined,
+  },
+  28: {
+    action: '取消選取，再選前面孔洞群組，複製一次。拖底部旋轉箭頭，在格仔板上轉 90°（−90° 亦可）。按頂部燈泡 Show all，顯示大樓作對照。',
+    help: '旋轉後查看 3D 圖；若窗戶橫躺，旋轉軸選錯了，按 Undo。',
+    values: undefined,
+  },
+  29: {
+    action: '先選藍色大樓，按 Shape 面板的 Hide selected 再次隱藏它。取消選取，再選右側整片孔洞。複製後移到左側，不用再旋轉。',
+    help: '兩側使用相同的矩形孔洞，複製和移動即可完成。',
+    values: undefined,
+  },
+  30: {
+    action: '大樓保持隱藏，取消選取再選前面那片孔洞，複製一次並移到後方。最後按頂部燈泡 Show all，重新顯示大樓。',
+    values: undefined,
+  },
+  32: {
+    action: '核對 W=48、D=48、H=114.3。旋轉確認四面窗戶、機房和底座都仍存在。',
+    help: '若外框尺寸變大，可能有未移好的副本留在外面。Undo 到群組前，逐片檢查再合併。基本版跳過窗戶也應是同一總尺寸。',
+    values: [{ label: 'W × D × H', value: '48 × 48 × 114.3 mm' }],
+  },
+};
+
+const cleanStep = (step: TowerStep, sourceIndex: number): TowerStep => {
+  const override = cleanedSteps[sourceIndex] ?? {};
+  const values = override.values === undefined && sourceIndex in cleanedSteps
+    ? undefined
+    : (override.values ?? step.values);
+  return {
+    ...step,
+    ...override,
+    values,
+    screenshotStep: sourceIndex + 1,
+  };
+};
+
+export const TOWER_STEPS: TowerStep[] = TOWER_STEP_SOURCE_INDICES.map((sourceIndex) =>
+  cleanStep(RAW_TOWER_STEPS[sourceIndex], sourceIndex),
+);
+
 export const TOOL_SPOTS: Record<
   ToolSpot,
   { label: string; rect: [number, number, number, number] }

@@ -21,6 +21,7 @@ export default function TowerWorkshop() {
   const [index, setIndex] = useState(0),
     [finished, setFinished] = useState(true);
   const step = TOWER_STEPS[index];
+  const displayStepNumber = step.screenshotStep ?? index + 1;
   const select = (next: number) => {
     setIndex(next);
     setFinished(false);
@@ -47,7 +48,7 @@ export default function TowerWorkshop() {
             <span>3D DESIGN / TINKERCAD</span>
             <h1>從第一個方塊，到藍色住宅大樓</h1>
             <p>
-              8 個階段 · 36 張真實操作截圖 · 跟着 Tinkercad 實作畫面，與 3D
+              8 個階段 · 34 張真實操作截圖 · 跟着 Tinkercad 實作畫面，與 3D
               示範逐步對照。
             </p>
           </div>
@@ -80,7 +81,7 @@ export default function TowerWorkshop() {
             >
               {TOWER_STEPS.map((s, i) => (
                 <option key={s.title} value={i}>
-                  {String(i + 1).padStart(2, '0')} · {s.title}
+                  {String(s.screenshotStep ?? i + 1).padStart(2, '0')} · {s.title}
                 </option>
               ))}
             </select>
@@ -91,7 +92,7 @@ export default function TowerWorkshop() {
               上一步
             </button>
             <span aria-live="polite">
-              {index + 1} / {TOWER_STEPS.length}
+              {displayStepNumber} / {TOWER_STEPS.length}
             </span>
             <button
               disabled={index === TOWER_STEPS.length - 1}
@@ -103,7 +104,7 @@ export default function TowerWorkshop() {
           </div>
         </div>
         <div className="tc-visuals">
-          <TinkercadGuide key={index} step={step} stepNumber={index + 1} />
+          <TinkercadGuide key={index} step={step} stepNumber={displayStepNumber} />
           <div className="tc-model-panel">
             <div className="tc-panel-bar">
               <span>② 對照 3D 模型</span>
@@ -129,7 +130,7 @@ export default function TowerWorkshop() {
         </div>
         <section className="tc-instruction" aria-labelledby="tc-step-title">
           <div className="tc-instruction-title">
-            <span>STEP {String(index + 1).padStart(2, '0')}</span>
+            <span>STEP {String(displayStepNumber).padStart(2, '0')}</span>
             <h2 id="tc-step-title" aria-live="polite">
               {step.title}
             </h2>

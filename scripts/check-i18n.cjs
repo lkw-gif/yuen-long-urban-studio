@@ -21,7 +21,8 @@ function load(file) {
 const {translateText}=load('lib/i18n.ts');
 const {TOWER_STEPS,TOWER_CHAPTERS,TOOL_SPOTS}=load('lib/tower-lesson.ts');
 const {TOWER_STEP_EN}=load('lib/tower-lesson.en.ts');
-assert.equal(TOWER_STEP_EN.length,TOWER_STEPS.length);
+assert.equal(TOWER_STEP_EN.length,36);
+assert.equal(TOWER_STEPS.length,34);
 const originals = new Set();
 for (const name of fs.readdirSync('components').filter(n=>n.endsWith('.tsx') && n!=='language-provider.tsx')) {
   const file='components/'+name,source=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
@@ -32,6 +33,15 @@ TOWER_CHAPTERS.forEach(s=>originals.add(s));Object.values(TOOL_SPOTS).forEach(s=
 const missing=[];
 for(const source of originals){const en=translateText(source,'en');if(/[\u3400-\u9fff]/.test(en))missing.push({source,en});assert.equal(translateText(source,'zh-Hant'),source);}
 assert.deepEqual(missing,[], 'Untranslated authored text');
+const positionPattern = /\b[XYZ]\b/i;
+for (const step of TOWER_STEPS) {
+  for (const field of ['where', 'action', 'expect', 'help'])
+    assert.equal(positionPattern.test(step[field]), false, `Position coordinate remains in ${step.title}: ${step[field]}`);
+  for (const value of step.values ?? [])
+    assert.equal(positionPattern.test(`${value.label} ${value.value}`), false, `Position value remains in ${step.title}`);
+  for (const field of ['where', 'action', 'expect', 'help'])
+    assert.equal(positionPattern.test(translateText(step[field], 'en')), false, `English position coordinate remains in ${step.title}`);
+}
 assert.match(translateText('生活社區模型已下載，可匯入 Blender。','en'),/Living Community model downloaded/);
 assert.equal(translateText('街區建物 01','en'),'Context building 01');
 const React=require('react');
@@ -45,4 +55,4 @@ const input=localizeTree(React.createElement('option',{value:'生活社區'},'�
 assert.equal(input.props.value,'生活社區');assert.equal(input.props.children,'Living Community');
 const link=localizeTree(React.createElement('a',{href:load('lib/site-path.ts').sitePath('/concepts/')},'概念模型'),'en');
 assert.match(link.props.href,/\/concepts\/\?lang=en$/);
-console.log(`Translation checks passed: ${originals.size} authored strings, 36 complete lessons, unchanged IDs/refs/events and language-aware links.`);
+console.log(`Translation checks passed: ${originals.size} authored strings, 34 visible lessons (36 complete source translations), unchanged IDs/refs/events and language-aware links.`);

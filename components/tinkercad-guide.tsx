@@ -22,12 +22,13 @@ export function TinkercadGuide({
   const tool = step.tool;
   const [live, setLive] = useState(true);
   const [open, setOpen] = useState(false);
+  const screenshotStep = step.screenshotStep ?? stepNumber;
   const capture = sitePath(
-    `/tinkercad/live/step-${String(stepNumber).padStart(2, '0')}.jpg`,
+    `/tinkercad/live/step-${String(screenshotStep).padStart(2, '0')}.jpg`,
   );
-  const caption = [24, 25, 26, 27, 28, 30].includes(stepNumber)
+  const caption = [24, 25, 26, 27, 28, 30].includes(screenshotStep)
     ? '大樓暫時隱藏，方便選取及複製窗洞。'
-    : stepNumber === 36
+    : screenshotStep === 36
       ? 'Tinkercad 完成模型；STL 已匯出，尚未實體打印。'
       : '點圖片放大，查看實際按鈕、選取狀態與尺寸。';
   const [zoom, setZoom] = useState(false),

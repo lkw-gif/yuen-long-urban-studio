@@ -18,7 +18,11 @@ import { disposeScene } from '../lib/three-disposal.ts';
 const near = (a, b, tol = 1e-3) =>
   assert.ok(Math.abs(a - b) < tol, `${a} ≈ ${b}`);
 assert.equal(TOWER_CHAPTERS.length, 8);
-assert.equal(TOWER_STEPS.length, 36);
+assert.equal(TOWER_STEPS.length, 34);
+assert.deepEqual(
+  TOWER_STEPS.map((s) => s.screenshotStep),
+  [...Array(36).keys()].map((n) => n + 1).filter((n) => ![9, 12].includes(n)),
+);
 assert.equal(new Set(TOWER_STEPS.map((s) => s.title)).size, TOWER_STEPS.length);
 for (let chapter = 0; chapter < 8; chapter++)
   assert.ok(TOWER_STEPS.some((s) => s.chapter === chapter));
@@ -45,7 +49,7 @@ for (const file of [
   assert.ok(existsSync('public/tinkercad/' + file));
 
 // Keep screenshot bytes untouched and serve them with their actual JPEG extension.
-for (let n = 1; n <= TOWER_STEPS.length; n++) {
+for (const n of TOWER_STEPS.map((s) => s.screenshotStep)) {
   const jpeg = readFileSync(
     `public/tinkercad/live/step-${String(n).padStart(2, '0')}.jpg`,
   );
@@ -99,7 +103,7 @@ near(liveMin[2], 0);
 for (const count of liveEdges.values())
   assert.equal(count, 2, 'Actual Tinkercad STL has closed edges');
 console.log(
-  `Live assets passed: 36 JPEG screenshots, Tinkercad STL ${liveCount} triangles, closed edges and correct dimensions.`,
+  `Live assets passed: 34 lesson screenshots (9 and 12 omitted), Tinkercad STL ${liveCount} triangles, closed edges and correct dimensions.`,
 );
 
 // Forward and reverse navigation must produce self-contained, finite stages.
@@ -220,5 +224,5 @@ near(minZ, 0);
 near(maxZ, 114.3);
 disposeScene(model.root);
 console.log(
-  `Tower passed: 36 steps, 8 chapters, 312 recesses, watertight connected solid, ${triangles} triangles, millimetre STL.`,
+  `Tower passed: 34 steps, 8 chapters, 312 recesses, watertight connected solid, ${triangles} triangles, millimetre STL.`,
 );
