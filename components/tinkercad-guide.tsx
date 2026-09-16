@@ -31,28 +31,22 @@ export function TinkercadGuide({
     : screenshotStep === 36
       ? 'Tinkercad 完成模型；STL 已匯出，尚未實體打印。'
       : '點圖片放大，查看實際按鈕、選取狀態與尺寸。';
-  const [zoom, setZoom] = useState(false),
-    [detail, setDetail] = useState(
-      Boolean(step.diagram && ['rotate', 'color', 'workplane'].includes(tool)),
-    );
+  const [detail, setDetail] = useState(
+    Boolean(step.diagram && ['rotate', 'color', 'workplane'].includes(tool)),
+  );
   const spot = TOOL_SPOTS[tool],
     [x, y, w, h] = spot.rect;
   const contextual = ['rotate', 'color'].includes(tool);
-  const width = Math.max(w + 190, 560),
-    height = Math.max(h + 100, 260);
-  const vx = Math.max(0, Math.min(1912 - width, x + w / 2 - width / 2)),
-    vy = Math.max(0, Math.min(901 - height, y + h / 2 - height / 2));
   return <Localized>{(
     <div className="tc-guide">
       <div className="tc-panel-bar">
         <span>① {live ? 'Tinkercad 實作截圖' : '按鈕位置參考'}</span>
         <div>
           <button
-            aria-pressed={!live && !detail && !zoom}
+            aria-pressed={!live && !detail}
             onClick={() => {
               setLive(false);
               setDetail(false);
-              setZoom(false);
             }}
           >
             找按鈕
@@ -62,45 +56,14 @@ export function TinkercadGuide({
           </button>
           <button onClick={() => setOpen(true)}>放大查看</button>
           <button
-            aria-pressed={!live && !detail && !zoom}
-            onClick={() => {
-              setLive(false);
-              setDetail(false);
-              setZoom(false);
-            }}
-          >
-            工具位置
-          </button>
-          <button
             aria-pressed={!live && detail}
             disabled={!step.diagram}
             onClick={() => {
               setLive(false);
               setDetail(true);
-              setZoom(false);
             }}
           >
             操作近鏡
-          </button>
-          <button
-            aria-pressed={!live && !detail && zoom}
-            onClick={() => {
-              setLive(false);
-              setDetail(false);
-              setZoom(true);
-            }}
-          >
-            放大位置
-          </button>
-          <button
-            aria-pressed={!live && !detail && !zoom}
-            onClick={() => {
-              setLive(false);
-              setDetail(false);
-              setZoom(false);
-            }}
-          >
-            顯示全圖
           </button>
         </div>
       </div>
@@ -129,7 +92,7 @@ export function TinkercadGuide({
         <>
           <svg
             className="tc-editor-map"
-            viewBox={zoom ? `${vx} ${vy} ${width} ${height}` : '0 0 1912 901'}
+            viewBox="0 0 1912 901"
             role="img"
             aria-label={`使用者提供的 Tinkercad 截圖；${spot.label}的位置`}
           >
