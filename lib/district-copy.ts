@@ -1,4 +1,8 @@
 export const DISTRICT_ZH:Record<string,string>={
+ 'River':'河流','Fixed river':'固定河流','Fit site':'顯示全區','Expand workspace':'放大工作區','Exit expanded view':'退出放大',
+ 'Selected object dimensions':'選取物件尺寸','Click a building to show its dimensions.':'點選建築，才會顯示該建築的尺寸。',
+ 'Wheel to zoom · right-drag to pan':'滾輪縮放 · 右鍵拖曳平移','Bamboo frame · 2 mm acrylic deck · 12 mm guards.':'竹籤支架 · 2 mm 亞加力膠板橋面 · 12 mm 欄板。',
+ 'Design checks':'檢查設計','Building overlaps the river':'建築與河流重疊',
  'Confirm action':'確認操作','Confirm':'確認',
  'Yuen Long District':'元朗街區','District design':'街區設計','A2 board':'A2 底板','Plan in millimetres. Build at the same size.':'以毫米規劃，按相同尺寸製作。',
  'Select & move':'選取／移動','Zones':'土地分區','Roads':'道路','Buildings':'建築物','Bridges':'天橋','Decorations':'裝飾',

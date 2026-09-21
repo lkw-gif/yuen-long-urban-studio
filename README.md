@@ -10,6 +10,8 @@ The bilingual library contains 14 printed building templates and 6 wooden templa
 
 Designs are stored in the current browser and can be downloaded/reopened as validated JSON. PNG exports cover the plan and 3D preview; CSV export lists quantities and dimensions. The preview uses facade accents, not printable or laser-cut geometry. Test the design rules with `node scripts/check-district.cjs`.
 
+Both views frame the usable site, with an expanded workspace available. The plan supports cursor-centred mouse-wheel zoom and right-button panning; the 3D view shows a dimension label only for the clicked building or bridge. A fixed schematic western river is 40 × 260 mm, proportioned from the supplied layout reference. Footpaths are grey and newly drawn roads default to 15 mm; existing designs keep their stored road widths and object positions. Bridges use bamboo supports and 2 mm translucent acrylic decks with 12 mm clear guards, matching the bridge workshop material approach.
+
 An interactive Three.js study model traced from the two user-provided map screenshots. The street-aligned perimeter has continuous asphalt, concrete curbs and white road-edge markings. There is no blue outline. Eight named buildings plus contextual blocks, two playgrounds, roads, vegetation and a western channel are included. Heights, appearance and horizontal units are illustrative, not surveyed.
 
 ## Use

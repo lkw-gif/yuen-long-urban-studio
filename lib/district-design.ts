@@ -9,6 +9,11 @@ export const MODEL_MAP = Object.fromEntries(MODELS.map(m=>[m.id,m]));
 export const BOARD = {width:594,depth:420};
 const fit=574/982;
 export const SITE:Point[]=BOUNDARY.map(([x,y])=>({x:10+(x-12)*fit,y:(420-480*fit)/2+(y-14)*fit}));
+// Schematic western river, proportioned from the supplied layout reference.
+// A fixed backdrop keeps existing version-1 student designs fully compatible.
+const riverTop=Math.round((SITE[0].y+10)*10)/10;
+export const RIVER:Point[]=[{x:15,y:riverTop},{x:55,y:riverTop},{x:55,y:riverTop+260},{x:15,y:riverTop+260}];
+export const BRIDGE_DECK_THICKNESS=2;
 export const ZONES = {residential:'#75a8ed',commercial:'#e9ac67',community:'#b79ce6',green:'#7ebd88',plaza:'#d4c89c'};
 export type ZoneKind=keyof typeof ZONES;
 export type Building = Point & {id:string;modelId:string;rotation:number};
@@ -41,6 +46,7 @@ export function validate(d:Design):string|null {
  return null;
 }
 export function warnings(d:Design):string[]{const result:string[]=[];for(let i=0;i<d.buildings.length;i++)for(let j=i+1;j<d.buildings.length;j++)if(overlaps(footprint(d.buildings[i]),footprint(d.buildings[j])))result.push(`${d.buildings[i].modelId} / ${d.buildings[j].modelId}`);return result;}
+export function riverOverlaps(d:Design):string[]{return d.buildings.filter(b=>overlaps(footprint(b),RIVER)).map(b=>b.modelId);}
 export function blockedRoutes(d:Design):string[]{return d.buildings.filter(b=>d.roads.some(r=>r.points.slice(1).some((q,i)=>{const p=r.points[i],length=Math.hypot(q.x-p.x,q.y-p.y);if(!length)return false;const nx=-(q.y-p.y)/length*r.width/2,ny=(q.x-p.x)/length*r.width/2;return overlaps(footprint(b),[{x:p.x+nx,y:p.y+ny},{x:q.x+nx,y:q.y+ny},{x:q.x-nx,y:q.y-ny},{x:p.x-nx,y:p.y-ny}]);}))).map(b=>b.modelId);}
 export function roadLength(r:Road):number{return r.points.slice(1).reduce((n,p,i)=>n+Math.hypot(p.x-r.points[i].x,p.y-r.points[i].y),0);}
 export function parseDesign(input:unknown):Design {
