@@ -11,7 +11,7 @@ export default function BridgeWorkshop() {
   const [step, setStep] = useState(0);
   const [exploded, setExploded] = useState(false), [highlight, setHighlight] = useState(false);
   return <Localized>{<main className="bridge-workshop">
-    <header className="main-header"><a className="brand" href={sitePath('/')} aria-label="回到元朗街區"><Box size={30}/><strong>街區<span>URBAN<br/>STUDIO</span></strong></a><StudioNav current="bridge"/></header>
+    <header className="main-header"><a className="brand" href={sitePath('/')} aria-label="回到元朗街區"><Box size={30}/><strong>元朗街區<span>URBAN<br/>STUDIO</span></strong></a><StudioNav current="bridge"/></header>
     <div className="bridge-step-header"><h1>香港天橋製作</h1><div className="bridge-display-options">
       <button aria-pressed={exploded} onClick={() => setExploded(!exploded)}><Layers3 size={16}/>分解視圖</button>
       <button aria-pressed={highlight} onClick={() => setHighlight(!highlight)}><Eye size={16}/>本步重點</button>

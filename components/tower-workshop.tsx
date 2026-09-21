@@ -32,7 +32,7 @@ export default function TowerWorkshop() {
         <a className="brand" href={sitePath('/')}>
           <Box size={28} />
           <strong>
-            街區
+            元朗街區
             <span>
               URBAN
               <br />

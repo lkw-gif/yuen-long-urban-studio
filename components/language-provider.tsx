@@ -5,8 +5,9 @@ import { sitePath } from '@/lib/site-path';
 
 const LanguageContext = createContext<{language: Language; setLanguage: (value: Language) => void}>({language:'zh-Hant', setLanguage: () => {}});
 const storageKey = 'urban-studio-language';
-const pagePaths = ['/', '/concepts/', '/bridge-workshop/', '/3d-design/'].map(sitePath);
+const pagePaths = ['/', '/concepts/', '/bridge-workshop/', '/3d-design/', '/district-design/'].map(sitePath);
 const titles: Record<string, [string, string]> = {
+  'district-design': ['街區設計 · 元朗街區', 'District Designer · Yuen Long District'],
   '3d-design': ['3D design · Tinkercad 住宅大樓教學', '3D design · Tinkercad Residential Tower Tutorial'],
   'bridge-workshop': ['香港天橋製作 · Urban Studio', 'Hong Kong Skybridge Workshop · Urban Studio'],
   concepts: ['概念模型 · Urban Studio', 'Concept Models · Urban Studio'],
@@ -67,6 +68,7 @@ export function Localized({children}: {children: ReactNode}) {
   const {language} = useContext(LanguageContext);
   return localizeTree(children, language);
 }
+export function useLanguage() { return useContext(LanguageContext).language; }
 export function LanguageSwitcher() {
   const {language, setLanguage} = useContext(LanguageContext);
   return <label className="language-switcher" data-no-localize="true">

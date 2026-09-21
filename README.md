@@ -2,6 +2,14 @@
 
 [GitHub Pages 網站](https://lkw-gif.github.io/yuen-long-urban-studio/)
 
+## A2 district designer
+
+The `/district-design/` workspace plans physical models on a 594 × 420 mm A2 board. The original irregular site outline is uniformly fitted to 574 × 280.6 mm and centred on the sheet. All model, road and bridge coordinates use millimetres; the reference district's illustrative world units are not used as physical dimensions.
+
+The bilingual library contains 14 printed building templates and 6 wooden templates, with dimensions derived from the teaching packs (including printed base plates and 2 mm wood panels). A complete multi-block template counts as one model. Add, duplicate and import enforce at most 6 printed and 4 wooden models; bridges and decorations have no quantity cap. Top-view editing supports zones, polyline roads/paths, rotation, exact dimensions, moveable route vertices, footprint boundary checks and overlap warnings. Straight bridges attach to module walls at a shared deck height and update when buildings move.
+
+Designs are stored in the current browser and can be downloaded/reopened as validated JSON. PNG exports cover the plan and 3D preview; CSV export lists quantities and dimensions. The preview uses facade accents, not printable or laser-cut geometry. Test the design rules with `node scripts/check-district.cjs`.
+
 An interactive Three.js study model traced from the two user-provided map screenshots. The street-aligned perimeter has continuous asphalt, concrete curbs and white road-edge markings. There is no blue outline. Eight named buildings plus contextual blocks, two playgrounds, roads, vegetation and a western channel are included. Heights, appearance and horizontal units are illustrative, not surveyed.
 
 ## Use
