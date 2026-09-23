@@ -16,7 +16,7 @@ The GitHub Pages build displays the Google Identity Services sign-in button and 
 3. For local testing, also add the local origin and port you use.
 4. Copy the Web client ID. The client ID is public; do not put a client secret in this repository.
 
-Google's own guidance requires checking the ID token's audience and hosted-domain claim when restricting access to a Workspace domain. The static Pages build calls Google's `tokeninfo` endpoint to validate the token before checking those claims. A server-side verifier or an access proxy remains the stronger option for protecting private data because GitHub Pages serves static files publicly.
+Google's own guidance requires checking the ID token's signature, audience, issuer, expiry and hosted-domain claim when restricting access to a Workspace domain. The static Pages build verifies the signature against Google's public signing keys before checking those claims. A server-side verifier or an access proxy remains the stronger option for protecting private data because GitHub Pages serves static files publicly.
 
 ## GitHub repository setup
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { verifyGoogleIdToken } from '@/lib/verify-google-id-token';
 
 const ALLOWED_DOMAIN = 'keilong.edu.hk';
 const SESSION_KEY = 'yuen-long-urban-studio-google-session';
@@ -40,16 +41,6 @@ declare global {
 
 type GateState = 'loading' | 'signed-out' | 'checking' | 'allowed' | 'denied' | 'missing-config';
 
-function isAllowedEmail(email: string, hostedDomain: string, verified: boolean, audience: string) {
-  const normalizedEmail = email.trim().toLowerCase();
-  return (
-    audience === clientId &&
-    verified &&
-    hostedDomain.trim().toLowerCase() === ALLOWED_DOMAIN &&
-    normalizedEmail.endsWith(`@${ALLOWED_DOMAIN}`)
-  );
-}
-
 function restoreCredential() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? 'null') as { credential?: string; exp?: number } | null;
@@ -63,27 +54,7 @@ function restoreCredential() {
 }
 
 async function verifyCredential(credential: string) {
-  const result = await fetch('https://oauth2.googleapis.com/tokeninfo', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ id_token: credential }),
-    cache: 'no-store',
-  });
-  if (!result.ok) throw new Error('Google token validation failed');
-  const claims = (await result.json()) as {
-    aud?: string;
-    email?: string;
-    email_verified?: boolean | string;
-    exp?: string;
-    hd?: string;
-  };
-  const accountEmail = claims.email?.trim() ?? '';
-  const verified = claims.email_verified === true || claims.email_verified === 'true';
-  return {
-    allowed: isAllowedEmail(accountEmail, claims.hd ?? '', verified, claims.aud ?? ''),
-    email: accountEmail,
-    exp: Number(claims.exp) * 1000,
-  };
+  return verifyGoogleIdToken(credential, clientId, ALLOWED_DOMAIN);
 }
 
 export default function GoogleAuthGate({ children }: { children: ReactNode }) {
@@ -131,8 +102,7 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
           setState('checking');
           setMessage('正在確認學校帳戶…');
           try {
-            // Google validates the signature and expiry before this static page
-            // checks the intended audience and Workspace domain.
+            // Verify Google's signature and the intended audience and Workspace domain.
             const verified = await verifyCredential(response.credential);
             if (!verified.allowed) {
               setState('denied');
