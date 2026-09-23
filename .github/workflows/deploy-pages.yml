@@ -41,10 +41,18 @@ jobs:
 
       - name: Build static site
         # Both language versions must remain complete.
-        run: node scripts/check-i18n.cjs && npm run build
+        run: |
+          if [ -z "$NEXT_PUBLIC_GOOGLE_CLIENT_ID" ]; then
+            echo "::error::Set the GOOGLE_CLIENT_ID repository variable before deploying GitHub Pages."
+            exit 1
+          fi
+          node scripts/check-i18n.cjs && npm run build
         env:
           GITHUB_PAGES: 'true'
           NEXT_PUBLIC_BASE_PATH: /yuen-long-urban-studio
+          # Set the repository variable GOOGLE_CLIENT_ID to the Web OAuth
+          # client ID from Google Cloud Console. Client IDs are public by design.
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
 
       - name: Prepare Pages routes and assets
         run: node scripts/prepare-pages.mjs

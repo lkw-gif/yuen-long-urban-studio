@@ -71,4 +71,15 @@ html[lang='en'] .lesson-steps strong{line-height:1.5;overflow-wrap:normal}
 .access-gate-account{padding:12px 14px;border:1px solid #4b5752;border-radius:7px;background:#161b1d;color:#91a09a!important;font-family:var(--font-geist-mono),monospace;font-size:13px!important;overflow-wrap:anywhere}
 .access-gate-action{display:inline-flex;margin-top:13px;padding:11px 16px;border:1px solid #ca8d5d;border-radius:6px;background:#bd8052;color:#211d19;text-decoration:none;font-size:14px;font-weight:650}
 .access-gate-action:hover{filter:brightness(1.1)}
+.google-auth-gate{min-height:100dvh;display:grid;place-items:center;padding:32px;background:radial-gradient(circle at 50% 20%,#3b4445 0,#25292b 52%,#1d2022 100%);color:#e7ece8}
+.google-auth-card{width:min(560px,100%);padding:42px 44px;border:1px solid #6a756f;border-radius:12px;background:#202628e8;box-shadow:0 24px 70px #111a;text-align:center}
+.google-auth-card h1{margin:0;color:#f2bb89;font-size:clamp(25px,4vw,38px);line-height:1.25;letter-spacing:.08em}
+.google-auth-card h2{margin:10px 0 26px;color:#d4ded7;font-size:20px;font-weight:450}
+.google-auth-card p{margin:12px 0;color:#b9c5bf;font-size:15px;line-height:1.8}
+.google-auth-card strong{color:#f1c397}
+.google-auth-help{margin-bottom:25px!important}
+.google-auth-button{display:flex;justify-content:center;min-height:44px;margin:22px auto 0}
+.google-auth-status{color:#e9c696!important}
+.google-auth-error{padding:10px 12px;border:1px solid #9b675a;border-radius:7px;background:#4e2d2b;color:#f1b5a3!important;font-size:14px!important}
+.google-auth-retry{margin-top:14px;cursor:pointer}
 @media(max-width:660px){.access-gate{padding:18px}.access-gate-card{padding:29px 24px}.access-gate-eyebrow{font-size:11px;letter-spacing:1.3px}.school-title{font-size:12px}.scene-school-title{font-size:12px}}

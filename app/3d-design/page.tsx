@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import TowerWorkshop from '@/components/tower-workshop';
 import './design.css';
-export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: '3D design · Tinkercad 住宅大樓教學',
   description:

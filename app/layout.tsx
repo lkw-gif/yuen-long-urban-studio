@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { sitePath } from '@/lib/site-path';
 import { LanguageProvider } from '@/components/language-provider';
 import { chatGPTSignOutPath, requireChatGPTUser } from './chatgpt-auth';
+import GoogleAuthGate from './google-auth-gate';
 import './globals.css';
 
 const geistSans = Geist({
@@ -22,24 +23,40 @@ export const metadata: Metadata = {
   icons: { icon: sitePath('/favicon.svg') },
 };
 
-export const dynamic = 'force-dynamic';
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+export const dynamic = isGitHubPages ? 'force-static' : 'force-dynamic';
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (isGitHubPages) {
+    return (
+      <BaseLayout>
+        <GoogleAuthGate>
+          <LanguageProvider>{children}</LanguageProvider>
+        </GoogleAuthGate>
+      </BaseLayout>
+    );
+  }
+  return <ChatGPTProtectedLayout>{children}</ChatGPTProtectedLayout>;
+}
+
+async function ChatGPTProtectedLayout({ children }: { children: React.ReactNode }) {
   const requestHeaders = await headers();
   const returnTo = requestHeaders.get('x-invoke-path') ?? requestHeaders.get('x-forwarded-uri') ?? '/';
   const user = await requireChatGPTUser(returnTo);
   const allowed = user.email.trim().toLowerCase().endsWith('@keilong.edu.hk');
 
+  return <BaseLayout><LanguageProvider>{allowed ? children : <AccessDenied email={user.email} />}</LanguageProvider></BaseLayout>;
+}
+
+function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-Hant" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <LanguageProvider>{allowed ? children : <AccessDenied email={user.email} />}</LanguageProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
       </body>
     </html>
   );
