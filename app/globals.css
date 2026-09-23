@@ -83,3 +83,28 @@ html[lang='en'] .lesson-steps strong{line-height:1.5;overflow-wrap:normal}
 .google-auth-error{padding:10px 12px;border:1px solid #9b675a;border-radius:7px;background:#4e2d2b;color:#f1b5a3!important;font-size:14px!important}
 .google-auth-retry{margin-top:14px;cursor:pointer}
 @media(max-width:660px){.access-gate{padding:18px}.access-gate-card{padding:29px 24px}.access-gate-eyebrow{font-size:11px;letter-spacing:1.3px}.school-title{font-size:12px}.scene-school-title{font-size:12px}}
+
+/* Google sign-in landing page */
+.google-auth-gate{position:relative;isolation:isolate;overflow:hidden;padding:24px;background:radial-gradient(ellipse at 50% 24%,#39413f 0,#272c2d 43%,#191d1f 100%)}
+.google-auth-gate:before,.google-auth-gate:after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid #c9956a18;transform:rotate(-32deg)}
+.google-auth-gate:before{width:min(72vw,880px);height:240px;top:-76px;left:-14%;border-radius:50%}
+.google-auth-gate:after{width:min(70vw,820px);height:220px;right:-18%;bottom:-112px;border-radius:50%}
+.google-auth-card{position:relative;width:min(520px,100%);padding:34px 40px 36px;border:1px solid #75807866;border-radius:18px;background:linear-gradient(145deg,#252c2deF,#1c2224f5);box-shadow:0 28px 90px #090d0e77,inset 0 1px #ffffff0a;text-align:center}
+.google-auth-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;text-align:left}
+.google-auth-mark{display:grid;place-items:center;width:43px;height:43px;border:1px solid #d99b6a66;border-radius:12px;background:linear-gradient(145deg,#d79b6830,#d79b680b);color:#efb17e}
+.google-auth-mark svg{width:31px;height:31px}
+.google-auth-brand-copy .access-gate-eyebrow{margin:0;color:#eab184;font-size:11px;letter-spacing:1.9px;font-weight:650}
+.google-auth-brand-copy>span{display:block;margin-top:4px;color:#929f9c;font-size:10px;letter-spacing:1.7px}
+.google-auth-card h1{font-size:clamp(23px,3.7vw,33px);letter-spacing:.055em}
+.google-auth-card h2{margin:9px 0 17px;font-size:17px;color:#b8c5bf;font-weight:450;letter-spacing:.08em}
+.google-auth-divider{display:flex;justify-content:center;margin:0 auto 17px}
+.google-auth-divider span{width:42px;height:2px;border-radius:2px;background:#e3a574}
+.google-auth-card .google-auth-intro{margin:0 0 8px;color:#e0e6e1;font-size:15px}
+.google-auth-card .google-auth-help{display:inline-block;margin:0 auto 0!important;padding:7px 13px;border:1px solid #89978b35;border-radius:999px;background:#12181955;color:#99aaa1;font-size:12px;line-height:1.6}
+.google-auth-card .google-auth-help strong{color:#efb17e;font-size:13px;letter-spacing:.03em}
+.google-auth-button{justify-content:center;min-height:48px;margin:22px auto 0;overflow:hidden;border-radius:999px}
+.google-auth-button iframe{display:block;max-width:100%;border:0!important;border-radius:999px;background:transparent!important}
+.google-auth-status{display:block;margin:12px 0 0}
+.google-auth-error{margin-top:15px!important}
+.google-auth-card .access-gate-eyebrow{line-height:1.2}
+@media(max-width:660px){.google-auth-card{padding:28px 21px 29px;border-radius:15px}.google-auth-brand{margin-bottom:17px}.google-auth-card h2{font-size:16px}.google-auth-button{margin-top:19px}}

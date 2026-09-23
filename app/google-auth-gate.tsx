@@ -126,12 +126,12 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
       });
       window.google.accounts.id.renderButton(buttonRef.current, {
         type: 'standard',
-        theme: 'outline',
+        theme: 'filled_black',
         size: 'large',
         text: 'signin_with',
-        shape: 'rectangular',
+        shape: 'pill',
         logo_alignment: 'left',
-        width: 300,
+        width: 320,
       });
       if (!restored) setState('signed-out');
     };
@@ -168,9 +168,21 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
   return (
     <main className="google-auth-gate">
       <section className="google-auth-card" aria-labelledby="google-auth-title">
-        <div className="access-gate-eyebrow">KEILONG COLLEGE · YUEN LONG URBAN STUDIO</div>
+        <div className="google-auth-brand">
+          <span className="google-auth-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <path d="M7 33V17.5L20 7l13 10.5V33H7Z" stroke="currentColor" strokeWidth="1.7" />
+              <path d="M14 33V22h12v11M12 18h4v4h-4zm12 0h4v4h-4zM18 12h4v4h-4z" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </span>
+          <div className="google-auth-brand-copy">
+            <div className="access-gate-eyebrow">KEILONG COLLEGE</div>
+            <span>YUEN LONG URBAN STUDIO</span>
+          </div>
+        </div>
         <h1 id="google-auth-title">中華基督教會基朗中學</h1>
         <h2>元朗街區設計工具</h2>
+        <div className="google-auth-divider" aria-hidden="true"><span /></div>
         {state === 'missing-config' ? (
           <>
             <p>網站尚未設定 Google Web Client ID，請通知網站管理員完成設定。</p>
@@ -178,8 +190,8 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
           </>
         ) : (
           <>
-            <p>請使用學校 Google 帳戶登入，才可進入設計工具。</p>
-            <p className="google-auth-help">只接受結尾為 <strong>@keilong.edu.hk</strong> 的帳戶。</p>
+            <p className="google-auth-intro">登入後即可進入街區設計工作室。</p>
+            <p className="google-auth-help">請使用學校帳戶<br /><strong>@keilong.edu.hk</strong></p>
             {email && <p className="access-gate-account">目前帳戶：{email}</p>}
             {state === 'checking' && <output className="google-auth-status">{message}</output>}
             {state === 'denied' && <p className="google-auth-error" role="alert">{message}</p>}
