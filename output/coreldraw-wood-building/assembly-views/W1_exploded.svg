@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1000" height="760" viewBox="0 0 1000 760">
+  <polygon points="374.033,320.000 197.678,421.818 197.678,254.545 374.033,152.727" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="556.685,316.364 808.620,461.818 808.620,294.545 556.685,149.091" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="468.508,458.182 720.443,603.636 531.492,712.727 279.557,567.273" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="367.734,149.091 374.033,152.727 197.678,254.545 191.380,250.909" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="191.380,418.182 197.678,421.818 197.678,254.545 191.380,250.909" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="562.984,145.455 814.918,290.909 808.620,294.545 556.685,149.091" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="279.557,574.545 531.492,720.000 531.492,712.727 279.557,567.273" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="814.918,458.182 808.620,461.818 808.620,294.545 814.918,290.909" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="720.443,610.909 531.492,720.000 531.492,712.727 720.443,603.636" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="185.082,530.909 437.016,676.364 437.016,509.091 185.082,363.636" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="222.872,400.000 248.065,414.545 248.065,443.636 222.872,429.091" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="273.259,429.091 298.452,443.636 298.452,472.727 273.259,458.182" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="323.646,458.182 348.839,472.727 348.839,501.818 323.646,487.273" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="374.033,487.273 399.226,501.818 399.226,530.909 374.033,516.364" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="222.872,465.455 248.065,480.000 248.065,509.091 222.872,494.545" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="374.033,552.727 399.226,567.273 399.226,596.364 374.033,581.818" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="295.303,525.455 326.795,543.636 326.795,601.818 295.303,583.636" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="468.508,40.000 720.443,185.455 531.492,294.545 279.557,149.091" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="808.620,570.909 632.266,672.727 632.266,505.455 808.620,403.636" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="762.432,444.848 737.238,459.394 737.238,488.485 762.432,473.939" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="703.647,478.788 678.454,493.333 678.454,522.424 703.647,507.879" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="762.432,510.303 737.238,524.848 737.238,553.939 762.432,539.394" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="703.647,544.242 678.454,558.788 678.454,587.879 703.647,573.333" fill="none" stroke="#755130" stroke-width="1" />
+  <polygon points="191.380,360.000 443.315,505.455 437.016,509.091 185.082,363.636" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="802.322,400.000 808.620,403.636 632.266,505.455 625.967,501.818" fill="#ECD2AB" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="279.557,156.364 531.492,301.818 531.492,294.545 279.557,149.091" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="625.967,669.091 632.266,672.727 632.266,505.455 625.967,501.818" fill="#D6AD7A" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="443.315,672.727 437.016,676.364 437.016,509.091 443.315,505.455" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+  <polygon points="720.443,192.727 531.492,301.818 531.492,294.545 720.443,185.455" fill="#BA8A58" stroke="#705238" stroke-width="2" stroke-linejoin="round" />
+</svg>

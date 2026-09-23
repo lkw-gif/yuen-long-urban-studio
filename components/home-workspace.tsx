@@ -50,7 +50,7 @@ export default function HomeWorkspace() {
   <button className="mobile-inspector-toggle" aria-expanded={inspectorOpen} aria-controls="scene-inspector" onClick={()=>setInspectorOpen(v=>!v)}>{inspectorOpen?'關閉設定':'場景設定'}</button></header>
   <div className="workspace">
    <aside className="left-panel" aria-label="場景圖層">
-    <div className="project-heading"><div className="eyebrow">YUEN LONG, HONG KONG</div><h1>元朗・康樂路街區</h1><p><MapPin size={13}/> 教育路 — 大棠路</p></div>
+    <div className="project-heading"><div className="eyebrow">YUEN LONG, HONG KONG</div><div className="school-title">中華基督教會基朗中學</div><h1>元朗・康樂路街區</h1><p><MapPin size={13}/> 教育路 — 大棠路</p></div>
     <div className="panel-heading"><Layers3 size={15}/>場景集合<span className="count">04</span></div>
     <div className="layer-scroll">
      <div className="layer-item"><ChevronDown size={13}/><Box size={16}/><span>建築量體</span><Switch className="layer-switch" size="sm" aria-label="顯示建築量體" checked={visibility.buildings} onCheckedChange={v=>toggle('buildings',v)}/></div>
@@ -73,7 +73,7 @@ export default function HomeWorkspace() {
     </div>
     <div className="scene-shell">
      <UrbanViewer ref={viewer} view={view} mode={mode} selected={selected} visibility={visibility} labels={labels} heightScale={heightScale} daylight={daylight} onSelect={setSelected} onReady={onReady}/>
-     <div className="scene-caption"><div className="eyebrow">URBAN MODEL / 01</div><h2>康樂路街區</h2><small>{view==='iso'?'等角視圖':'正上方視圖'}<span style={{padding:'0 7px',opacity:.6}}>/</span>{mode==='material'?'材質預覽':mode==='clay'?'白模預覽':'線框預覽'}</small><br/><div className="scene-tag"><span/>沿街道邊緣建模</div></div>
+     <div className="scene-caption"><div className="eyebrow">URBAN MODEL / 01</div><div className="scene-school-title">中華基督教會基朗中學</div><h2>康樂路街區</h2><small>{view==='iso'?'等角視圖':'正上方視圖'}<span style={{padding:'0 7px',opacity:.6}}>/</span>{mode==='material'?'材質預覽':mode==='clay'?'白模預覽':'線框預覽'}</small><br/><div className="scene-tag"><span/>沿街道邊緣建模</div></div>
      <div className="compass"><span>N</span><div className="compass-rose"><Navigation2 data-compass size={24} strokeWidth={1.4} style={{transform:view==='iso'?'rotate(-27deg)':'none'}}/></div></div>
      <div className="navigation-tools"><button className="icon-button" aria-label="放大" title="放大 (+)" onClick={()=>viewer.current?.zoom(1.2)}><Plus size={17}/></button><button className="icon-button" aria-label="縮小" title="縮小 (-)" onClick={()=>viewer.current?.zoom(1/1.2)}><Minus size={17}/></button><button className="icon-button" aria-label="聚焦選取建築" title="聚焦選取建築" onClick={()=>viewer.current?.focus()}><Focus size={16}/></button><button className="icon-button" aria-label="重設全景" title="重設全景 (Home)" onClick={reset}><Maximize2 size={15}/></button></div>
      <button className="reference-map" onClick={()=>setDialog('reference')} aria-label="開啟地圖與衛星圖對照"><img src={sitePath('/reference-map.png?v=20260905-213223')} alt="本次上傳的元朗街區平面地圖"/><span className="map-caption"><span>原始地圖對照</span><Maximize2 size={11}/></span></button>

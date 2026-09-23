@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="300mm" height="200mm" viewBox="0 0 300 200">
+  <title>W6 sheet 2: nominal 2 mm plywood; teaching layout</title>
+  <desc>Red closed rectangles: cut perimeters. Blue rectangles: surface engraving only. Colours are teaching semantics, not machine presets. No kerf compensation.</desc>
+  <g id="CUT_RED" fill="none" stroke="#FF0000" stroke-width="0.1">
+    <rect id="W6-B-front" x="10" y="10" width="60" height="86" />
+    <rect id="W6-B-back" x="76" y="10" width="60" height="86" />
+    <rect id="W6-B-left" x="142" y="10" width="56" height="86" />
+    <rect id="W6-B-right" x="204" y="10" width="56" height="86" />
+    <rect id="W6-C-base" x="10" y="102" width="40" height="40" />
+    <rect id="W6-C-roof" x="56" y="102" width="40" height="40" />
+    <rect id="W6-C-front" x="102" y="102" width="40" height="26" />
+    <rect id="W6-C-back" x="148" y="102" width="40" height="26" />
+    <rect id="W6-C-left" x="194" y="102" width="36" height="26" />
+    <rect id="W6-C-right" x="236" y="102" width="36" height="26" />
+  </g>
+  <g id="ENGRAVE_BLUE" fill="none" stroke="#0000FF" stroke-width="0.1">
+    <rect id="W6-B-front-window-1" x="26" y="14" width="8" height="8" />
+    <rect id="W6-B-front-window-2" x="46" y="14" width="8" height="8" />
+    <rect id="W6-B-front-window-3" x="26" y="32" width="8" height="8" />
+    <rect id="W6-B-front-window-4" x="46" y="32" width="8" height="8" />
+    <rect id="W6-B-front-window-5" x="26" y="50" width="8" height="8" />
+    <rect id="W6-B-front-window-6" x="46" y="50" width="8" height="8" />
+    <rect id="W6-B-front-door-7" x="35" y="77" width="10" height="16" />
+    <rect id="W6-B-back-window-1" x="92" y="14" width="8" height="8" />
+    <rect id="W6-B-back-window-2" x="112" y="14" width="8" height="8" />
+    <rect id="W6-B-back-window-3" x="92" y="32" width="8" height="8" />
+    <rect id="W6-B-back-window-4" x="112" y="32" width="8" height="8" />
+    <rect id="W6-B-back-window-5" x="92" y="50" width="8" height="8" />
+    <rect id="W6-B-back-window-6" x="112" y="50" width="8" height="8" />
+    <rect id="W6-B-back-window-7" x="92" y="68" width="8" height="8" />
+    <rect id="W6-B-back-window-8" x="112" y="68" width="8" height="8" />
+    <rect id="W6-B-right-window-1" x="218.666667" y="14" width="8" height="8" />
+    <rect id="W6-B-right-window-2" x="237.333333" y="14" width="8" height="8" />
+    <rect id="W6-B-right-window-3" x="218.666667" y="32" width="8" height="8" />
+    <rect id="W6-B-right-window-4" x="237.333333" y="32" width="8" height="8" />
+    <rect id="W6-B-right-window-5" x="218.666667" y="50" width="8" height="8" />
+    <rect id="W6-B-right-window-6" x="237.333333" y="50" width="8" height="8" />
+    <rect id="W6-B-right-window-7" x="218.666667" y="68" width="8" height="8" />
+    <rect id="W6-B-right-window-8" x="237.333333" y="68" width="8" height="8" />
+    <rect id="W6-C-front-door-1" x="117" y="109" width="10" height="16" />
+    <rect id="W6-C-back-window-1" x="164" y="106" width="8" height="8" />
+  </g>
+</svg>

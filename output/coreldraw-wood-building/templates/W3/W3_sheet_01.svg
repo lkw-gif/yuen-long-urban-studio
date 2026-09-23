@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="300mm" height="200mm" viewBox="0 0 300 200">
+  <title>W3 sheet 1: nominal 2 mm plywood; teaching layout</title>
+  <desc>Red closed rectangles: cut perimeters. Blue rectangles: surface engraving only. Colours are teaching semantics, not machine presets. No kerf compensation.</desc>
+  <g id="CUT_RED" fill="none" stroke="#FF0000" stroke-width="0.1">
+    <rect id="W3-A-base" x="10" y="10" width="100" height="70" />
+    <rect id="W3-A-roof" x="116" y="10" width="100" height="70" />
+    <rect id="W3-A-front" x="10" y="86" width="100" height="46" />
+    <rect id="W3-A-back" x="116" y="86" width="100" height="46" />
+    <rect id="W3-A-left" x="222" y="86" width="66" height="46" />
+    <rect id="W3-A-right" x="10" y="138" width="66" height="46" />
+  </g>
+  <g id="ENGRAVE_BLUE" fill="none" stroke="#0000FF" stroke-width="0.1">
+    <rect id="W3-A-front-window-1" x="22.666667" y="90" width="8" height="8" />
+    <rect id="W3-A-front-window-2" x="39.333333" y="90" width="8" height="8" />
+    <rect id="W3-A-front-window-3" x="56" y="90" width="8" height="8" />
+    <rect id="W3-A-front-window-4" x="72.666667" y="90" width="8" height="8" />
+    <rect id="W3-A-front-window-5" x="89.333333" y="90" width="8" height="8" />
+    <rect id="W3-A-front-window-6" x="22.666667" y="108" width="8" height="8" />
+    <rect id="W3-A-front-window-7" x="39.333333" y="108" width="8" height="8" />
+    <rect id="W3-A-front-window-8" x="72.666667" y="108" width="8" height="8" />
+    <rect id="W3-A-front-window-9" x="89.333333" y="108" width="8" height="8" />
+    <rect id="W3-A-front-door-10" x="55" y="113" width="10" height="16" />
+    <rect id="W3-A-back-window-1" x="128.666667" y="90" width="8" height="8" />
+    <rect id="W3-A-back-window-2" x="145.333333" y="90" width="8" height="8" />
+    <rect id="W3-A-back-window-3" x="162" y="90" width="8" height="8" />
+    <rect id="W3-A-back-window-4" x="178.666667" y="90" width="8" height="8" />
+    <rect id="W3-A-back-window-5" x="195.333333" y="90" width="8" height="8" />
+    <rect id="W3-A-back-window-6" x="128.666667" y="108" width="8" height="8" />
+    <rect id="W3-A-back-window-7" x="145.333333" y="108" width="8" height="8" />
+    <rect id="W3-A-back-window-8" x="162" y="108" width="8" height="8" />
+    <rect id="W3-A-back-window-9" x="178.666667" y="108" width="8" height="8" />
+    <rect id="W3-A-back-window-10" x="195.333333" y="108" width="8" height="8" />
+    <rect id="W3-A-left-window-1" x="234.5" y="90" width="8" height="8" />
+    <rect id="W3-A-left-window-2" x="251" y="90" width="8" height="8" />
+    <rect id="W3-A-left-window-3" x="267.5" y="90" width="8" height="8" />
+    <rect id="W3-A-left-window-4" x="234.5" y="108" width="8" height="8" />
+    <rect id="W3-A-left-window-5" x="251" y="108" width="8" height="8" />
+    <rect id="W3-A-left-window-6" x="267.5" y="108" width="8" height="8" />
+    <rect id="W3-A-right-window-1" x="22.5" y="142" width="8" height="8" />
+    <rect id="W3-A-right-window-2" x="39" y="142" width="8" height="8" />
+    <rect id="W3-A-right-window-3" x="55.5" y="142" width="8" height="8" />
+    <rect id="W3-A-right-window-4" x="22.5" y="160" width="8" height="8" />
+    <rect id="W3-A-right-window-5" x="39" y="160" width="8" height="8" />
+    <rect id="W3-A-right-window-6" x="55.5" y="160" width="8" height="8" />
+  </g>
+</svg>

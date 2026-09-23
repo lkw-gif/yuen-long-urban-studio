@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "checks": [
+    "panel formula and quantity",
+    "assembly panel volumes and shell volume",
+    "module non-overlap",
+    "6 mm cut-outline spacing",
+    "10 mm page margin",
+    "engraving inset at least 3 mm",
+    "physical SVG page size",
+    "closed cut rectangles",
+    "no duplicated cut geometry",
+    "no raster images or visible text"
+  ],
+  "models": [
+    {
+      "model": "W1",
+      "passed": true,
+      "modules": 1,
+      "panels": 6,
+      "sheets": 1
+    },
+    {
+      "model": "W2",
+      "passed": true,
+      "modules": 2,
+      "panels": 12,
+      "sheets": 1
+    },
+    {
+      "model": "W3",
+      "passed": true,
+      "modules": 3,
+      "panels": 18,
+      "sheets": 2
+    },
+    {
+      "model": "W4",
+      "passed": true,
+      "modules": 2,
+      "panels": 12,
+      "sheets": 1
+    },
+    {
+      "model": "W5",
+      "passed": true,
+      "modules": 3,
+      "panels": 18,
+      "sheets": 2
+    },
+    {
+      "model": "W6",
+      "passed": true,
+      "modules": 3,
+      "panels": 18,
+      "sheets": 2
+    }
+  ]
+}

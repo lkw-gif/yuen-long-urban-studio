@@ -1,0 +1,47 @@
+[
+  {
+    "name": "01-new-document",
+    "width": 380,
+    "height": 413
+  },
+  {
+    "name": "02-blank-page",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "03-wall-dimensions",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "04-no-fill",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "05-red-outline",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "06-outline-menu",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "07-hairline",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "08-duplicate-wall",
+    "width": 2560,
+    "height": 1392
+  },
+  {
+    "name": "09-separated-walls",
+    "width": 2560,
+    "height": 1392
+  }
+]

@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1000" height="760" viewBox="0 0 1000 760">
+  <polygon points="449.667,171.667 785.333,365.333 550.333,501.000 214.667,307.333" fill="#ECD2AB" />
+  <polyline points="449.667,171.667 785.333,365.333 550.333,501.000 214.667,307.333 449.667,171.667" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polygon points="214.667,501.000 550.333,695.000 550.333,501.000 214.667,307.333" fill="#D6AD7A" />
+  <polyline points="214.667,501.000 550.333,695.000 550.333,501.000 214.667,307.333 214.667,501.000" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="214.667,493.333 550.333,687.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="214.667,315.000 550.333,509.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="257.000,355.000 284.000,370.667 284.000,401.667 257.000,386.000 257.000,355.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="313.000,387.333 340.000,403.000 340.000,434.000 313.000,418.333 313.000,387.333" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="369.000,419.667 396.000,435.333 396.000,466.333 369.000,450.667 369.000,419.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="425.000,452.000 452.000,467.667 452.000,498.667 425.000,483.000 425.000,452.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="481.000,484.333 508.000,500.000 508.000,531.000 481.000,515.333 481.000,484.333" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="257.000,425.000 284.000,440.333 284.000,471.333 257.000,456.000 257.000,425.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="313.000,457.333 340.000,472.667 340.000,503.667 313.000,488.333 313.000,457.333" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="425.000,521.667 452.000,537.333 452.000,568.333 425.000,553.000 425.000,521.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="481.000,554.000 508.000,569.667 508.000,600.667 481.000,585.000 481.000,554.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="365.667,507.000 399.333,526.333 399.333,588.333 365.667,569.000 365.667,507.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polygon points="785.333,559.333 550.333,695.000 550.333,501.000 785.333,365.333" fill="#BA8A58" />
+  <polyline points="785.333,559.333 550.333,695.000 550.333,501.000 785.333,365.333 785.333,559.333" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="785.333,551.667 550.333,687.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="785.333,373.333 550.333,509.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="778.667,555.333 778.667,377.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="557.000,683.333 557.000,505.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="736.667,416.667 710.000,432.333 710.000,463.333 736.667,448.000 736.667,416.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="681.333,448.667 654.333,464.333 654.333,495.333 681.333,479.667 681.333,448.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="626.000,480.667 599.000,496.333 599.000,527.333 626.000,511.667 626.000,480.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="736.667,486.667 710.000,502.000 710.000,533.000 736.667,517.667 736.667,486.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="681.333,518.667 654.333,534.000 654.333,565.000 681.333,549.667 681.333,518.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="626.000,550.667 599.000,566.000 599.000,597.000 626.000,581.667 626.000,550.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polygon points="458.000,108.667 726.667,263.667 542.000,370.333 273.333,215.333" fill="#ECD2AB" />
+  <polyline points="458.000,108.667 726.667,263.667 542.000,370.333 273.333,215.333 458.000,108.667" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polygon points="273.333,312.000 542.000,467.333 542.000,370.333 273.333,215.333" fill="#D6AD7A" />
+  <polyline points="273.333,312.000 542.000,467.333 542.000,370.333 273.333,215.333 273.333,312.000" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="273.333,304.333 542.000,459.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="273.333,223.000 542.000,378.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="313.667,261.667 340.667,277.333 340.667,308.333 313.667,292.667 313.667,261.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="367.333,292.667 394.333,308.333 394.333,339.333 367.333,323.667 367.333,292.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="421.000,323.667 448.000,339.333 448.000,370.333 421.000,354.667 421.000,323.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="474.667,354.667 501.667,370.333 501.667,401.333 474.667,385.667 474.667,354.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polygon points="466.333,65.000 668.000,181.333 533.667,259.000 332.000,142.667" fill="#ECD2AB" />
+  <polyline points="466.333,65.000 668.000,181.333 533.667,259.000 332.000,142.667 466.333,65.000" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polygon points="726.667,360.667 542.000,467.333 542.000,370.333 726.667,263.667" fill="#BA8A58" />
+  <polyline points="726.667,360.667 542.000,467.333 542.000,370.333 726.667,263.667 726.667,360.667" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="726.667,353.000 542.000,459.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="726.667,271.333 542.000,378.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="720.000,356.667 720.000,275.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="548.667,455.667 548.667,374.333" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="676.333,316.000 649.333,331.667 649.333,362.667 676.333,347.000 676.333,316.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="619.333,349.000 592.333,364.333 592.333,395.667 619.333,380.000 619.333,349.000" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polygon points="332.000,220.000 533.667,336.333 533.667,259.000 332.000,142.667" fill="#D6AD7A" />
+  <polyline points="332.000,220.000 533.667,336.333 533.667,259.000 332.000,142.667 332.000,220.000" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="332.000,212.333 533.667,328.667" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="332.000,150.333 533.667,266.667" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="386.000,196.667 412.667,212.333 412.667,243.333 386.000,227.667 386.000,196.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="453.000,235.667 480.000,251.000 480.000,282.000 453.000,266.667 453.000,235.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+  <polygon points="668.000,259.000 533.667,336.333 533.667,259.000 668.000,181.333" fill="#BA8A58" />
+  <polyline points="668.000,259.000 533.667,336.333 533.667,259.000 668.000,181.333 668.000,259.000" fill="none" stroke="#705238" stroke-width="2.0" stroke-linejoin="round" />
+  <polyline points="668.000,251.000 533.667,328.667" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="668.000,189.000 533.667,266.667" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="661.000,255.000 661.000,193.000" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="540.333,324.667 540.333,262.667" fill="none" stroke="#97754F" stroke-width="1.0" stroke-linejoin="round" />
+  <polyline points="614.000,235.667 587.333,251.000 587.333,282.000 614.000,266.667 614.000,235.667" fill="none" stroke="#755130" stroke-width="1.0" stroke-linejoin="round" />
+</svg>
