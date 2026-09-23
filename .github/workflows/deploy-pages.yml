@@ -41,12 +41,7 @@ jobs:
 
       - name: Build static site
         # Both language versions must remain complete.
-        run: |
-          if [ -z "$NEXT_PUBLIC_GOOGLE_CLIENT_ID" ]; then
-            echo "::error::Set the GOOGLE_CLIENT_ID repository variable before deploying GitHub Pages."
-            exit 1
-          fi
-          node scripts/check-i18n.cjs && npm run build
+        run: node scripts/check-i18n.cjs && npm run build
         env:
           GITHUB_PAGES: 'true'
           NEXT_PUBLIC_BASE_PATH: /yuen-long-urban-studio

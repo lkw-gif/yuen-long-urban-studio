@@ -22,4 +22,4 @@ Google's own guidance requires checking the ID token's audience and hosted-domai
 
 Create a repository variable named `GOOGLE_CLIENT_ID` under **Settings → Secrets and variables → Actions → Variables**. Set its value to the Web client ID, then run the **Deploy to GitHub Pages** workflow again. The workflow injects it as `NEXT_PUBLIC_GOOGLE_CLIENT_ID` at build time.
 
-If the variable is missing, the site shows a configuration message instead of exposing the studio. The Site deployment continues to use its existing ChatGPT sign-in gate.
+If the variable is missing, the site shows a configuration message instead of opening the studio. The Site deployment continues to use its existing ChatGPT sign-in gate.

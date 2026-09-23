@@ -50,16 +50,40 @@ function isAllowedEmail(email: string, hostedDomain: string, verified: boolean, 
   );
 }
 
-function restoreSession() {
+function restoreCredential() {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? 'null') as { email?: string; exp?: number } | null;
-    if (saved?.email && saved.exp && saved.exp > Date.now() && saved.email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN}`)) {
-      return saved.email;
+    const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? 'null') as { credential?: string; exp?: number } | null;
+    if (saved?.credential && saved.exp && saved.exp > Date.now()) {
+      return saved.credential;
     }
   } catch {
     // A blocked or malformed storage entry simply means the user signs in again.
   }
   return null;
+}
+
+async function verifyCredential(credential: string) {
+  const result = await fetch('https://oauth2.googleapis.com/tokeninfo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ id_token: credential }),
+    cache: 'no-store',
+  });
+  if (!result.ok) throw new Error('Google token validation failed');
+  const claims = (await result.json()) as {
+    aud?: string;
+    email?: string;
+    email_verified?: boolean | string;
+    exp?: string;
+    hd?: string;
+  };
+  const accountEmail = claims.email?.trim() ?? '';
+  const verified = claims.email_verified === true || claims.email_verified === 'true';
+  return {
+    allowed: isAllowedEmail(accountEmail, claims.hd ?? '', verified, claims.aud ?? ''),
+    email: accountEmail,
+    exp: Number(claims.exp) * 1000,
+  };
 }
 
 export default function GoogleAuthGate({ children }: { children: ReactNode }) {
@@ -70,14 +94,25 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!clientId) return;
-    const restored = restoreSession();
-    if (restored) {
-      setEmail(restored);
-      setState('allowed');
-      return;
-    }
-
     let disposed = false;
+    const restored = restoreCredential();
+    if (restored) {
+      void verifyCredential(restored).then(({ allowed, email: savedEmail }) => {
+        if (disposed) return;
+        if (allowed) {
+          setEmail(savedEmail);
+          setState('allowed');
+        } else {
+          sessionStorage.removeItem(SESSION_KEY);
+          setState('signed-out');
+        }
+      }).catch(() => {
+        if (!disposed) {
+          sessionStorage.removeItem(SESSION_KEY);
+          setState('signed-out');
+        }
+      });
+    }
     const showButton = () => {
       if (disposed || !window.google || !buttonRef.current) return;
       buttonRef.current.replaceChildren();
@@ -96,34 +131,21 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
           setState('checking');
           setMessage('正在確認學校帳戶…');
           try {
-            // tokeninfo makes Google validate the signature and expiry before this
-            // static page checks the audience and hosted domain.
-            const result = await fetch(
-              `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(response.credential)}`,
-              { cache: 'no-store' },
-            );
-            if (!result.ok) throw new Error('Google token validation failed');
-            const claims = (await result.json()) as {
-              aud?: string;
-              email?: string;
-              email_verified?: boolean | string;
-              exp?: string;
-              hd?: string;
-            };
-            const accountEmail = claims.email?.trim() ?? '';
-            const verified = claims.email_verified === true || claims.email_verified === 'true';
-            if (!isAllowedEmail(accountEmail, claims.hd ?? '', verified, claims.aud ?? '')) {
+            // Google validates the signature and expiry before this static page
+            // checks the intended audience and Workspace domain.
+            const verified = await verifyCredential(response.credential);
+            if (!verified.allowed) {
               setState('denied');
-              setEmail(accountEmail);
+              setEmail(verified.email);
               setMessage('此網站只開放予 @keilong.edu.hk 學校帳戶。');
               return;
             }
             try {
-              sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email: accountEmail, exp: Number(claims.exp) * 1000 }));
+              sessionStorage.setItem(SESSION_KEY, JSON.stringify({ credential: response.credential, exp: verified.exp }));
             } catch {
               // The authenticated state still works for this page when storage is blocked.
             }
-            setEmail(accountEmail);
+            setEmail(verified.email);
             setMessage('');
             setState('allowed');
           } catch {
@@ -141,7 +163,7 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
         logo_alignment: 'left',
         width: 300,
       });
-      setState('signed-out');
+      if (!restored) setState('signed-out');
     };
 
     const existing = document.querySelector<HTMLScriptElement>('script[data-google-identity]');
@@ -189,7 +211,7 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
             <p>請使用學校 Google 帳戶登入，才可進入設計工具。</p>
             <p className="google-auth-help">只接受結尾為 <strong>@keilong.edu.hk</strong> 的帳戶。</p>
             {email && <p className="access-gate-account">目前帳戶：{email}</p>}
-            {state === 'checking' && <p className="google-auth-status" role="status">{message}</p>}
+            {state === 'checking' && <output className="google-auth-status">{message}</output>}
             {state === 'denied' && <p className="google-auth-error" role="alert">{message}</p>}
             <div ref={buttonRef} className="google-auth-button" aria-label="使用 Google 登入" />
             {state === 'denied' && <button className="access-gate-action google-auth-retry" type="button" onClick={signOut}>更換帳戶</button>}
