@@ -36,4 +36,9 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/output/
+/tmp/
+/make_lockerboard_guide.py
+/make_lockerboard_guides_v2.py
+/public/tinkercad/keyboard-reference*.png
 *.tsbuildinfo
