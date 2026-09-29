@@ -3,7 +3,7 @@
 import {forwardRef,useEffect,useImperativeHandle,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {BOARD,SITE,RIVER,BRIDGE_DECK_THICKNESS,MODEL_MAP,ZONES,bridgeGeometry,round,type Design,type Point} from '@/lib/district-design';
+import {BOARD,SITE,RIVER,BRIDGE_DECK_THICKNESS,modelForBuilding,ZONES,bridgeGeometry,round,type Design,type Point} from '@/lib/district-design';
 
 export type PreviewApi={image:()=>string|undefined;reset:()=>void;zoom:(factor:number)=>void};
 type CameraPose={position:THREE.Vector3;target:THREE.Vector3;fitted:boolean};
@@ -43,10 +43,10 @@ export const DistrictPreview=forwardRef<PreviewApi,PreviewProps>(function Distri
   const selectable:THREE.Group[]=[],highlights=new Map<string,{helper:THREE.BoxHelper;label:THREE.Sprite}>();
   const fitPoints=SITE.map(p=>new THREE.Vector3(p.x-BOARD.width/2,0,p.y-BOARD.depth/2));
   function register(id:string,group:THREE.Group,sprite:THREE.Sprite){group.updateWorldMatrix(true,true);group.userData.selectId=id;selectable.push(group);const helper=new THREE.BoxHelper(group,'#f3bc76');helper.visible=false;helper.renderOrder=9;(helper.material as THREE.LineBasicMaterial).depthTest=false;scene.add(helper);highlights.set(id,{helper,label:sprite});}
-  design.buildings.forEach(b=>{const m=MODEL_MAP[b.modelId],g=new THREE.Group();g.position.set(b.x,.85,b.y);g.rotation.y=-b.rotation*Math.PI/180;root.add(g);
-   (m.panels??m.boxes).forEach(p=>box(g,p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2,p.w,p.h,p.d,m.kind==='wood'?(p.h===2?'#c39860':'#dfb87d'):(p.role==='base'?'#b1c2d4':'#438ae0')));
+  design.buildings.forEach(b=>{const m=modelForBuilding(b),g=new THREE.Group();g.position.set(b.x,.85,b.y);g.rotation.y=-b.rotation*Math.PI/180;root.add(g);
+   (m.panels??m.boxes).forEach(p=>box(g,p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2,p.w,p.h,p.d,m.custom?'#eeeae2':m.kind==='wood'?(p.h===2?'#c39860':'#dfb87d'):(p.role==='base'?'#b1c2d4':'#438ae0')));
    const windows=new THREE.InstancedMesh(cube,mat(m.kind==='wood'?'#755537':'#174d7e'),m.windows.length),dummy=new THREE.Object3D();m.windows.forEach((p,i)=>{dummy.position.set(p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2);dummy.scale.set(p.w,p.h,p.d);dummy.updateMatrix();windows.setMatrixAt(i,dummy.matrix);});g.add(windows);
-   register(b.id,g,label(`${m.id}  ${m.width} × ${m.depth} × ${m.height} mm`,b.x,m.height+22,b.y));
+   register(b.id,g,label(`${b.name?.trim()||m.id}  ${round(m.width)} × ${round(m.depth)} × ${round(m.height)} mm`,b.x,m.height+22,b.y));
    g.updateWorldMatrix(true,true);const bounds=new THREE.Box3().setFromObject(g);for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])fitPoints.push(new THREE.Vector3(x,y,z));
   });
   design.bridges.forEach(b=>{const geometry=bridgeGeometry(design,b);if(!geometry||geometry.length<.001)return;const {start,end,length}=geometry,g=new THREE.Group();root.add(g);

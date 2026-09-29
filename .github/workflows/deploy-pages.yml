@@ -39,6 +39,9 @@ jobs:
       - name: Check A2 district design dimensions and constraints
         run: node scripts/check-district.cjs
 
+      - name: Check building production plan export
+        run: node scripts/check-production-plan.cjs
+
       - name: Check Google school account validation
         run: node --experimental-strip-types scripts/check-google-auth.mjs
 

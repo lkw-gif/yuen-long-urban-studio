@@ -3,8 +3,9 @@ import { BOUNDARY } from './model-data';
 
 export type Point = {x:number;y:number};
 export type ModelBox = {x:number;y:number;z:number;w:number;d:number;h:number;role?:string;name?:string};
-export type Model = {id:string;kind:'print'|'wood';nameZh:string;nameEn:string;width:number;depth:number;height:number;boxes:ModelBox[];windows:ModelBox[];panels?:ModelBox[]};
-export const MODELS = catalog.models as Model[];
+export type Model = {id:string;kind:'print'|'wood';nameZh:string;nameEn:string;width:number;depth:number;height:number;boxes:ModelBox[];windows:ModelBox[];panels?:ModelBox[];custom?:boolean};
+function customModel(id:string,kind:Model['kind'],width:number,depth:number,height:number):Model{return {id,kind,nameZh:'自訂建築',nameEn:'Custom building',width,depth,height,custom:true,boxes:[{x:0,y:0,z:0,w:width,d:depth,h:2,role:'base'},{x:4,y:4,z:2,w:width-8,d:depth-8,h:height-2}],windows:[]};}
+export const MODELS:Model[] = [...catalog.models as Model[],customModel('CUSTOM-3D','print',60,60,80),customModel('CUSTOM-WOOD','wood',80,60,50)];
 export const MODEL_MAP = Object.fromEntries(MODELS.map(m=>[m.id,m]));
 export const BOARD = {width:594,depth:420};
 const fit=574/982;
@@ -16,7 +17,17 @@ export const RIVER:Point[]=[{x:15,y:riverTop},{x:55,y:riverTop},{x:55,y:riverTop
 export const BRIDGE_DECK_THICKNESS=2;
 export const ZONES = {residential:'#75a8ed',commercial:'#e9ac67',community:'#b79ce6',green:'#7ebd88',plaza:'#d4c89c'};
 export type ZoneKind=keyof typeof ZONES;
-export type Building = Point & {id:string;modelId:string;rotation:number};
+export type BuildingSize={width:number;depth:number;height:number};
+export const SIZE_LIMITS={width:{min:5,max:594},depth:{min:5,max:420},height:{min:5,max:300}};
+export type Building = Point & {id:string;modelId:string;rotation:number;name?:string;dimensions?:BuildingSize};
+export function modelForBuilding(b:Building):Model {
+ const m=MODEL_MAP[b.modelId];if(!b.dimensions)return m;
+ const {width,depth,height}=b.dimensions,sx=width/m.width,sy=depth/m.depth,sz=height/m.height;
+ const scale=(p:ModelBox):ModelBox=>({...p,x:p.x*sx,y:p.y*sy,z:p.z*sz,w:p.w*sx,d:p.d*sy,h:p.h*sz});
+ return {...m,width,depth,height,boxes:m.boxes.map(scale),windows:m.windows.map(scale),...(m.panels?{panels:m.panels.map(scale)}:{})};
+}
+export function buildingName(b:Building,language='zh-Hant'){const m=MODEL_MAP[b.modelId];return b.name?.trim()||(language==='en'?m.nameEn:m.nameZh);}
+function validBuildingDetails(b:Building){return (b.name===undefined||(typeof b.name==='string'&&b.name.length<=60&&!Array.from(b.name).some(c=>c.charCodeAt(0)<32)))&&(b.dimensions===undefined||(b.dimensions!==null&&typeof b.dimensions==='object'&&!Array.isArray(b.dimensions)&&Object.entries(SIZE_LIMITS).every(([key,range])=>{const n=b.dimensions![key as keyof BuildingSize];return typeof n==='number'&&Number.isFinite(n)&&n>=range.min&&n<=range.max;})));}
 export type Zone = Point & {id:string;kind:ZoneKind;w:number;d:number};
 export type Road = {id:string;kind:'road'|'path';width:number;points:Point[]};
 export type Bridge = {id:string;from:string;to:string;width:number;height:number};
@@ -27,7 +38,7 @@ export const uid=()=>globalThis.crypto?.randomUUID?.()??`item-${Date.now()}-${Ma
 export const snap=(n:number,grid=true)=>Math.round(n/(grid?5:1))*(grid?5:1);
 export const round=(n:number)=>Math.round(n*10)/10;
 export function localToWorld(b:Building,p:Point):Point {const a=b.rotation*Math.PI/180;return {x:b.x+p.x*Math.cos(a)-p.y*Math.sin(a),y:b.y+p.x*Math.sin(a)+p.y*Math.cos(a)};}
-export function footprint(b:Building):Point[] {const m=MODEL_MAP[b.modelId];return [[-m.width/2,-m.depth/2],[m.width/2,-m.depth/2],[m.width/2,m.depth/2],[-m.width/2,m.depth/2]].map(([x,y])=>localToWorld(b,{x,y}));}
+export function footprint(b:Building):Point[] {const m=modelForBuilding(b);return [[-m.width/2,-m.depth/2],[m.width/2,-m.depth/2],[m.width/2,m.depth/2],[-m.width/2,m.depth/2]].map(([x,y])=>localToWorld(b,{x,y}));}
 export function inside(p:Point,polygon=SITE):boolean {let result=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const a=polygon[i],b=polygon[j];const cross=(p.x-a.x)*(b.y-a.y)-(p.y-a.y)*(b.x-a.x);if(Math.abs(cross)<1e-6&&p.x>=Math.min(a.x,b.x)-1e-6&&p.x<=Math.max(a.x,b.x)+1e-6&&p.y>=Math.min(a.y,b.y)-1e-6&&p.y<=Math.max(a.y,b.y)+1e-6)return true;if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)result=!result;}return result;}
 export function polygonInside(points:Point[]):boolean {return points.every((p,i)=>{const q=points[(i+1)%points.length];const steps=Math.max(1,Math.ceil(Math.hypot(q.x-p.x,q.y-p.y)));return Array.from({length:steps+1},(_,k)=>inside({x:p.x+(q.x-p.x)*k/steps,y:p.y+(q.y-p.y)*k/steps})).every(Boolean);});}
 export function zonePoints(z:Zone):Point[]{return [{x:z.x,y:z.y},{x:z.x+z.w,y:z.y},{x:z.x+z.w,y:z.y+z.d},{x:z.x,y:z.y+z.d}];}
@@ -37,9 +48,10 @@ export function roadInside(r:Road):boolean {return r.points.every((p,i)=>{const 
 export function overlaps(a:Point[],b:Point[]):boolean {for(const polygon of [a,b])for(let i=0;i<polygon.length;i++){const p=polygon[i],q=polygon[(i+1)%polygon.length],axis={x:p.y-q.y,y:q.x-p.x};const aa=a.map(v=>v.x*axis.x+v.y*axis.y),bb=b.map(v=>v.x*axis.x+v.y*axis.y);if(Math.max(...aa)<=Math.min(...bb)+.01||Math.max(...bb)<=Math.min(...aa)+.01)return false;}return true;}
 export function counts(d:Design){return {print:d.buildings.filter(b=>MODEL_MAP[b.modelId].kind==='print').length,wood:d.buildings.filter(b=>MODEL_MAP[b.modelId].kind==='wood').length};}
 // Aim at actual solid modules at deck height, not the edge of a teaching base plate.
-function anchor(b:Building,target:Point,height:number):Point|null {const m=MODEL_MAP[b.modelId];const solids=m.boxes.filter(box=>box.z<=height&&box.z+box.h>=height&&box.role!=='base');let best:Point|null=null,dist=Infinity;for(const box of solids){const center=localToWorld(b,{x:box.x+box.w/2-m.width/2,y:box.y+box.d/2-m.depth/2});const a=-b.rotation*Math.PI/180,dx=target.x-center.x,dy=target.y-center.y;const lx=dx*Math.cos(a)-dy*Math.sin(a),ly=dx*Math.sin(a)+dy*Math.cos(a);const scale=1/Math.max(Math.abs(lx)/(box.w/2),Math.abs(ly)/(box.d/2),1e-9);const p=localToWorld(b,{x:box.x+box.w/2-m.width/2+lx*scale,y:box.y+box.d/2-m.depth/2+ly*scale});const d=Math.hypot(p.x-target.x,p.y-target.y);if(d<dist){best=p;dist=d;}}return best;}
+function anchor(b:Building,target:Point,height:number):Point|null {const m=modelForBuilding(b);const solids=m.boxes.filter(box=>box.z<=height&&box.z+box.h>=height&&box.role!=='base');let best:Point|null=null,dist=Infinity;for(const box of solids){const center=localToWorld(b,{x:box.x+box.w/2-m.width/2,y:box.y+box.d/2-m.depth/2});const a=-b.rotation*Math.PI/180,dx=target.x-center.x,dy=target.y-center.y;const lx=dx*Math.cos(a)-dy*Math.sin(a),ly=dx*Math.sin(a)+dy*Math.cos(a);const scale=1/Math.max(Math.abs(lx)/(box.w/2),Math.abs(ly)/(box.d/2),1e-9);const p=localToWorld(b,{x:box.x+box.w/2-m.width/2+lx*scale,y:box.y+box.d/2-m.depth/2+ly*scale});const d=Math.hypot(p.x-target.x,p.y-target.y);if(d<dist){best=p;dist=d;}}return best;}
 export function bridgeGeometry(d:Design,bridge:Bridge){const a=d.buildings.find(b=>b.id===bridge.from),b=d.buildings.find(b=>b.id===bridge.to);if(!a||!b||a===b)return null;let start=anchor(a,b,bridge.height),end=anchor(b,a,bridge.height);if(!start||!end)return null;start=anchor(a,end,bridge.height);if(!start)return null;end=anchor(b,start,bridge.height);if(!end)return null;const length=Math.hypot(end.x-start.x,end.y-start.y);return {start,end,length,angle:Math.atan2(end.y-start.y,end.x-start.x)*180/Math.PI};}
 export function validate(d:Design):string|null {
+ if(d.buildings.some(b=>!Object.hasOwn(MODEL_MAP,b.modelId)||!validBuildingDetails(b)))return 'Enter a valid building name and dimensions.';
  const c=counts(d);if(c.print>6)return 'Maximum 6 printed buildings.';if(c.wood>4)return 'Maximum 4 wooden buildings.';
  if(d.buildings.some(b=>!polygonInside(footprint(b)))||d.zones.some(z=>!polygonInside(zonePoints(z)))||d.decorations.some(p=>!polygonInside([{x:p.x-5,y:p.y-5},{x:p.x+5,y:p.y-5},{x:p.x+5,y:p.y+5},{x:p.x-5,y:p.y+5}]))||d.roads.some(r=>!roadInside(r)))return 'Keep the whole object inside the site boundary.';
  for(const b of d.bridges){const g=bridgeGeometry(d,b);if(!g||g.length<2)return 'Choose two separated buildings with walls at this deck height.';if(!roadInside({id:b.id,kind:'path',width:b.width,points:[g.start,g.end]}))return 'The bridge must stay inside the site boundary.';}
@@ -58,12 +70,12 @@ export function parseDesign(input:unknown):Design {
  if(d.version!==1||d.board?.width!==594||d.board.depth!==420||!str(d.name)||!str(d.className)||!str(d.group))return fail();
  if(!['buildings','zones','roads','bridges','decorations'].every(k=>Array.isArray(d[k as keyof Design])))return fail();
  const objects=[...d.buildings,...d.zones,...d.roads,...d.bridges,...d.decorations];if(objects.some(o=>!o||!str(o.id,80)||!o.id)||new Set(objects.map(o=>o.id)).size!==objects.length)return fail();
- if(d.buildings.some(b=>!point(b)||!Object.hasOwn(MODEL_MAP,b.modelId)||!num(b.rotation,0,359)))return fail();
+ if(d.buildings.some(b=>!point(b)||!Object.hasOwn(MODEL_MAP,b.modelId)||!num(b.rotation,0,359)||!validBuildingDetails(b)))return fail();
  if(d.zones.some(z=>!point(z)||!Object.hasOwn(ZONES,z.kind)||!num(z.w,5,594)||!num(z.d,5,420)))return fail();
  if(d.roads.some(r=>!['road','path'].includes(r.kind)||!num(r.width,4,50)||!Array.isArray(r.points)||r.points.length<2||r.points.some(p=>!point(p))))return fail();
  if(d.decorations.some(p=>!point(p)||!['tree','bench'].includes(p.kind)||!num(p.rotation,0,359)))return fail();
  if(d.bridges.some(b=>!num(b.width,8,30)||!num(b.height,8,120)||b.from===b.to||![b.from,b.to].every(id=>d.buildings.some(x=>x.id===id))))return fail();
  const error=validate(d);if(error)throw new Error(error);
  // Rebuild through a schema whitelist. Imported data can never supply markup or geometry.
- return {version:1,board:{...BOARD},name:d.name,className:d.className,group:d.group,buildings:d.buildings.map(({id,modelId,x,y,rotation})=>({id,modelId,x,y,rotation})),zones:d.zones.map(({id,kind,x,y,w,d})=>({id,kind,x,y,w,d})),roads:d.roads.map(({id,kind,width,points})=>({id,kind,width,points:points.map(({x,y})=>({x,y}))})),bridges:d.bridges.map(({id,from,to,width,height})=>({id,from,to,width,height})),decorations:d.decorations.map(({id,kind,x,y,rotation})=>({id,kind,x,y,rotation}))};
+ return {version:1,board:{...BOARD},name:d.name,className:d.className,group:d.group,buildings:d.buildings.map(({id,modelId,x,y,rotation,name,dimensions})=>({id,modelId,x,y,rotation,...(name!==undefined?{name}:{}),...(dimensions?{dimensions:{width:dimensions.width,depth:dimensions.depth,height:dimensions.height}}:{})})),zones:d.zones.map(({id,kind,x,y,w,d})=>({id,kind,x,y,w,d})),roads:d.roads.map(({id,kind,width,points})=>({id,kind,width,points:points.map(({x,y})=>({x,y}))})),bridges:d.bridges.map(({id,from,to,width,height})=>({id,from,to,width,height})),decorations:d.decorations.map(({id,kind,x,y,rotation})=>({id,kind,x,y,rotation}))};
 }

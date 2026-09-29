@@ -1,4 +1,6 @@
 export const DISTRICT_ZH:Record<string,string>={
+ 'Custom':'自訂','Building name / use':'建築名稱／用途','Custom dimensions':'自訂尺寸','Reset original dimensions':'還原原有尺寸','Original size':'原有尺寸',
+ 'Building production plan (.docx)':'下載建築製作計劃表（Word）','Building production plan downloaded.':'已下載建築製作計劃表。','Plan export failed. Please try again.':'計劃表下載失敗，請再試一次。','Enter a valid building name and dimensions.':'請輸入有效的建築名稱及尺寸。',
  'River':'河流','Fixed river':'固定河流','Fit site':'顯示全區','Expand workspace':'放大工作區','Exit expanded view':'退出放大',
  'Selected object dimensions':'選取物件尺寸','Click a building to show its dimensions.':'點選建築，才會顯示該建築的尺寸。',
  'Wheel to zoom · right-drag to pan':'滾輪縮放 · 右鍵拖曳平移','Bamboo frame · 2 mm acrylic deck · 12 mm guards.':'竹籤支架 · 2 mm 亞加力膠板橋面 · 12 mm 欄板。',
