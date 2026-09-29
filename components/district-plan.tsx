@@ -3,9 +3,32 @@
 import {forwardRef,useEffect,useRef,useState,useImperativeHandle,type PointerEventHandler,type PointerEvent as PE} from 'react';
 import {SITE,RIVER,MODEL_MAP,ZONES,bridgeGeometry,round,roadLength,type Design,type Point,type Model} from '@/lib/district-design';
 import {planFrame,zoomAt} from '@/lib/district-viewport';
+import {sitePath} from '@/lib/site-path';
 
 const pts=(p:Point[])=>p.map(v=>`${v.x},${v.y}`).join(' ');
-export function ModelThumbnail({model:m}:{model:Model}){const project=(x:number,y:number,z:number)=>[x*.8-y*.55,(x+y)*.32-z*.72];const boxes=m.boxes.map(b=>[[b.x,b.y,b.z+b.h],[b.x+b.w,b.y,b.z+b.h],[b.x+b.w,b.y+b.d,b.z+b.h],[b.x,b.y+b.d,b.z+b.h],[b.x,b.y,b.z],[b.x+b.w,b.y,b.z],[b.x+b.w,b.y+b.d,b.z]].map(([x,y,z])=>project(x,y,z)));const all=boxes.flat(),minX=Math.min(...all.map(p=>p[0])),maxX=Math.max(...all.map(p=>p[0])),minY=Math.min(...all.map(p=>p[1])),maxY=Math.max(...all.map(p=>p[1])),blue=m.kind==='print';return <svg viewBox={`${minX-8} ${minY-8} ${maxX-minX+16} ${maxY-minY+16}`} aria-hidden="true">{boxes.map((q,i)=><g key={i} stroke={blue?'#2863a6':'#9a7448'} strokeWidth=".6">{[[0,1,5,4],[1,2,6,5],[0,1,2,3]].map((face,j)=><polygon key={j} points={face.map(k=>q[k].join(',')).join(' ')} fill={(blue?['#458edd','#2c70b9','#87baff']:['#dbb784','#bc955f','#efd5aa'])[j]}/>)}</g>)}</svg>;}
+const MODEL_SHEETS={
+ housing:{src:sitePath('/model-thumbnails/printed-housing-mixed.png'),width:1357,height:792},
+ civic:{src:sitePath('/model-thumbnails/printed-commercial-school.png'),width:1345,height:793},
+ wood:{src:sitePath('/model-thumbnails/wood-buildings.png'),width:847,height:500},
+} as const;
+type SheetKey=keyof typeof MODEL_SHEETS;
+const MODEL_ART:Record<string,{sheet:SheetKey;x:number;y:number}>={
+ R1:{sheet:'housing',x:185,y:190},R2:{sheet:'housing',x:515,y:190},R3:{sheet:'housing',x:844,y:190},R4:{sheet:'housing',x:1173,y:190},
+ R5:{sheet:'housing',x:185,y:575},M1:{sheet:'housing',x:515,y:575},M2:{sheet:'housing',x:844,y:575},M3:{sheet:'housing',x:1173,y:575},
+ C1:{sheet:'civic',x:174,y:188},C2:{sheet:'civic',x:503,y:188},C3:{sheet:'civic',x:832,y:188},C4:{sheet:'civic',x:1162,y:188},
+ S1:{sheet:'civic',x:174,y:575},S2:{sheet:'civic',x:503,y:575},
+ W1:{sheet:'wood',x:165,y:115},W2:{sheet:'wood',x:420,y:115},W3:{sheet:'wood',x:665,y:115},
+ W4:{sheet:'wood',x:165,y:355},W5:{sheet:'wood',x:420,y:355},W6:{sheet:'wood',x:665,y:355},
+};
+export function ModelThumbnail({model,large=false}:{model:Model;large?:boolean}){
+ const art=MODEL_ART[model.id];
+ if(!art)return <span className="dd-model-thumbnail dd-model-thumbnail-missing" aria-hidden="true">{model.id}</span>;
+ const sheet=MODEL_SHEETS[art.sheet];
+ const woodBottom=['W4','W5','W6'].includes(model.id);
+ const scale=model.kind==='wood'?(large?(woodBottom?1:0.86):(woodBottom?0.42:0.5)):(large?0.8:0.48);
+ const position=(offset:number)=>`calc(50% ${offset<0?'-':'+'} ${Math.abs(offset)}px)`;
+ return <span className={`dd-model-thumbnail dd-model-thumbnail-${model.kind} dd-model-thumbnail-${model.id}${large?' dd-model-thumbnail-large':''}`} aria-hidden="true" style={{backgroundImage:`url(${sheet.src})`,backgroundSize:`${sheet.width*scale}px ${sheet.height*scale}px`,backgroundPosition:`${position((sheet.width/2-art.x)*scale)} ${position((sheet.height/2-art.y)*scale)}`}}/>;
+}
 type Props={design:Design;selected:string;bridgeStart:string;dimensions:boolean;grid:boolean;draft:Point[];routeWidth:number;zoom:number;center:Point;tool:string;t:(s:string)=>string;onViewport:(zoom:number,center:Point)=>void;onDown:PointerEventHandler<SVGSVGElement>;onMove:PointerEventHandler<SVGSVGElement>;onUp:PointerEventHandler<SVGSVGElement>;onCancel:()=>void};
 export const DistrictPlan=forwardRef<SVGSVGElement,Props>(function DistrictPlan({design:d,selected,bridgeStart,dimensions,grid,draft,routeWidth,zoom,center,tool,t,onViewport,onDown,onMove,onUp,onCancel},ref){
  const canvas=useRef<SVGSVGElement>(null),pan=useRef<{start:DOMPoint;inverse:DOMMatrix;center:Point;pointer:number}|null>(null);
