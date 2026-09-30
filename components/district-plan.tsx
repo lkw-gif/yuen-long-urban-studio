@@ -26,7 +26,7 @@ export function ModelThumbnail({model,large=false}:{model:Model;large?:boolean})
  if(!art)return <span className="dd-model-thumbnail dd-model-thumbnail-missing" aria-hidden="true">{model.id}</span>;
  const sheet=MODEL_SHEETS[art.sheet];
  const woodBottom=['W4','W5','W6'].includes(model.id);
- const scale=model.kind==='wood'?(large?(woodBottom?1:0.86):(woodBottom?0.42:0.5)):(large?0.8:0.48);
+ const scale=model.kind==='wood'?(large?(woodBottom?1:0.86):(woodBottom?0.3:0.34)):(large?0.8:0.48);
  const position=(offset:number)=>`calc(50% ${offset<0?'-':'+'} ${Math.abs(offset)}px)`;
  return <span className={`dd-model-thumbnail dd-model-thumbnail-${model.kind} dd-model-thumbnail-${model.id}${large?' dd-model-thumbnail-large':''}`} aria-hidden="true" style={{backgroundImage:`url(${sheet.src})`,backgroundSize:`${sheet.width*scale}px ${sheet.height*scale}px`,backgroundPosition:`${position((sheet.width/2-art.x)*scale)} ${position((sheet.height/2-art.y)*scale)}`}}/>;
 }
