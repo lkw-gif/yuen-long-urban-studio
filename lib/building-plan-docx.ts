@@ -12,7 +12,7 @@ export function productionRows(d:Design,language:string):ProductionRow[]{
  const order=new Map(MODELS.map((m,i)=>[m.id,i]));
  return [...rows.values()].sort((a,b)=>(a.kind===b.kind?0:a.kind==='print'?-1:1)||(order.get(a.modelId)!-order.get(b.modelId)!)).map((row,i)=>{
   const code=`B${i+1}`,group=d.group.trim().replace(/^GROUP\s*/i,'')||'( )';
-  return {...row,code,filename:`${cleanFilename(d.className)||'2( )'}_GROUP ${cleanFilename(group)}_${code}_${row.quantity}`};
+  return {...row,code,filename:`${cleanFilename(d.className)||'2( )'}_GROUP ${cleanFilename(group)}_${code}`};
  });
 }
 

@@ -5,14 +5,14 @@ const {emptyDesign}=load('lib/district-design.ts'),{buildProductionPlan,producti
 const d=emptyDesign();Object.assign(d,{name:'未來元朗社區',className:'2B',group:'2'});
 const building=(id,modelId,extras={})=>({id,modelId,x:200,y:200,rotation:0,...extras});
 d.buildings=[building('r1','R1'),building('r2','R1'),building('r3','R1',{dimensions:{width:100,depth:50,height:90}}),building('r4','CUSTOM-3D',{name:'創科中心',dimensions:{width:85,depth:55,height:120}}),building('r5','C3'),building('r6','M3'),building('w1','W1'),building('w2','W3'),building('w3','W6'),building('w4','CUSTOM-WOOD',{name:'社區圖書館',dimensions:{width:90,depth:60,height:55}})];
-const rows=productionRows(d,'zh-Hant');assert.equal(rows.length,9);assert.equal(rows[0].quantity,2);assert.equal(rows[0].filename,'2B_GROUP 2_B1_2');assert.equal(rows[1].width,100);assert.equal(rows[1].quantity,1);assert.equal(rows.at(-1).name,'社區圖書館');assert.equal(rows.at(-1).kind,'wood');
+const rows=productionRows(d,'zh-Hant');assert.equal(rows.length,9);assert.equal(rows[0].quantity,2);assert.equal(rows[0].filename,'2B_GROUP 2_B1');assert.equal(rows[1].width,100);assert.equal(rows[1].quantity,1);assert.equal(rows.at(-1).name,'社區圖書館');assert.equal(rows.at(-1).kind,'wood');
 const template=fs.readFileSync('public/templates/building-production-plan.docx'),out=buildProductionPlan(template,d,'zh-Hant'),before=unzipSync(template),after=unzipSync(out),xml=strFromU8(after['word/document.xml']);
 assert.deepEqual(Object.keys(after).sort(),Object.keys(before).sort());for(const key of Object.keys(before))if(key!=='word/document.xml')assert.deepEqual(after[key],before[key],key);
-assert.ok(xml.includes('設計名稱：未來元朗社區'));assert.ok(xml.includes('2B_GROUP 2_B1_2'));assert.ok(xml.includes('創科中心'));assert.ok(xml.includes('社區圖書館'));assert.ok(xml.includes('8.5'));assert.ok(xml.includes('木板製作'));
+assert.ok(xml.includes('設計名稱：未來元朗社區'));assert.ok(xml.includes('2B_GROUP 2_B1'));assert.ok(xml.includes('創科中心'));assert.ok(xml.includes('社區圖書館'));assert.ok(xml.includes('8.5'));assert.ok(xml.includes('木板製作'));
 assert.ok(!/<w:t[^>]*>(?:R\d+|W\d+|M\d+|C\d+|S\d+|自訂|Custom)<\/w:t>/.test(xml),'model codes must not appear as separate Word labels');
 assert.equal((xml.match(/<w:tr\b/g)||[]).length,19);assert.equal((xml.match(/<w:tc\b/g)||[]).length,189);
 assert.equal(xml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/)[0],strFromU8(before['word/document.xml']).match(/<w:sectPr[\s\S]*?<\/w:sectPr>/)[0]);
 const unsafe=structuredClone(d);unsafe.name='<STEM & Arts>';unsafe.className='2B & 2C';unsafe.buildings[3].name='Library <A&B>';const escaped=strFromU8(unzipSync(buildProductionPlan(template,unsafe,'en'))['word/document.xml']);assert.ok(escaped.includes('&lt;STEM &amp; Arts&gt;'));assert.ok(escaped.includes('Library &lt;A&amp;B&gt;'));assert.ok(!escaped.includes('Library <A&B>'));
-const grouped=structuredClone(d);grouped.group='GROUP 2';assert.equal(productionRows(grouped,'en')[0].filename,'2B_GROUP 2_B1_2');
+const grouped=structuredClone(d);grouped.group='GROUP 2';assert.equal(productionRows(grouped,'en')[0].filename,'2B_GROUP 2_B1');
 if(process.argv.includes('--write-example')){fs.mkdirSync('tmp/building-plan',{recursive:true});fs.writeFileSync('tmp/building-plan/example.docx',out);fs.writeFileSync('tmp/building-plan/example-design.json',JSON.stringify(d,null,2));}
 console.log('Word plan checks passed: template package/layout preservation, grouping by size/name/material, cm conversion, filenames and safe XML text.');
