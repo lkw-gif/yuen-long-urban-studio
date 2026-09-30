@@ -9,6 +9,7 @@ const rows=productionRows(d,'zh-Hant');assert.equal(rows.length,9);assert.equal(
 const template=fs.readFileSync('public/templates/building-production-plan.docx'),out=buildProductionPlan(template,d,'zh-Hant'),before=unzipSync(template),after=unzipSync(out),xml=strFromU8(after['word/document.xml']);
 assert.deepEqual(Object.keys(after).sort(),Object.keys(before).sort());for(const key of Object.keys(before))if(key!=='word/document.xml')assert.deepEqual(after[key],before[key],key);
 assert.ok(xml.includes('設計名稱：未來元朗社區'));assert.ok(xml.includes('2B_GROUP 2_B1_2'));assert.ok(xml.includes('創科中心'));assert.ok(xml.includes('社區圖書館'));assert.ok(xml.includes('8.5'));assert.ok(xml.includes('木板製作'));
+assert.ok(!/<w:t[^>]*>(?:R\d+|W\d+|M\d+|C\d+|S\d+|自訂|Custom)<\/w:t>/.test(xml),'model codes must not appear as separate Word labels');
 assert.equal((xml.match(/<w:tr\b/g)||[]).length,19);assert.equal((xml.match(/<w:tc\b/g)||[]).length,189);
 assert.equal(xml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/)[0],strFromU8(before['word/document.xml']).match(/<w:sectPr[\s\S]*?<\/w:sectPr>/)[0]);
 const unsafe=structuredClone(d);unsafe.name='<STEM & Arts>';unsafe.className='2B & 2C';unsafe.buildings[3].name='Library <A&B>';const escaped=strFromU8(unzipSync(buildProductionPlan(template,unsafe,'en'))['word/document.xml']);assert.ok(escaped.includes('&lt;STEM &amp; Arts&gt;'));assert.ok(escaped.includes('Library &lt;A&amp;B&gt;'));assert.ok(!escaped.includes('Library <A&B>'));

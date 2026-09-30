@@ -40,8 +40,7 @@ export function buildProductionPlan(template:Uint8Array,d:Design,language:string
   let rowIndex=-2;
   return table.replace(/<w:tr\b[\s\S]*?<\/w:tr>/g,row=>{
    const data=rows[rowIndex++];if(!data)return row;
-   const modelCode=data.modelId.startsWith('CUSTOM-')?(language==='en'?'Custom':'自訂'):data.modelId;
-   const values=[`${data.code}\n${modelCode}`,data.name,String(data.quantity),cm(data.width),cm(data.depth),cm(data.height),data.kind==='print'?'3D Print':'木板製作','',data.filename,'',''];
+   const values=[data.code,data.name,String(data.quantity),cm(data.width),cm(data.depth),cm(data.height),data.kind==='print'?'3D Print':'木板製作','',data.filename,'',''];
    let column=0;let updated=row.replace(/<w:tc\b[\s\S]*?<\/w:tc>/g,cell=>cellWithText(cell,values[column++]));
    updated=updated.replace(/<w:trHeight\b[^>]*\/>/,'<w:trHeight w:val="780" w:hRule="atLeast"/>');
    if(!updated.includes('<w:cantSplit'))updated=updated.replace('</w:trPr>','<w:cantSplit/></w:trPr>');
