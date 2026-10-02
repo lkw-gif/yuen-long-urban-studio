@@ -20,9 +20,7 @@
 @media(max-width:620px){.dd-toolbar .dd-expand span{font-size:12px}.dd-expanded .dd-body{display:block}.dd-expanded .dd-library{display:none}.dd-heading{padding:10px;gap:10px}}
 .dd-model-thumbnail{display:block;position:relative;overflow:hidden;flex:none;width:100%;height:100px;border-radius:4px}
 .dd-model-thumbnail-print{background:#f1f5fa}.dd-model-thumbnail-wood{background:#fffdf9}
-.dd-model-thumbnail:is(.dd-model-thumbnail-W4,.dd-model-thumbnail-W5,.dd-model-thumbnail-W6):not(.dd-model-thumbnail-large)::before,.dd-model-thumbnail:is(.dd-model-thumbnail-W4,.dd-model-thumbnail-W5,.dd-model-thumbnail-W6):not(.dd-model-thumbnail-large)::after{content:"";position:absolute;left:0;right:0;background:#fff}
-.dd-model-thumbnail:is(.dd-model-thumbnail-W4,.dd-model-thumbnail-W5,.dd-model-thumbnail-W6):not(.dd-model-thumbnail-large)::before{top:0;height:12px}
-.dd-model-thumbnail:is(.dd-model-thumbnail-W4,.dd-model-thumbnail-W5,.dd-model-thumbnail-W6):not(.dd-model-thumbnail-large)::after{bottom:0;height:25px}
+.dd-model-thumbnail-wood svg{display:block;width:100%;height:100%}
 .dd-model-thumbnail-missing{display:flex;align-items:center;justify-content:center;background:#3a4a3d;color:#c5d1bf}
 .dd-building-name{display:flex;flex-direction:column;gap:8px;margin:16px 0;color:#beceb5;font-size:14px}.dd-building-name input{width:100%}
 .dd-model>.dd-custom-thumbnail{height:100px;background:#f1f5fa}.dd-inspector>.dd-custom-thumbnail{height:172px;background:#f1f5fa}
