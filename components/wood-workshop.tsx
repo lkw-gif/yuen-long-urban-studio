@@ -1,25 +1,53 @@
 'use client';
 
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Box, CheckCircle2, Layers3, MousePointer2, Ruler, Scissors } from 'lucide-react';
 import { Localized, useLanguage } from '@/components/language-provider';
 import { StudioNav } from '@/components/studio-nav';
 import { sitePath } from '@/lib/site-path';
-import { SCHOOL_PANELS, SCHOOL_STAGES, SCHOOL_UI, schoolWords } from '@/lib/wood-school-lesson';
+import { schoolWords } from '@/lib/wood-school-lesson';
+import { WOOD_LESSONS, WOOD_UI, type WoodLessonId } from '@/lib/wood-lessons';
 
-const LSchoolViewer = lazy(() => import('@/components/l-school-viewer'));
-// In the lesson, window/door engraving comes before any physical assembly.
-const lessonStages = [SCHOOL_STAGES[0], SCHOOL_STAGES[3], SCHOOL_STAGES[1], SCHOOL_STAGES[2], SCHOOL_STAGES[4], SCHOOL_STAGES[5]];
+const WoodBuildingViewer = lazy(() => import('@/components/wood-building-viewer'));
 
-export default function LSchoolWorkshop() {
+export default function WoodWorkshop() {
   const language = useLanguage();
   const say = (value: { zh: string; en: string }) => schoolWords(value, language);
   const [stage, setStage] = useState(0);
+  const [lessonId, setLessonId] = useState<WoodLessonId>('school');
   const [highlight, setHighlight] = useState<string | undefined>();
+  const viewRef = useRef<HTMLElement>(null);
+  const lesson = WOOD_LESSONS[lessonId];
+  const SCHOOL_UI = lesson.ui;
+  const SCHOOL_PANELS = lesson.panels;
+  const lessonStages = lesson.stages;
   const current = lessonStages[stage];
+  useEffect(() => {
+    const restore = () => {
+      setLessonId(new URLSearchParams(window.location.search).get('building') === 'mall' ? 'mall' : 'school');
+      setStage(0);
+      setHighlight(undefined);
+    };
+    restore();
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, []);
+  const selectLesson = (id: WoodLessonId) => {
+    setLessonId(id);
+    setStage(0);
+    setHighlight(undefined);
+    const url = new URL(window.location.href);
+    url.searchParams.set('building', id);
+    window.history.replaceState(window.history.state, '', url);
+  };
   const selectStage = (next: number) => {
     setStage(next);
     setHighlight(undefined);
+  };
+  const selectPanel = (id: string) => {
+    setStage(0);
+    setHighlight(id === highlight ? undefined : id);
+    viewRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
 
   return <main className="ls-workshop">
@@ -28,6 +56,11 @@ export default function LSchoolWorkshop() {
       <StudioNav current="wood" />
     </header>
     <div className="ls-page">
+      <nav className="ls-lesson-switcher" aria-label={say(WOOD_UI.choose)}>
+        {Object.values(WOOD_LESSONS).map(item => <button key={item.id} type="button" aria-pressed={lessonId === item.id} onClick={() => selectLesson(item.id)}>
+          <Box size={19} /><span>{say(item.name)}</span><small>{say(item.ui.count)}</small>
+        </button>)}
+      </nav>
       <section className="ls-intro" aria-labelledby="ls-title">
         <div>
           <span className="ls-kicker">{say(SCHOOL_UI.heroTag)}</span>
@@ -41,7 +74,7 @@ export default function LSchoolWorkshop() {
         </div>
       </section>
 
-      <nav className="ls-stage-nav" aria-label={say(SCHOOL_UI.nav)}>
+      <nav className="ls-stage-nav" data-stage-count={lessonStages.length} aria-label={say(SCHOOL_UI.nav)}>
         {lessonStages.map((item, index) => <button type="button" key={index}
           className={index === stage ? 'active' : ''}
           aria-current={index === stage ? 'step' : undefined}
@@ -52,14 +85,14 @@ export default function LSchoolWorkshop() {
       </nav>
 
       <div className="ls-main-grid">
-        <section className="ls-view-card" aria-labelledby="ls-view-title">
+        <section className="ls-view-card" ref={viewRef} aria-labelledby="ls-view-title">
           <div className="ls-view-heading">
             <div><span className="ls-overline">3D MODEL / {String(stage + 1).padStart(2, '0')}</span><h2 id="ls-view-title">{say(SCHOOL_UI.viewTitle)}</h2></div>
             <span className="ls-view-step">{say(current.title)}</span>
           </div>
           <div className="ls-viewer-area">
             <Suspense fallback={<div className="ls-viewer-loading">3D…</div>}>
-              <LSchoolViewer stage={stage} highlight={highlight} />
+              <WoodBuildingViewer key={lessonId} lessonId={lessonId} stage={stage} highlight={highlight} />
             </Suspense>
           </div>
           <div className="ls-view-footer"><MousePointer2 size={16} />{say(SCHOOL_UI.viewHelp)}</div>
@@ -80,10 +113,10 @@ export default function LSchoolWorkshop() {
       </div>
 
       <section className="ls-inventory" aria-labelledby="ls-inventory-title">
-        <div className="ls-inventory-head"><div><span className="ls-overline">CUT LIST · 2 MM PLYWOOD</span><h2 id="ls-inventory-title">{say(SCHOOL_UI.inventory)}</h2><p>{say(SCHOOL_UI.inventoryHelp)}</p></div><div className="ls-legend"><span><i className="cut" />{say(SCHOOL_UI.cut)}</span><span><i className="engrave" />{say(SCHOOL_UI.engrave)}</span></div></div>
+        <div className="ls-inventory-head"><div><span className="ls-overline">CUT LIST · 2 MM PLYWOOD</span><h2 id="ls-inventory-title">{say(SCHOOL_UI.inventory)}</h2><p>{say(WOOD_UI.inventoryHelp)}</p></div><div className="ls-legend"><span><i className="cut" />{say(SCHOOL_UI.cut)}</span><span><i className="engrave" />{say(SCHOOL_UI.engrave)}</span></div></div>
         <div className="ls-table-wrap"><table><thead><tr><th>{say(SCHOOL_UI.module)}</th><th>{say(SCHOOL_UI.face)}</th><th>{say(SCHOOL_UI.dimensions)}</th><th>{say(SCHOOL_UI.quantity)}</th></tr></thead>
           <tbody>{SCHOOL_PANELS.map(panel => <tr key={panel.id} className={highlight === panel.id ? 'selected' : ''}>
-            <td><button type="button" onClick={() => setHighlight(highlight === panel.id ? undefined : panel.id)} aria-pressed={highlight === panel.id}><span className="ls-module-icon">{panel.module}</span>{panel.module === 'A' ? say(SCHOOL_UI.rear) : say(SCHOOL_UI.wing)}</button></td>
+            <td><button type="button" onClick={() => selectPanel(panel.id)} aria-label={`${say(lesson.modules[panel.module]!)} · ${say(panel.face)}`} aria-pressed={highlight === panel.id}><span className="ls-module-icon" aria-hidden="true">{panel.module}</span>{say(lesson.modules[panel.module]!)}</button></td>
             <td>{say(panel.face)}</td><td className="ls-size-cell">{panel.width} × {panel.depth} mm</td><td>× {panel.quantity}</td>
           </tr>)}</tbody>
         </table></div>

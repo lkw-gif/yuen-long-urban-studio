@@ -5,7 +5,8 @@ export const schoolWords = (value: Bilingual, language: SchoolLanguage) => value
 
 export type SchoolPanelGroup = {
   id: string;
-  module: 'A' | 'B';
+  module: 'A' | 'B' | 'C';
+  faces: ('base' | 'roof' | 'front' | 'back' | 'left' | 'right')[];
   face: Bilingual;
   quantity: 2;
   width: number;
@@ -13,12 +14,12 @@ export type SchoolPanelGroup = {
 };
 
 export const SCHOOL_PANELS: SchoolPanelGroup[] = [
-  { id: 'A-base', module: 'A', face: { zh: '底板＋頂板', en: 'Base + roof' }, quantity: 2, width: 100, depth: 40 },
-  { id: 'A-long', module: 'A', face: { zh: '前牆＋後牆', en: 'Front + back walls' }, quantity: 2, width: 100, depth: 36 },
-  { id: 'A-short', module: 'A', face: { zh: '左牆＋右牆', en: 'Left + right walls' }, quantity: 2, width: 36, depth: 36 },
-  { id: 'B-base', module: 'B', face: { zh: '底板＋頂板', en: 'Base + roof' }, quantity: 2, width: 40, depth: 60 },
-  { id: 'B-short', module: 'B', face: { zh: '前牆＋後牆', en: 'Front + back walls' }, quantity: 2, width: 40, depth: 36 },
-  { id: 'B-long', module: 'B', face: { zh: '左牆＋右牆', en: 'Left + right walls' }, quantity: 2, width: 56, depth: 36 },
+  { id: 'A-base', module: 'A', faces: ['base', 'roof'], face: { zh: '底板＋頂板', en: 'Base + roof' }, quantity: 2, width: 100, depth: 40 },
+  { id: 'A-long', module: 'A', faces: ['front', 'back'], face: { zh: '前牆＋後牆', en: 'Front + back walls' }, quantity: 2, width: 100, depth: 36 },
+  { id: 'A-short', module: 'A', faces: ['left', 'right'], face: { zh: '左牆＋右牆', en: 'Left + right walls' }, quantity: 2, width: 36, depth: 36 },
+  { id: 'B-base', module: 'B', faces: ['base', 'roof'], face: { zh: '底板＋頂板', en: 'Base + roof' }, quantity: 2, width: 40, depth: 60 },
+  { id: 'B-short', module: 'B', faces: ['front', 'back'], face: { zh: '前牆＋後牆', en: 'Front + back walls' }, quantity: 2, width: 40, depth: 36 },
+  { id: 'B-long', module: 'B', faces: ['left', 'right'], face: { zh: '左牆＋右牆', en: 'Left + right walls' }, quantity: 2, width: 56, depth: 36 },
 ];
 
 export const SCHOOL_UI = {
