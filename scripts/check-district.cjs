@@ -34,3 +34,9 @@ for(const dimensions of [null,{},[],{width:0,depth:30,height:40},{width:30,depth
 const injected=structuredClone(custom);injected.buildings[0].dimensions.script='ignored';assert.equal(x.parseDesign(injected).buildings[0].dimensions.script,undefined);
 const manyCustom=x.emptyDesign();manyCustom.buildings=Array.from({length:7},(_,i)=>building('c'+i,'CUSTOM-3D',200,200));assert.match(x.validate(manyCustom),/Maximum 6/);
 console.log('Custom building checks passed: defaults, scaled geometry/bridge anchors, quotas, dimensions and names survive import, malformed overrides rejected.');
+
+const palette=load('lib/building-materials.ts');assert.equal(palette.PLA_MATERIALS.length,10);
+for(const material of palette.PLA_MATERIALS){const coloured=x.emptyDesign();coloured.buildings=[{...building('colour','R1',200,200),plaMaterialId:material.id}];assert.equal(x.parseDesign(JSON.parse(JSON.stringify(coloured))).buildings[0].plaMaterialId,material.id);assert.equal(x.validate(coloured),null);}
+for(const invalidColour of ['__proto__','#f00','made-up-colour',null,{}]){const invalid=x.emptyDesign();invalid.buildings=[{...building('colour','R1',200,200),plaMaterialId:invalidColour}];assert.throws(()=>x.parseDesign(invalid));}
+const woodenPla=x.emptyDesign();woodenPla.buildings=[{...building('wood','W1',200,200),plaMaterialId:'matte-red'}];assert.throws(()=>x.parseDesign(woodenPla));
+console.log('PLA checks passed: ten colours persist in design files; invalid colours and PLA applied to wood are rejected.');

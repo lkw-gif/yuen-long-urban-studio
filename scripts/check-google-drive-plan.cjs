@@ -1,0 +1,50 @@
+/* oxlint-disable typescript/no-require-imports, typescript/no-implied-eval -- Standalone Node check loads trusted repository TypeScript, matching catalogue checks. */
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+const loaded = { exports: {} };
+const code = ts.transpileModule(fs.readFileSync('lib/google-drive-plan.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+new Function('require', 'module', 'exports', code)(require, loaded, loaded.exports);
+const plan = loaded.exports;
+const scope = 'https://www.googleapis.com/auth/drive.file';
+const email = 'student@keilong.edu.hk';
+const native = { id: 'doc-test', mimeType: 'application/vnd.google-apps.document', webViewLink: 'https://docs.google.com/document/d/doc-test/edit' };
+const json = (body, status = 200) => new Response(JSON.stringify(body), { status });
+async function main() {
+  for (const invalid of ['student@gmail.com', 'teacher@keilong.edu.hk.evil', 'a@fakekeilong.edu.hk', 'a@@keilong.edu.hk']) assert.equal(plan.isSchoolEmail(invalid), false);
+  assert.equal(plan.isSchoolEmail(email), true);
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'public-test-client.apps.googleusercontent.com';
+  let tokenReply = { access_token: 'test-token', scope: `openid email ${scope}` }, popupError = null, config;
+  global.window = { google: { accounts: { oauth2: { initTokenClient: options => { config = options; return { requestAccessToken: () => popupError ? options.error_callback({ type: popupError }) : options.callback(tokenReply) }; } } } } };
+  assert.equal(await plan.requestPlanAccess(email), 'test-token');
+  assert.equal(config.login_hint, email); assert.equal(config.hd, 'keilong.edu.hk');
+  assert.equal(config.scope, `openid email ${scope}`); assert.equal(config.include_granted_scopes, false);
+  tokenReply = { access_token: 'test-token', scope: 'openid email' };
+  await assert.rejects(plan.requestPlanAccess(email), error => error.code === 'permission-denied');
+  popupError = 'popup_closed'; await assert.rejects(plan.requestPlanAccess(email), error => error.code === 'popup-closed');
+  popupError = 'popup_failed_to_open'; await assert.rejects(plan.requestPlanAccess(email), error => error.code === 'popup-blocked');
+  const goodProfile = { email, email_verified: true, hd: 'keilong.edu.hk' };
+  await plan.checkPlanAccount('test-token', email, async (url, options) => { assert.equal(url, 'https://openidconnect.googleapis.com/v1/userinfo'); assert.equal(options.headers.Authorization, 'Bearer test-token'); return json(goodProfile); });
+  for (const patch of [{ email: 'other@keilong.edu.hk' }, { email: 'a@gmail.com' }, { email_verified: false }, { hd: 'other.edu.hk' }, { hd: undefined }]) await assert.rejects(plan.checkPlanAccount('test-token', email, async () => json({ ...goodProfile, ...patch })), error => error.code === 'school-account');
+  const bytes = new Uint8Array([80, 75, 3, 4]), requestId = 'test-request-123';
+  let calls = [];
+  const result = await plan.createOnlinePlan('test-token', bytes, '2B · Future district', requestId, async (url, options) => {
+    calls.push(options.method ?? 'GET'); assert.ok(!url.includes('access_token')); assert.equal(options.headers.Authorization, 'Bearer test-token');
+    if (!options.method) return json({ files: [] });
+    assert.ok(url.includes('uploadType=multipart')); assert.match(options.headers['Content-Type'], /^multipart\/related; boundary=/);
+    const body = await options.body.text(); assert.ok(body.includes('application/vnd.google-apps.document')); assert.ok(body.includes(plan.DOCX_MIME)); assert.ok(body.includes(requestId)); assert.ok(!body.includes('permissions')); return json(native);
+  });
+  assert.deepEqual(calls, ['GET', 'POST']); assert.equal(result.url, native.webViewLink);
+  calls = [];
+  await plan.createOnlinePlan('test-token', bytes, 'Retry', requestId, async (url, options) => { calls.push(options.method ?? 'GET'); return json({ files: [native] }); });
+  assert.deepEqual(calls, ['GET'], 'Retry must reuse a completed conversion');
+  let findCount = 0;
+  const recovered = await plan.createOnlinePlan('test-token', bytes, 'Recover', requestId, async (url, options) => { if (options.method) throw new TypeError('network'); return json({ files: findCount++ ? [native] : [] }); });
+  assert.equal(recovered.id, native.id);
+  await assert.rejects(plan.createOnlinePlan('test-token', bytes, 'Disabled', requestId, async (url, options) => options.method ? json({ error: { errors: [{ reason: 'accessNotConfigured' }] } }, 403) : json({ files: [] })), error => error.code === 'drive-disabled');
+  await assert.rejects(plan.createOnlinePlan('test-token', bytes, 'Wrong conversion', requestId, async (url, options) => options.method ? json({ ...native, mimeType: plan.DOCX_MIME }) : json({ files: [] })), error => error.code === 'conversion-failed');
+  await assert.rejects(plan.createOnlinePlan('test-token', bytes, 'Bad URL', requestId, async (url, options) => options.method ? json({ ...native, webViewLink: 'https://evil.example/document/d/doc-test/edit' }) : json({ files: [] })), error => error.code === 'conversion-failed');
+  delete global.window;
+  console.log('Google plan checks passed: narrow Drive scope, same school account, native Docs conversion, private creation, cancel/errors and idempotent network recovery.');
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

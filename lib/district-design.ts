@@ -1,5 +1,6 @@
 import catalog from './district-catalog.json';
 import { BOUNDARY } from './model-data';
+import { isPlaMaterialId, type PlaMaterialId } from './building-materials';
 
 export type Point = {x:number;y:number};
 export type ModelBox = {x:number;y:number;z:number;w:number;d:number;h:number;role?:string;name?:string};
@@ -19,7 +20,7 @@ export const ZONES = {residential:'#75a8ed',commercial:'#e9ac67',community:'#b79
 export type ZoneKind=keyof typeof ZONES;
 export type BuildingSize={width:number;depth:number;height:number};
 export const SIZE_LIMITS={width:{min:5,max:594},depth:{min:5,max:420},height:{min:5,max:300}};
-export type Building = Point & {id:string;modelId:string;rotation:number;name?:string;dimensions?:BuildingSize};
+export type Building = Point & {id:string;modelId:string;rotation:number;name?:string;dimensions?:BuildingSize;plaMaterialId?:PlaMaterialId};
 export function modelForBuilding(b:Building):Model {
  const m=MODEL_MAP[b.modelId];if(!b.dimensions)return m;
  const {width,depth,height}=b.dimensions,sx=width/m.width,sy=depth/m.depth,sz=height/m.height;
@@ -27,7 +28,7 @@ export function modelForBuilding(b:Building):Model {
  return {...m,width,depth,height,boxes:m.boxes.map(scale),windows:m.windows.map(scale),...(m.panels?{panels:m.panels.map(scale)}:{})};
 }
 export function buildingName(b:Building,language='zh-Hant'){const m=MODEL_MAP[b.modelId];return b.name?.trim()||(language==='en'?m.nameEn:m.nameZh);}
-function validBuildingDetails(b:Building){return (b.name===undefined||(typeof b.name==='string'&&b.name.length<=60&&!Array.from(b.name).some(c=>c.charCodeAt(0)<32)))&&(b.dimensions===undefined||(b.dimensions!==null&&typeof b.dimensions==='object'&&!Array.isArray(b.dimensions)&&Object.entries(SIZE_LIMITS).every(([key,range])=>{const n=b.dimensions![key as keyof BuildingSize];return typeof n==='number'&&Number.isFinite(n)&&n>=range.min&&n<=range.max;})));}
+function validBuildingDetails(b:Building){return (b.plaMaterialId===undefined||(MODEL_MAP[b.modelId]?.kind==='print'&&isPlaMaterialId(b.plaMaterialId)))&&(b.name===undefined||(typeof b.name==='string'&&b.name.length<=60&&!Array.from(b.name).some(c=>c.charCodeAt(0)<32)))&&(b.dimensions===undefined||(b.dimensions!==null&&typeof b.dimensions==='object'&&!Array.isArray(b.dimensions)&&Object.entries(SIZE_LIMITS).every(([key,range])=>{const n=b.dimensions![key as keyof BuildingSize];return typeof n==='number'&&Number.isFinite(n)&&n>=range.min&&n<=range.max;})));}
 export type Zone = Point & {id:string;kind:ZoneKind;w:number;d:number};
 export type Road = {id:string;kind:'road'|'path';width:number;points:Point[]};
 export type Bridge = {id:string;from:string;to:string;width:number;height:number};
@@ -77,5 +78,5 @@ export function parseDesign(input:unknown):Design {
  if(d.bridges.some(b=>!num(b.width,8,30)||!num(b.height,8,120)||b.from===b.to||![b.from,b.to].every(id=>d.buildings.some(x=>x.id===id))))return fail();
  const error=validate(d);if(error)throw new Error(error);
  // Rebuild through a schema whitelist. Imported data can never supply markup or geometry.
- return {version:1,board:{...BOARD},name:d.name,className:d.className,group:d.group,buildings:d.buildings.map(({id,modelId,x,y,rotation,name,dimensions})=>({id,modelId,x,y,rotation,...(name!==undefined?{name}:{}),...(dimensions?{dimensions:{width:dimensions.width,depth:dimensions.depth,height:dimensions.height}}:{})})),zones:d.zones.map(({id,kind,x,y,w,d})=>({id,kind,x,y,w,d})),roads:d.roads.map(({id,kind,width,points})=>({id,kind,width,points:points.map(({x,y})=>({x,y}))})),bridges:d.bridges.map(({id,from,to,width,height})=>({id,from,to,width,height})),decorations:d.decorations.map(({id,kind,x,y,rotation})=>({id,kind,x,y,rotation}))};
+ return {version:1,board:{...BOARD},name:d.name,className:d.className,group:d.group,buildings:d.buildings.map(({id,modelId,x,y,rotation,name,dimensions,plaMaterialId})=>({id,modelId,x,y,rotation,...(plaMaterialId!==undefined?{plaMaterialId}:{}),...(name!==undefined?{name}:{}),...(dimensions?{dimensions:{width:dimensions.width,depth:dimensions.depth,height:dimensions.height}}:{})})),zones:d.zones.map(({id,kind,x,y,w,d})=>({id,kind,x,y,w,d})),roads:d.roads.map(({id,kind,width,points})=>({id,kind,width,points:points.map(({x,y})=>({x,y}))})),bridges:d.bridges.map(({id,from,to,width,height})=>({id,from,to,width,height})),decorations:d.decorations.map(({id,kind,x,y,rotation})=>({id,kind,x,y,rotation}))};
 }

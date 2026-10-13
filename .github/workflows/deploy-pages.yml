@@ -48,6 +48,9 @@ jobs:
       - name: Check Google school account validation
         run: node --experimental-strip-types scripts/check-google-auth.mjs
 
+      - name: Check Google document generation
+        run: node scripts/check-google-drive-plan.cjs
+
       - name: Build static site
         # Both language versions must remain complete.
         run: node scripts/check-i18n.cjs && npm run build

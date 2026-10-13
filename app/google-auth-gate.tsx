@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { verifyGoogleIdToken } from '@/lib/verify-google-id-token';
+import { SchoolAccountProvider } from '@/components/school-account';
+import type { GoogleOAuth2 } from '@/lib/google-drive-plan';
 
 const ALLOWED_DOMAIN = 'keilong.edu.hk';
 const SESSION_KEY = 'yuen-long-urban-studio-google-session';
@@ -22,6 +24,7 @@ declare global {
   interface Window {
     google?: {
       accounts: {
+        oauth2?: GoogleOAuth2;
         id: {
           initialize: (options: {
             client_id: string;
@@ -154,7 +157,7 @@ export default function GoogleAuthGate({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  if (state === 'allowed') return <>{children}</>;
+  if (state === 'allowed') return <SchoolAccountProvider email={email}>{children}</SchoolAccountProvider>;
 
   const signOut = () => {
     try { sessionStorage.removeItem(SESSION_KEY); } catch { /* Ignore blocked storage. */ }

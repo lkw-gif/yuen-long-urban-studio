@@ -4,6 +4,7 @@ import {forwardRef,useEffect,useImperativeHandle,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {BOARD,SITE,RIVER,BRIDGE_DECK_THICKNESS,modelForBuilding,ZONES,bridgeGeometry,round,type Design,type Point} from '@/lib/district-design';
+import {plaMaterial,type PlaMaterialId} from '@/lib/building-materials';
 
 export type PreviewApi={image:()=>string|undefined;reset:()=>void;zoom:(factor:number)=>void};
 type CameraPose={position:THREE.Vector3;target:THREE.Vector3;fitted:boolean};
@@ -24,6 +25,7 @@ export const DistrictPreview=forwardRef<PreviewApi,PreviewProps>(function Distri
   scene.add(new THREE.HemisphereLight('#e8f2ff','#586647',2.3));const sun=new THREE.DirectionalLight('#fff4df',3.2);sun.position.set(-260,550,-220);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-430,right:430,top:430,bottom:-430,near:1,far:1100});sun.shadow.normalBias=1;scene.add(sun);
   const materials=new Map<string,THREE.MeshStandardMaterial>();
   const mat=(color:string)=>{if(!materials.has(color))materials.set(color,new THREE.MeshStandardMaterial({color,roughness:.85}));return materials.get(color)!;};
+  const printedMaterial=(id?:PlaMaterialId)=>{const chosen=plaMaterial(id),key='pla-'+chosen.id;if(!materials.has(key))materials.set(key,chosen.transparent?new THREE.MeshPhysicalMaterial({color:chosen.color,roughness:.18,transmission:.25,thickness:2,ior:1.45,transparent:true,opacity:.68,depthWrite:false}):new THREE.MeshStandardMaterial({color:chosen.color,roughness:1}));return materials.get(key)!;};
   const acrylic=new THREE.MeshPhysicalMaterial({color:'#c6e0de',transparent:true,opacity:.25,roughness:.16,metalness:.02,depthWrite:false,side:THREE.DoubleSide});
   const acrylicEdge=new THREE.MeshStandardMaterial({color:'#d3e6e1',transparent:true,opacity:.8,roughness:.4,depthWrite:false});
   const cube=new THREE.BoxGeometry(1,1,1),cylinder=new THREE.CylinderGeometry(1,1,1,12);
@@ -44,8 +46,9 @@ export const DistrictPreview=forwardRef<PreviewApi,PreviewProps>(function Distri
   const fitPoints=SITE.map(p=>new THREE.Vector3(p.x-BOARD.width/2,0,p.y-BOARD.depth/2));
   function register(id:string,group:THREE.Group,sprite:THREE.Sprite){group.updateWorldMatrix(true,true);group.userData.selectId=id;selectable.push(group);const helper=new THREE.BoxHelper(group,'#f3bc76');helper.visible=false;helper.renderOrder=9;(helper.material as THREE.LineBasicMaterial).depthTest=false;scene.add(helper);highlights.set(id,{helper,label:sprite});}
   design.buildings.forEach(b=>{const m=modelForBuilding(b),g=new THREE.Group();g.position.set(b.x,.85,b.y);g.rotation.y=-b.rotation*Math.PI/180;root.add(g);
-   (m.panels??m.boxes).forEach(p=>box(g,p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2,p.w,p.h,p.d,m.custom?'#eeeae2':m.kind==='wood'?(p.h===2?'#c39860':'#dfb87d'):(p.role==='base'?'#b1c2d4':'#438ae0')));
-   const windows=new THREE.InstancedMesh(cube,mat(m.kind==='wood'?'#755537':'#174d7e'),m.windows.length),dummy=new THREE.Object3D();m.windows.forEach((p,i)=>{dummy.position.set(p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2);dummy.scale.set(p.w,p.h,p.d);dummy.updateMatrix();windows.setMatrixAt(i,dummy.matrix);});g.add(windows);
+   (m.panels??m.boxes).forEach(p=>box(g,p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2,p.w,p.h,p.d,m.kind==='print'?printedMaterial(b.plaMaterialId):p.role==='base'||p.h===2?'#c39860':'#dfb87d'));
+   const chosen=plaMaterial(b.plaMaterialId),windowColor=new THREE.Color(chosen.color);if(chosen.id==='matte-black')windowColor.lerp(new THREE.Color('#c2ccce'),.6);else windowColor.multiplyScalar(.3);
+   const windows=new THREE.InstancedMesh(cube,mat(m.kind==='wood'?'#755537':'#'+windowColor.getHexString()),m.windows.length),dummy=new THREE.Object3D();m.windows.forEach((p,i)=>{dummy.position.set(p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2);dummy.scale.set(p.w,p.h,p.d);dummy.updateMatrix();windows.setMatrixAt(i,dummy.matrix);});g.add(windows);
    register(b.id,g,label(`${b.name?.trim()||m.id}  ${round(m.width)} × ${round(m.depth)} × ${round(m.height)} mm`,b.x,m.height+22,b.y));
    g.updateWorldMatrix(true,true);const bounds=new THREE.Box3().setFromObject(g);for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])fitPoints.push(new THREE.Vector3(x,y,z));
   });
