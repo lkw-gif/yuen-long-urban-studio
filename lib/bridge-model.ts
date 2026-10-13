@@ -90,8 +90,8 @@ export function createBridgeLessonModel() {
     rod(2, 'Bamboo_crossbearer', [p[0] - n[0] * 14, 72.4, p[1] - n[1] * 14], [p[0] + n[0] * 14, 72.4, p[1] + n[1] * 14], 1.6);
   }
   for (const path of [MAIN, BRANCH]) {
-    const beams = banks(path, 18);
-    for (const bank of [beams.left, beams.right]) bank.slice(0, -1).forEach((a, i) => rod(2, 'Bamboo_longitudinal_bearer', [a[0], 69.3, a[1]], [bank[i + 1][0], 69.3, bank[i + 1][1]], 1.5));
+    const beams = banks(path, BRIDGE_SIZE.bearerCentreSpacing);
+    for (const bank of [beams.left, beams.right]) bank.slice(0, -1).forEach((a, i) => rod(2, 'Bamboo_longitudinal_bearer', [a[0], 69.3, a[1]], [bank[i + 1][0], 69.3, bank[i + 1][1]], BRIDGE_SIZE.bearerDiameter / 2));
   }
   slab(3, 'Acrylic_main_deck', mainOutline, 74, 2, acrylic); outlineEdge(3, mainOutline);
   slab(4, 'Acrylic_branch_deck', branchOutline, 74, 2, acrylic); outlineEdge(4, branchOutline);

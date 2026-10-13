@@ -22,7 +22,7 @@ for (let step = 0; step < 8; step++) {
 }
 model.update(7, false, false);
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-5, `${actual} ≈ ${expected}`);
-// The student cut list must describe the actual flat panels in the model.
+// The fabrication dimensions must describe the actual flat panels in the model.
 const sidePanels = model.stages[5].children.filter(o => o.name === 'Acrylic_side_panel');
 assert.equal(sidePanels.length, 30);
 let panelIndex = 0;
@@ -51,6 +51,11 @@ for (const name of ['Acrylic_main_deck', 'Acrylic_branch_deck', ...['A', 'B', 'C
 near(bounds('Bamboo_crossbearer').max.y, BRIDGE_SIZE.deckBottom);
 near(bounds('Bamboo_support_column').max.y, 67.8);
 near(bounds('Bamboo_support_column').min.y, 0);
+const bearers = model.stages[2].children.filter(o => o.name === 'Bamboo_longitudinal_bearer');
+const centreSpacing = Math.abs(bearers[0].position.z - bearers[3].position.z);
+near(centreSpacing, BRIDGE_SIZE.bearerCentreSpacing);
+near(bearers[0].geometry.parameters.radiusTop * 2, BRIDGE_SIZE.bearerDiameter);
+near(centreSpacing - bearers[0].geometry.parameters.radiusTop - bearers[3].geometry.parameters.radiusTop, 15);
 near(bounds('Acrylic_building_A_landing').min.x, -140);
 near(bounds('Acrylic_building_B_landing').max.x, 128);
 near(bounds('Acrylic_building_C_landing').max.z, 87);

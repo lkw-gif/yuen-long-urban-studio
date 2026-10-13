@@ -2,7 +2,7 @@ export type Point = [number, number];
 // Millimetres, Y up. Three routes meet at an open junction.
 export const MAIN: Point[] = [[-128, -24], [-20, -24], [56, -85], [116, -85]];
 export const BRANCH: Point[] = [[-20, -24], [42, 26], [42, 75]];
-export const BRIDGE_SIZE = { width: 26, deckBottom: 74, deckTop: 76, guardTop: 88, guardThickness: 1, maxGuardPanelLength: 28, baseWidth: 440, baseDepth: 320 };
+export const BRIDGE_SIZE = { width: 26, bearerCentreSpacing: 18, bearerDiameter: 3, deckBottom: 74, deckTop: 76, guardTop: 88, guardThickness: 1, maxGuardPanelLength: 28, baseWidth: 440, baseDepth: 320 };
 function intersection(a: Point, b: Point, c: Point, d: Point): Point {
   const ux = b[0] - a[0], uz = b[1] - a[1], vx = d[0] - c[0], vz = d[1] - c[1];
   const t = ((c[0] - a[0]) * vz - (c[1] - a[1]) * vx) / (ux * vz - uz * vx);

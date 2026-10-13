@@ -11,6 +11,15 @@ export const BRIDGE_STEPS = [
 
 export const BRIDGE_GUIDE_EN: Record<string, string> = {
   '護板製作尺寸': 'Side-panel fabrication dimensions',
+  '護板及橋闊建議': 'Suggested panel and bridge dimensions',
+  '建議橋闊': 'Suggested bridge width',
+  '竹籤之間淨距': 'Clear gap between bamboo sticks',
+  '竹籤中心距': 'Bamboo centre spacing',
+  '橋面板總闊': 'Overall deck width',
+  '約': 'About',
+  '護板長度按橋邊微調，轉角先試拼。': 'Adjust panel lengths to the bridge edge; dry-fit bends first.',
+  '以兩側承托梁的竹籤直徑': 'For the two side bearers, use bamboo sticks of diameter',
+  'mm 計；淨距量內側，中心距量兩支竹籤的中心。': 'mm; measure the clear gap between inside faces and centre spacing between the two stick centres.',
   '護板長 × 闊': 'Panel length × width',
   '護板平放切割，長度依段落，闊度 12 mm。': 'Cut the panel flat. Length varies by section; width is 12 mm.',
   '平放的透明護板': 'Transparent panel laid flat',
