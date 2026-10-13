@@ -55,8 +55,8 @@ export function buildProductionPlan(template:Uint8Array,d:Design,language:string
  let paragraphIndex=0;
  const intro=xml.slice(0,tableStart).replace(/<w:p\b[\s\S]*?<\/w:p>/g,p=>{
   const index=paragraphIndex++;
-  if(en&&index===0)return paragraph('CCC Kei Long College',p);
-  if(en&&index===1)return paragraph('F.2 Geography, Design and Technology and Innovation',p);
+  if(en&&index===0)return paragraph('The Church of Christ in China Kei Long College',p);
+  if(en&&index===1)return paragraph('Form 2 Geography, Design & Technology and STEAM',p);
   if(en&&index===2)return paragraph('Future Yuen Long Community | Building Production Plan',p);
   if(index===3)return paragraph(`${en?'Design name: ':'設計名稱：'}${d.name||'__________________________'}`,p);
   if(index===5)return paragraph(en?`Class: ${d.className||'_______'}    Group: ${d.group||'_______'}    Members / numbers: __________________________   Date: ________________`:`班別：${d.className||'_______'}    組別：${d.group||'_______'}    組員名字及學號：__________________________________   日期：__________________________`,p);
