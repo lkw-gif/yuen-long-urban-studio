@@ -1,9 +1,10 @@
 import ui from './ui-en.json';
+import { BRIDGE_GUIDE_EN } from './bridge-lesson';
 import { TOWER_STEPS, TOWER_STEP_SOURCE_INDICES } from './tower-lesson';
 import { TOWER_STEP_EN } from './tower-lesson.en';
 
 export type Language = 'zh-Hant' | 'en';
-export const english: Record<string, string> = { ...ui };
+export const english: Record<string, string> = { ...ui, ...BRIDGE_GUIDE_EN };
 const fields = ['title', 'where', 'action', 'expect', 'help'] as const;
 const cleanEnglish: Record<number, Partial<Record<(typeof fields)[number], string>>> = {
   6: {

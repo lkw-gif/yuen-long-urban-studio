@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { createBridgeLessonModel, BRIDGE_SIZE, BRIDGE_LAYOUT } from '../lib/bridge-model.ts';
 import { disposeScene } from '../lib/three-disposal.ts';
 import { exportSceneBinary } from '../lib/export-scene.ts';
+import { BRIDGE_GUARD_SECTIONS, BRIDGE_GUARD_HEIGHT, BRIDGE_ENTRY_PANELS } from '../lib/bridge-layout.ts';
 
 // The Three.js exporter uses FileReader, which browsers provide natively.
 globalThis.FileReader = class {
@@ -21,6 +22,26 @@ for (let step = 0; step < 8; step++) {
 }
 model.update(7, false, false);
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-5, `${actual} ≈ ${expected}`);
+// The student cut list must describe the actual flat panels in the model.
+const sidePanels = model.stages[5].children.filter(o => o.name === 'Acrylic_side_panel');
+assert.equal(sidePanels.length, 30);
+let panelIndex = 0;
+for (const section of BRIDGE_GUARD_SECTIONS) {
+  assert.ok(section.panelLength > 0 && section.panelLength <= 28);
+  near(section.panelLength * section.quantity, section.length);
+  for (let i = 0; i < section.quantity; i++) {
+    const panel = sidePanels[panelIndex++];
+    near(panel.scale.x, section.panelLength);
+    near(panel.scale.y, BRIDGE_GUARD_HEIGHT);
+    near(panel.scale.z, BRIDGE_SIZE.guardThickness);
+    near(new THREE.Box3().setFromObject(panel).min.y, BRIDGE_SIZE.deckTop);
+    near(new THREE.Box3().setFromObject(panel).max.y, BRIDGE_SIZE.guardTop);
+  }
+}
+assert.equal(panelIndex, sidePanels.length);
+const entryPanels = model.stages[6].children.filter(o => o.name === 'Acrylic_side_panel');
+assert.equal(entryPanels.length, BRIDGE_ENTRY_PANELS.length);
+entryPanels.forEach((panel, i) => { near(panel.scale.x, BRIDGE_ENTRY_PANELS[i].length); near(panel.scale.x, 12); near(panel.scale.y, 12); });
 for (const name of ['Acrylic_main_deck', 'Acrylic_branch_deck', ...['A', 'B', 'C'].map(id => `Acrylic_building_${id}_landing`)]) {
   near(bounds(name).min.y, BRIDGE_SIZE.deckBottom);
   near(bounds(name).max.y, BRIDGE_SIZE.deckTop);
