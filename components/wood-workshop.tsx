@@ -7,6 +7,8 @@ import { StudioNav } from '@/components/studio-nav';
 import { sitePath } from '@/lib/site-path';
 import { schoolWords } from '@/lib/wood-school-lesson';
 import { WOOD_LESSONS, WOOD_UI, type WoodLessonId } from '@/lib/wood-lessons';
+import WoodPanelPlan from '@/components/wood-panel-plan';
+import { WOOD_PLAN_UI } from '@/lib/wood-panel-plan';
 
 const WoodBuildingViewer = lazy(() => import('@/components/wood-building-viewer'));
 
@@ -84,18 +86,18 @@ export default function WoodWorkshop() {
         </button>)}
       </nav>
 
-      <div className="ls-main-grid">
+      <div className={`ls-main-grid${stage === 1 ? ' has-panel-plan' : ''}`}>
         <section className="ls-view-card" ref={viewRef} aria-labelledby="ls-view-title">
           <div className="ls-view-heading">
-            <div><span className="ls-overline">3D MODEL / {String(stage + 1).padStart(2, '0')}</span><h2 id="ls-view-title">{say(SCHOOL_UI.viewTitle)}</h2></div>
+            <div><span className="ls-overline">{stage === 1 ? 'LASER CUT' : '3D MODEL'} / {String(stage + 1).padStart(2, '0')}</span><h2 id="ls-view-title">{say(stage === 1 ? WOOD_PLAN_UI.title : SCHOOL_UI.viewTitle)}</h2></div>
             <span className="ls-view-step">{say(current.title)}</span>
           </div>
-          <div className="ls-viewer-area">
-            <Suspense fallback={<div className="ls-viewer-loading">3D…</div>}>
+          <div className={`ls-viewer-area${stage === 1 ? ' ls-panel-area' : ''}`}>
+            {stage === 1 ? <WoodPanelPlan lessonId={lessonId}/> : <Suspense fallback={<div className="ls-viewer-loading">3D…</div>}>
               <WoodBuildingViewer key={lessonId} lessonId={lessonId} stage={stage} highlight={highlight} />
-            </Suspense>
+            </Suspense>}
           </div>
-          <div className="ls-view-footer"><MousePointer2 size={16} />{say(SCHOOL_UI.viewHelp)}</div>
+          <div className="ls-view-footer">{stage === 1 ? <Scissors size={16}/> : <MousePointer2 size={16} />}{say(stage === 1 ? WOOD_PLAN_UI.help : SCHOOL_UI.viewHelp)}</div>
         </section>
 
         <aside className="ls-instructions" aria-live="polite">

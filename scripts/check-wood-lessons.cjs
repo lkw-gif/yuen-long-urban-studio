@@ -17,6 +17,7 @@ function load(file) {
   return loaded.exports;
 }
 const { WOOD_LESSONS } = load('lib/wood-lessons.ts');
+const { woodPanelDrawing, WOOD_PANEL_NAMES, WOOD_PLAN_UI } = load('lib/wood-panel-plan.ts');
 const catalog = JSON.parse(fs.readFileSync('lib/district-catalog.json', 'utf8'));
 function checkBilingual(value) {
   if (!value || typeof value !== 'object') return;
@@ -54,8 +55,19 @@ for (const lesson of Object.values(WOOD_LESSONS)) {
       assert.ok(panel.z >= box.z && panel.z + panel.h <= box.z + box.h);
     }
   }
+  // A flat drawing must use the two face dimensions, excluding the 2 mm thickness.
+  for (const panel of model.panels) {
+    const drawing = woodPanelDrawing(panel, model.windows);
+    const cutGroup = lesson.panels.find(group => group.module === panel.moduleId && group.faces.includes(panel.face));
+    assert.deepEqual([drawing.width, drawing.height], [cutGroup.width, cutGroup.depth]);
+    for (const mark of drawing.marks) {
+      assert.ok(mark.x >= 0 && mark.y >= 0 && mark.x + mark.width <= drawing.width && mark.y + mark.height <= drawing.height, 'Engraving stays inside its cutting face');
+      assert.deepEqual([mark.width, mark.height], mark.name === 'door' ? [10, 16] : [8, 8], 'Upright window/door dimensions');
+    }
+  }
   checkBilingual(lesson);
 }
+checkBilingual(WOOD_PANEL_NAMES); checkBilingual(WOOD_PLAN_UI);
 // Independently check the mall's outside dimensions and centred stacking from guide pp. 20–22.
 const mall = catalog.models.find(item => item.id === 'W3');
 assert.deepEqual([mall.width, mall.depth, mall.height], [100, 70, 95]);
