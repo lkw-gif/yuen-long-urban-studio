@@ -36,10 +36,10 @@ export function BridgeYohoReference() {
     <div className="bridge-yoho-grid"><div><p>施工項目資料列出行人天橋長 46 m；同項目售樓書列出 FB1 淨闊要求為 6 m。</p>
       <p className="bridge-guide-note">淨闊是供行人通行的寬度，不包括兩側護板厚度。6 m 是批地設計要求，並非現場量度。</p>
       <p className="bridge-guide-note">本頁 3D 是獨立的組裝示範。護板闊 12 mm 是模型製作建議；來源沒有逐塊 YOHO 護板尺寸。</p>
-    </div><table><caption>縮尺例子：1 : 200</caption><thead><tr><th>尺寸</th><th>實橋參考</th><th>縮尺模型</th></tr></thead><tbody>
-      <tr><th scope="row">橋長</th><td>46 m</td><td>230 mm</td></tr><tr><th scope="row">通行淨闊要求</th><td>6 m</td><td>30 mm</td></tr>
+    </div><table><caption>建築模型比例：1 : 700</caption><thead><tr><th>尺寸</th><th>實橋參考</th><th>縮尺模型</th></tr></thead><tbody>
+      <tr><th scope="row">橋長</th><td>46 m</td><td>65.7 mm</td></tr><tr><th scope="row">通行淨闊要求</th><td>6 m</td><td>8.6 mm</td></tr>
     </tbody></table></div>
-    <p className="bridge-scale-formula">實際尺寸（m）× 1000 ÷ 200 = 模型尺寸（mm）</p>
+    <p className="bridge-scale-formula">模型 1 cm 代表實際 7 m。<br/>實際尺寸（m）× 1000 ÷ 700 = 模型尺寸（mm）</p>
     <div className="bridge-guide-sources"><span>資料來源：</span><a href="https://www.goldwave.hk/portfolio/west-rail-yuen-long-station-property-development-yltl-no-510" target="_blank" rel="noopener noreferrer">Goldwave：橋長施工資料</a><a href="https://www.theyohohub.com.hk/file/20260825_YHB_SB_Part%201.pdf#page=129" target="_blank" rel="noopener noreferrer">YOHO Hub 官方售樓書：FB1 淨闊要求</a></div>
   </section></Localized>;
 }
