@@ -114,7 +114,7 @@ export default function WoodWorkshop() {
         </aside>
       </div>
 
-      <section className="ls-inventory" aria-labelledby="ls-inventory-title">
+      {lessonId !== 'school' && <section className="ls-inventory" aria-labelledby="ls-inventory-title">
         <div className="ls-inventory-head"><div><span className="ls-overline">CUT LIST · 2 MM PLYWOOD</span><h2 id="ls-inventory-title">{say(SCHOOL_UI.inventory)}</h2><p>{say(WOOD_UI.inventoryHelp)}</p></div><div className="ls-legend"><span><i className="cut" />{say(SCHOOL_UI.cut)}</span><span><i className="engrave" />{say(SCHOOL_UI.engrave)}</span></div></div>
         <div className="ls-table-wrap"><table><thead><tr><th>{say(SCHOOL_UI.module)}</th><th>{say(SCHOOL_UI.face)}</th><th>{say(SCHOOL_UI.dimensions)}</th><th>{say(SCHOOL_UI.quantity)}</th></tr></thead>
           <tbody>{SCHOOL_PANELS.map(panel => <tr key={panel.id} className={highlight === panel.id ? 'selected' : ''}>
@@ -123,7 +123,7 @@ export default function WoodWorkshop() {
           </tr>)}</tbody>
         </table></div>
         <div className="ls-inventory-notes"><p><strong>{say(SCHOOL_UI.assembly)}:</strong> {say(SCHOOL_UI.position)}</p><p>{say(SCHOOL_UI.thicknessNote)}</p></div>
-      </section>
+      </section>}
       <p className="ls-source">{say(SCHOOL_UI.source)}</p>
     </div>
   </main>;
