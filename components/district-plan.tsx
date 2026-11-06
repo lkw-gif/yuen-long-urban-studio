@@ -2,7 +2,7 @@
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- This focusable SVG application is the drawing canvas, with keyboard shortcuts, pointer editing and right-button panning. */
 import {forwardRef,useEffect,useRef,useState,useImperativeHandle,useId,type PointerEventHandler,type PointerEvent as PE} from 'react';
 import {SITE,RIVER,modelForBuilding,ZONES,bridgeGeometry,round,roadLength,type Design,type Point,type Model} from '@/lib/district-design';
-import {planFrame,zoomAt} from '@/lib/district-viewport';
+import {planFrame,zoomAt,pinchViewport} from '@/lib/district-viewport';
 import {sitePath} from '@/lib/site-path';
 import {plaMaterial} from '@/lib/building-materials';
 
@@ -36,18 +36,42 @@ export function ModelThumbnail({model,large=false}:{model:Model;large?:boolean})
  const position=(offset:number)=>`calc(50% ${offset<0?'-':'+'} ${Math.abs(offset)}px)`;
  return <span className={`dd-model-thumbnail dd-model-thumbnail-${model.kind} dd-model-thumbnail-${model.id}${large?' dd-model-thumbnail-large':''}`} aria-hidden="true" style={{backgroundImage:`url(${sheet.src})`,backgroundSize:`${sheet.width*scale}px ${sheet.height*scale}px`,backgroundPosition:`${position((sheet.width/2-art.x)*scale)} ${position((sheet.height/2-art.y)*scale)}`}}/>;
 }
-type Props={design:Design;selected:string;bridgeStart:string;dimensions:boolean;grid:boolean;draft:Point[];routeWidth:number;zoom:number;center:Point;tool:string;panMode:boolean;t:(s:string)=>string;onViewport:(zoom:number,center:Point)=>void;onDown:PointerEventHandler<SVGSVGElement>;onMove:PointerEventHandler<SVGSVGElement>;onUp:PointerEventHandler<SVGSVGElement>;onCancel:()=>void};
-export const DistrictPlan=forwardRef<SVGSVGElement,Props>(function DistrictPlan({design:d,selected,bridgeStart,dimensions,grid,draft,routeWidth,zoom,center,tool,panMode,t,onViewport,onDown,onMove,onUp,onCancel},ref){
+type Props={design:Design;selected:string;bridgeStart:string;dimensions:boolean;grid:boolean;draft:Point[];routeWidth:number;zoom:number;center:Point;tool:string;panMode:boolean;t:(s:string)=>string;onViewport:(zoom:number,center:Point)=>void;onDown:PointerEventHandler<SVGSVGElement>;onMove:PointerEventHandler<SVGSVGElement>;onUp:PointerEventHandler<SVGSVGElement>;onCancel:()=>void;onTouchStart:()=>void;onTouchCancel:()=>void};
+export const DistrictPlan=forwardRef<SVGSVGElement,Props>(function DistrictPlan({design:d,selected,bridgeStart,dimensions,grid,draft,routeWidth,zoom,center,tool,panMode,t,onViewport,onDown,onMove,onUp,onCancel,onTouchStart,onTouchCancel},ref){
  const canvas=useRef<SVGSVGElement>(null),pan=useRef<{start:DOMPoint;inverse:DOMMatrix;center:Point;pointer:number}|null>(null);
  const [size,setSize]=useState({width:800,height:500});
  useImperativeHandle(ref,()=>canvas.current!,[]);
  useEffect(()=>{const el=canvas.current;if(!el)return;const observer=new ResizeObserver(()=>setSize({width:el.clientWidth,height:el.clientHeight}));observer.observe(el);return()=>observer.disconnect();},[]);
  useEffect(()=>{const el=canvas.current;if(!el)return;const wheel=(e:WheelEvent)=>{e.preventDefault();if(pan.current||e.buttons)return;const matrix=el.getScreenCTM();if(!matrix)return;const anchor=new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse());const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?el.clientHeight:1);const next=zoomAt(center,zoom,zoom*Math.exp(-Math.max(-240,Math.min(240,delta))*.0025),anchor);onViewport(next.zoom,next.center);};el.addEventListener('wheel',wheel,{passive:false});return()=>el.removeEventListener('wheel',wheel);},[zoom,center,onViewport]);
  const {width:w,height:h}=planFrame(size.width,size.height,zoom);
- function start(e:PE<SVGSVGElement>){if(e.button===1||e.button===2||(panMode&&e.button===0)){e.preventDefault();if(pan.current)return;const inverse=e.currentTarget.getScreenCTM()?.inverse();if(!inverse)return;pan.current={start:new DOMPoint(e.clientX,e.clientY).matrixTransform(inverse),inverse,center:{...center},pointer:e.pointerId};e.currentTarget.setPointerCapture(e.pointerId);return;}onDown(e);}
- function move(e:PE<SVGSVGElement>){const p=pan.current;if(p){if(e.pointerId!==p.pointer)return;const next=new DOMPoint(e.clientX,e.clientY).matrixTransform(p.inverse);onViewport(zoom,{x:p.center.x+p.start.x-next.x,y:p.center.y+p.start.y-next.y});}else onMove(e);}
- function end(e:PE<SVGSVGElement>){if(pan.current){if(e.pointerId!==pan.current.pointer)return;pan.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}else onUp(e);}
- return <svg ref={canvas} className="dd-plan" role="application" tabIndex={0} aria-label={t('A2 board')} viewBox={`${center.x-w/2} ${center.y-h/2} ${w} ${h}`} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{pan.current=null;onCancel();}} onContextMenu={e=>e.preventDefault()} style={{cursor:panMode?'grab':tool==='select'?'default':'crosshair'}}>
+ const touches=useRef(new Map<number,{x:number;y:number}>());
+ const firstTouch=useRef<{id:number;x:number;y:number;target:EventTarget;started:boolean;moved:boolean;inverse:DOMMatrix;center:Point}|null>(null);
+ const pinch=useRef<{ids:[number,number];inverse:DOMMatrix;anchor:Point;distance:number;center:Point;zoom:number}|null>(null);
+ const multiTouch=useRef(false);
+ // Defer touch taps until release so the first finger of a pinch cannot add an object.
+ function touchStart(e:PE<SVGSVGElement>){
+  e.preventDefault();const el=e.currentTarget;touches.current.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);
+  if(touches.current.size===1){const inverse=el.getScreenCTM()?.inverse();if(!inverse)return;onTouchStart();firstTouch.current={id:e.pointerId,x:e.clientX,y:e.clientY,target:e.target,started:false,moved:false,inverse,center:{...center}};return;}
+  if(touches.current.size===2){if(firstTouch.current?.started){onCancel();onTouchCancel();}pan.current=null;multiTouch.current=true;const inverse=el.getScreenCTM()?.inverse();if(!inverse)return;const entries=[...touches.current.entries()],a=entries[0][1],b=entries[1][1];const midpoint=new DOMPoint((a.x+b.x)/2,(a.y+b.y)/2).matrixTransform(inverse);pinch.current={ids:[entries[0][0],entries[1][0]],inverse,anchor:{x:midpoint.x,y:midpoint.y},distance:Math.hypot(a.x-b.x,a.y-b.y),center:{...center},zoom};}
+ }
+ function touchMove(e:PE<SVGSVGElement>){
+  if(!touches.current.has(e.pointerId))return;touches.current.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(multiTouch.current){const p=pinch.current;if(!p)return;const a=touches.current.get(p.ids[0]),b=touches.current.get(p.ids[1]);if(!a||!b)return;const midpoint=new DOMPoint((a.x+b.x)/2,(a.y+b.y)/2).matrixTransform(p.inverse);const next=pinchViewport(p.center,p.zoom,p.distance,Math.hypot(a.x-b.x,a.y-b.y),p.anchor,{x:midpoint.x,y:midpoint.y});onViewport(next.zoom,next.center);return;}
+  const f=firstTouch.current;if(!f||f.id!==e.pointerId)return;if(Math.hypot(e.clientX-f.x,e.clientY-f.y)>7)f.moved=true;
+  if(panMode){if(f.moved){const start=new DOMPoint(f.x,f.y).matrixTransform(f.inverse),now=new DOMPoint(e.clientX,e.clientY).matrixTransform(f.inverse);onViewport(zoom,{x:f.center.x+start.x-now.x,y:f.center.y+start.y-now.y});}return;}
+  if(f.moved&&(tool==='select'||tool==='zone')){if(!f.started){f.started=true;onDown({currentTarget:e.currentTarget,target:f.target,clientX:f.x,clientY:f.y,button:0,pointerId:f.id,pointerType:'touch',type:'pointerdown'} as PE<SVGSVGElement>);}onMove(e);}
+ }
+ function touchEnd(e:PE<SVGSVGElement>,cancelled=false){
+  if(!touches.current.has(e.pointerId))return;touches.current.delete(e.pointerId);
+  const f=firstTouch.current;
+  if(!multiTouch.current&&f?.id===e.pointerId){if(cancelled){if(f.started){onCancel();onTouchCancel();}}else if(!panMode){if(f.started)onUp(e);else if(!f.moved){onDown({currentTarget:e.currentTarget,target:f.target,clientX:f.x,clientY:f.y,button:0,pointerId:f.id,pointerType:'touch',type:'pointerup'} as PE<SVGSVGElement>);onUp(e);}}}
+  if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);
+  if(touches.current.size===0){firstTouch.current=null;pinch.current=null;multiTouch.current=false;}
+ }
+ function start(e:PE<SVGSVGElement>){if(e.pointerType==='touch'){touchStart(e);return;}if(e.button===1||e.button===2||(panMode&&e.button===0)){e.preventDefault();if(pan.current)return;const inverse=e.currentTarget.getScreenCTM()?.inverse();if(!inverse)return;pan.current={start:new DOMPoint(e.clientX,e.clientY).matrixTransform(inverse),inverse,center:{...center},pointer:e.pointerId};e.currentTarget.setPointerCapture(e.pointerId);return;}onDown(e);}
+ function move(e:PE<SVGSVGElement>){if(e.pointerType==='touch'){touchMove(e);return;}const p=pan.current;if(p){if(e.pointerId!==p.pointer)return;const next=new DOMPoint(e.clientX,e.clientY).matrixTransform(p.inverse);onViewport(zoom,{x:p.center.x+p.start.x-next.x,y:p.center.y+p.start.y-next.y});}else onMove(e);}
+ function end(e:PE<SVGSVGElement>){if(e.pointerType==='touch'){touchEnd(e);return;}if(pan.current){if(e.pointerId!==pan.current.pointer)return;pan.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}else onUp(e);}
+ return <svg ref={canvas} className="dd-plan" role="application" tabIndex={0} aria-label={t('A2 board')} viewBox={`${center.x-w/2} ${center.y-h/2} ${w} ${h}`} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={e=>{if(e.pointerType==='touch')touchEnd(e,true);else{pan.current=null;onCancel();}}} onContextMenu={e=>e.preventDefault()} style={{cursor:panMode?'grab':tool==='select'?'default':'crosshair'}}>
   <defs><pattern id="dd-grid" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M5 0H0V5" fill="none" stroke="#76866f" strokeWidth=".18"/></pattern><marker id="dd-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#edb97e"/></marker></defs>
   <rect width="594" height="420" rx="1" fill="#e8ebe3" stroke="#b4c1b1" strokeWidth="1"/><polygon points={pts(SITE)} fill="#d3dfce" stroke="#76906d" strokeWidth="1"/>{grid&&<polygon points={pts(SITE)} fill="url(#dd-grid)" pointerEvents="none"/>}
   {d.zones.map(z=><g key={z.id} data-object={z.id} data-kind="zones"><rect x={z.x} y={z.y} width={z.w} height={z.d} fill={ZONES[z.kind]} fillOpacity=".56" stroke={selected===z.id?'#ad5323':ZONES[z.kind]} strokeWidth={selected===z.id?1.6:.8}/><text x={z.x+3} y={z.y+8} fontSize="5" fill="#233f30" pointerEvents="none">{t({residential:'Residential',commercial:'Commercial',community:'Community',green:'Green space',plaza:'Plaza'}[z.kind])}{dimensions?` · ${z.w} × ${z.d} mm`:''}</text></g>)}

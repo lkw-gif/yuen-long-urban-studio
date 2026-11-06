@@ -10,3 +10,9 @@ export function zoomAt(center:Point,zoom:number,next:number,anchor:Point) {
   const limited=Math.min(6,Math.max(.5,next));
   return {zoom:limited,center:{x:anchor.x+(center.x-anchor.x)*zoom/limited,y:anchor.y+(center.y-anchor.y)*zoom/limited}};
 }
+// The two midpoints are expressed in the initial SVG coordinate system.
+export function pinchViewport(center:Point,zoom:number,startDistance:number,distance:number,anchor:Point,current:Point) {
+  const result=zoomAt(center,zoom,zoom*distance/Math.max(startDistance,1),anchor);
+  const scale=zoom/result.zoom;
+  return {zoom:result.zoom,center:{x:result.center.x-(current.x-anchor.x)*scale,y:result.center.y-(current.y-anchor.y)*scale}};
+}
