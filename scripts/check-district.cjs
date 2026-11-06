@@ -4,6 +4,18 @@ const x=load('lib/district-design.ts');
 assert.deepEqual(x.BOARD,{width:594,depth:420});assert.equal(x.MODELS.filter(m=>!m.custom).length,20);assert.equal(x.MODELS.filter(m=>m.kind==='print').length,15);assert.equal(x.MODELS.filter(m=>m.kind==='wood').length,7);
 for(const m of x.MODELS){assert.equal(Math.max(...m.boxes.map(b=>b.x+b.w)),m.width);assert.equal(Math.max(...m.boxes.map(b=>b.y+b.d)),m.depth);assert.equal(Math.max(...m.boxes.map(b=>b.z+b.h)),m.height);}
 const building=(id,modelId='R1',px=100,py=150)=>({id,modelId,x:px,y:py,rotation:0});
+
+// In the original river-left view, printed models show their front windows.
+for(const m of x.MODELS.filter(m=>m.kind==='print'&&!m.custom)){
+ const before=JSON.stringify(m),b={id:'front-test',modelId:m.id,x:200,y:200,rotation:0};
+ const oriented=x.modelForBuilding(b);
+ assert.equal(oriented.windows.length,m.windows.length);
+ m.windows.forEach((w,i)=>{const q=oriented.windows[i];assert.ok(Math.abs(q.x-(m.width-w.x-w.w))<1e-8);assert.ok(Math.abs(q.y-(m.depth-w.y-w.d))<1e-8);});
+ m.boxes.forEach((v,i)=>{const q=oriented.boxes[i];assert.ok(Math.abs(q.x-(m.width-v.x-v.w))<1e-8);assert.ok(Math.abs(q.y-(m.depth-v.y-v.d))<1e-8);});
+ assert.equal(JSON.stringify(m),before);
+}
+const school=x.MODEL_MAP.W4,orientedSchool=x.modelForBuilding({id:'wood-test',modelId:'W4',x:200,y:200,rotation:0});assert.deepEqual(orientedSchool.boxes,school.boxes);
+
 let d=x.emptyDesign();d.buildings=Array.from({length:6},(_,i)=>building('p'+i));assert.equal(x.validate(d),null);d.buildings.push(building('seventh'));assert.equal(x.validate(d),'Maximum 6 printed buildings.');d.buildings=[];
 d.buildings=Array.from({length:4},(_,i)=>building('w'+i,'W1'));assert.equal(x.validate(d),null);d.buildings.push(building('fifth','W1'));assert.equal(x.validate(d),'Maximum 4 wooden buildings.');
 d=x.emptyDesign();d.buildings=[building('a','W1',140,180),building('b','R1',350,180)];d.bridges=[{id:'bridge',from:'a',to:'b',width:16,height:30}];assert.equal(x.validate(d),null);const before=x.bridgeGeometry(d,d.bridges[0]);assert.ok(before.length>100);d.buildings[1].x+=20;assert.ok(x.bridgeGeometry(d,d.bridges[0]).length>before.length);d.buildings[1].rotation=90;assert.equal(x.validate(d),null);assert.notDeepEqual(x.bridgeGeometry(d,d.bridges[0]).end,before.end);

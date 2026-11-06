@@ -22,10 +22,13 @@ export type BuildingSize={width:number;depth:number;height:number};
 export const SIZE_LIMITS={width:{min:5,max:594},depth:{min:5,max:420},height:{min:5,max:300}};
 export type Building = Point & {id:string;modelId:string;rotation:number;name?:string;dimensions?:BuildingSize;plaMaterialId?:PlaMaterialId};
 export function modelForBuilding(b:Building):Model {
- const m=MODEL_MAP[b.modelId];if(!b.dimensions)return m;
- const {width,depth,height}=b.dimensions,sx=width/m.width,sy=depth/m.depth,sz=height/m.height;
+ const m=MODEL_MAP[b.modelId];
+ const {width,depth,height}=b.dimensions??m,sx=width/m.width,sy=depth/m.depth,sz=height/m.height;
  const scale=(p:ModelBox):ModelBox=>({...p,x:p.x*sx,y:p.y*sy,z:p.z*sz,w:p.w*sx,d:p.d*sy,h:p.h*sz});
- return {...m,width,depth,height,boxes:m.boxes.map(scale),windows:m.windows.map(scale),...(m.panels?{panels:m.panels.map(scale)}:{})};
+ // Turn printed models around their own centre, keeping their fronts visible
+ // from the default view; all plan geometry and bridge anchors use this model.
+ const orient=(p:ModelBox):ModelBox=>{const q=scale(p);return m.kind==='print'?{...q,x:width-q.x-q.w,y:depth-q.y-q.d}:q;};
+ return {...m,width,depth,height,boxes:m.boxes.map(orient),windows:m.windows.map(orient),...(m.panels?{panels:m.panels.map(orient)}:{})};
 }
 export function buildingName(b:Building,language='zh-Hant'){const m=MODEL_MAP[b.modelId];return b.name?.trim()||(language==='en'?m.nameEn:m.nameZh);}
 function validBuildingDetails(b:Building){return (b.plaMaterialId===undefined||(MODEL_MAP[b.modelId]?.kind==='print'&&isPlaMaterialId(b.plaMaterialId)))&&(b.name===undefined||(typeof b.name==='string'&&b.name.length<=60&&!Array.from(b.name).some(c=>c.charCodeAt(0)<32)))&&(b.dimensions===undefined||(b.dimensions!==null&&typeof b.dimensions==='object'&&!Array.isArray(b.dimensions)&&Object.entries(SIZE_LIMITS).every(([key,range])=>{const n=b.dimensions![key as keyof BuildingSize];return typeof n==='number'&&Number.isFinite(n)&&n>=range.min&&n<=range.max;})));}
