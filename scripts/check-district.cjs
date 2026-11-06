@@ -5,6 +5,11 @@ assert.deepEqual(x.BOARD,{width:594,depth:420});assert.equal(x.MODELS.filter(m=>
 for(const m of x.MODELS){assert.equal(Math.max(...m.boxes.map(b=>b.x+b.w)),m.width);assert.equal(Math.max(...m.boxes.map(b=>b.y+b.d)),m.depth);assert.equal(Math.max(...m.boxes.map(b=>b.z+b.h)),m.height);}
 const building=(id,modelId='R1',px=100,py=150)=>({id,modelId,x:px,y:py,rotation:0});
 
+// New zone categories must survive file import, including existing community zones.
+assert.equal(x.ZONES.commercial,'#a98ad3');assert.equal(x.ZONES.community,'#ead277');assert.equal(x.ZONES.mall,'#e79db7');assert.equal(x.ZONES.other,'#e9ac67');
+for(const kind of Object.keys(x.ZONES)){const design=x.emptyDesign();design.zones=[{id:'zone',kind,x:200,y:200,w:30,d:30}];assert.equal(x.validate(design),null);assert.equal(x.parseDesign(JSON.parse(JSON.stringify(design))).zones[0].kind,kind);assert.ok(x.ZONE_LABELS[kind]);}
+
+
 // In the original river-left view, printed models show their front windows.
 for(const m of x.MODELS.filter(m=>m.kind==='print'&&!m.custom)){
  const before=JSON.stringify(m),b={id:'front-test',modelId:m.id,x:200,y:200,rotation:0};

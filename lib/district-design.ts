@@ -16,8 +16,9 @@ export const SITE:Point[]=BOUNDARY.map(([x,y])=>({x:10+(x-12)*fit,y:(420-480*fit
 const riverTop=Math.round((SITE[0].y+10)*10)/10;
 export const RIVER:Point[]=[{x:15,y:riverTop},{x:55,y:riverTop},{x:55,y:riverTop+260},{x:15,y:riverTop+260}];
 export const BRIDGE_DECK_THICKNESS=2;
-export const ZONES = {residential:'#75a8ed',commercial:'#e9ac67',community:'#b79ce6',green:'#7ebd88',plaza:'#d4c89c'};
+export const ZONES = {residential:'#75a8ed',commercial:'#a98ad3',community:'#ead277',mall:'#e79db7',other:'#e9ac67',green:'#7ebd88',plaza:'#d4c89c'};
 export type ZoneKind=keyof typeof ZONES;
+export const ZONE_LABELS:Record<ZoneKind,string>={residential:'Residential',commercial:'Commercial',community:'School / Community',mall:'Shopping mall',other:'Other',green:'Green space',plaza:'Plaza'};
 export type BuildingSize={width:number;depth:number;height:number};
 export const SIZE_LIMITS={width:{min:5,max:594},depth:{min:5,max:420},height:{min:5,max:300}};
 export type Building = Point & {id:string;modelId:string;rotation:number;name?:string;dimensions?:BuildingSize;plaMaterialId?:PlaMaterialId};
