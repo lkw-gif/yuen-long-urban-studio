@@ -51,6 +51,9 @@ jobs:
       - name: Check Google document generation
         run: node scripts/check-google-drive-plan.cjs
 
+      - name: Check Google Drive design storage
+        run: node scripts/check-google-drive-design.cjs
+
       - name: Build static site
         # Both language versions must remain complete.
         run: node scripts/check-i18n.cjs && npm run build

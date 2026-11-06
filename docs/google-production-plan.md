@@ -53,3 +53,11 @@ For template changes, render the Chinese and English maximum-capacity examples
 and inspect every page. Also inspect a native Google Docs PDF export; conversion
 can change page breaks while preserving the table. The retained source template
 must remain unchanged.
+
+## Save and reopen district designs in Google Drive
+
+The district editor can save a JSON copy into the signed-in school account’s My Drive, and list and reopen copies created by this website. Save updates the Drive file opened or saved in the current session; for a new or locally imported design it creates a file. Save a copy creates a separate file and makes that copy the current save target. Changes are not automatically synced to Drive. After reloading the browser, open the Drive file again to update it. Browser autosave and local JSON download remain available. When opening a file, the editor validates it and asks before replacing a current design.
+
+The same verified school account and existing `drive.file` scope are used. The website can list only tagged design files it created, not all JSON files in Drive. To open an older locally saved JSON file, use Open design. Google Drive permission and school Workspace policy must allow the existing OAuth client.
+
+Run `node scripts/check-google-drive-design.cjs` and `node scripts/check-google-drive-plan.cjs` for the mocked Drive and account checks. A real school account is needed to verify Google consent and Drive upload/reopen end to end.
