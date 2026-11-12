@@ -9,7 +9,7 @@ function customModel(id:string,kind:Model['kind'],width:number,depth:number,heig
 export const MODELS:Model[] = [...catalog.models as Model[],customModel('CUSTOM-3D','print',60,60,80),customModel('CUSTOM-WOOD','wood',80,60,50)];
 export const MODEL_MAP = Object.fromEntries(MODELS.map(m=>[m.id,m]));
 export const BOARD = {width:594,depth:420};
-export const SITE_LEFT_LENGTH=190;
+export const SITE_LEFT_LENGTH=220;
 const fit=SITE_LEFT_LENGTH/480,siteLeft=(BOARD.width-982*fit)/2,siteTop=(BOARD.depth-SITE_LEFT_LENGTH)/2;
 export const SITE:Point[]=BOUNDARY.map(([x,y])=>({x:siteLeft+(x-12)*fit,y:siteTop+(y-14)*fit}));
 export const BOARD_OUTLINE:Point[]=[{x:0,y:0},{x:594,y:0},{x:594,y:420},{x:0,y:420}];

@@ -1,6 +1,6 @@
 # Google production plans
 
-The district outline is centred on A2 with a 190 mm left edge and retains the source map's aspect ratio. The river follows this outline proportionally. Physical building sizes are unchanged. Older designs remain loadable within A2; outlying objects are flagged and can be corrected one at a time, while newly placed objects must fit inside the revised district.
+The district outline is centred on A2 with a 220 mm left edge and retains the source map's aspect ratio. The river follows this outline proportionally. Physical building sizes are unchanged. Older designs remain loadable within A2; outlying objects are flagged and can be corrected one at a time, while newly placed objects must fit inside the revised district.
 
 The district designer stores the chosen PLA material on each printed building.
 Matte and transparent materials use the shared ten-item palette in
