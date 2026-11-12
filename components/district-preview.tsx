@@ -3,7 +3,7 @@
 import {forwardRef,useEffect,useImperativeHandle,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {BOARD,SITE,RIVER,BRIDGE_DECK_THICKNESS,modelForBuilding,ZONES,bridgeGeometry,round,type Design,type Point} from '@/lib/district-design';
+import {BOARD,BOARD_OUTLINE,SITE,RIVER,BRIDGE_DECK_THICKNESS,modelForBuilding,ZONES,bridgeGeometry,round,type Design,type Point} from '@/lib/district-design';
 import {plaMaterial,type PlaMaterialId} from '@/lib/building-materials';
 
 export type PreviewApi={image:()=>string|undefined;reset:()=>void;zoom:(factor:number)=>void};
@@ -43,7 +43,7 @@ export const DistrictPreview=forwardRef<PreviewApi,PreviewProps>(function Distri
   design.roads.forEach(r=>r.points.slice(1).forEach((b,i)=>{const a=r.points[i];segment(root,a,b,r.width,.55,.45,r.kind==='road'?'#586269':'#aeb4b5');if(r.kind==='road'){const n=Math.floor(Math.hypot(b.x-a.x,b.y-a.y)/12);for(let j=0;j<n;j++){const p={x:a.x+(b.x-a.x)*(j+.2)/n,y:a.y+(b.y-a.y)*(j+.2)/n},q={x:a.x+(b.x-a.x)*(j+.65)/n,y:a.y+(b.y-a.y)*(j+.65)/n};segment(root,p,q,.8,.82,.1,'#edf0df');}}}));
   function label(text:string,x:number,y:number,z:number){const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=160;const ctx=canvas.getContext('2d')!;ctx.fillStyle='#1b2e29f5';ctx.fillRect(0,0,1024,160);ctx.fillStyle='#fff';ctx.font='500 52px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,512,80,980);const texture=new THREE.CanvasTexture(canvas),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false}));sprite.position.set(x,y,z);sprite.scale.set(180,180*160/1024,1);sprite.renderOrder=10;sprite.visible=false;root.add(sprite);return sprite;}
   const selectable:THREE.Group[]=[],highlights=new Map<string,{helper:THREE.BoxHelper;label:THREE.Sprite}>();
-  const fitPoints=SITE.map(p=>new THREE.Vector3(p.x-BOARD.width/2,0,p.y-BOARD.depth/2));
+  const fitPoints=BOARD_OUTLINE.map(p=>new THREE.Vector3(p.x-BOARD.width/2,0,p.y-BOARD.depth/2));
   function register(id:string,group:THREE.Group,sprite:THREE.Sprite){group.updateWorldMatrix(true,true);group.userData.selectId=id;selectable.push(group);const helper=new THREE.BoxHelper(group,'#f3bc76');helper.visible=false;helper.renderOrder=9;(helper.material as THREE.LineBasicMaterial).depthTest=false;scene.add(helper);highlights.set(id,{helper,label:sprite});}
   design.buildings.forEach(b=>{const m=modelForBuilding(b),g=new THREE.Group();g.position.set(b.x,.85,b.y);g.rotation.y=-b.rotation*Math.PI/180;root.add(g);
    (m.panels??m.boxes).forEach(p=>box(g,p.x+p.w/2-m.width/2,p.z+p.h/2,p.y+p.d/2-m.depth/2,p.w,p.h,p.d,m.kind==='print'?printedMaterial(b.plaMaterialId):p.role==='base'||p.h===2?'#c39860':'#dfb87d'));

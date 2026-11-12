@@ -3,7 +3,7 @@ function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(
 const x=load('lib/district-design.ts');
 assert.deepEqual(x.BOARD,{width:594,depth:420});assert.equal(x.MODELS.filter(m=>!m.custom).length,20);assert.equal(x.MODELS.filter(m=>m.kind==='print').length,15);assert.equal(x.MODELS.filter(m=>m.kind==='wood').length,7);
 for(const m of x.MODELS){assert.equal(Math.max(...m.boxes.map(b=>b.x+b.w)),m.width);assert.equal(Math.max(...m.boxes.map(b=>b.y+b.d)),m.depth);assert.equal(Math.max(...m.boxes.map(b=>b.z+b.h)),m.height);}
-const building=(id,modelId='R1',px=100,py=150)=>({id,modelId,x:px,y:py,rotation:0});
+const building=(id,modelId='R1',px=200,py=200)=>({id,modelId,x:px,y:py,rotation:0});
 
 // New zone categories must survive file import, including existing community zones.
 assert.equal(x.ZONES.commercial,'#a98ad3');assert.equal(x.ZONES.community,'#ead277');assert.equal(x.ZONES.mall,'#e79db7');assert.equal(x.ZONES.other,'#e9ac67');
@@ -23,14 +23,14 @@ const school=x.MODEL_MAP.W4,orientedSchool=x.modelForBuilding({id:'wood-test',mo
 
 let d=x.emptyDesign();d.buildings=Array.from({length:6},(_,i)=>building('p'+i));assert.equal(x.validate(d),null);d.buildings.push(building('seventh'));assert.equal(x.validate(d),'Maximum 6 printed buildings.');d.buildings=[];
 d.buildings=Array.from({length:4},(_,i)=>building('w'+i,'W1'));assert.equal(x.validate(d),null);d.buildings.push(building('fifth','W1'));assert.equal(x.validate(d),'Maximum 4 wooden buildings.');
-d=x.emptyDesign();d.buildings=[building('a','W1',140,180),building('b','R1',350,180)];d.bridges=[{id:'bridge',from:'a',to:'b',width:16,height:30}];assert.equal(x.validate(d),null);const before=x.bridgeGeometry(d,d.bridges[0]);assert.ok(before.length>100);d.buildings[1].x+=20;assert.ok(x.bridgeGeometry(d,d.bridges[0]).length>before.length);d.buildings[1].rotation=90;assert.equal(x.validate(d),null);assert.notDeepEqual(x.bridgeGeometry(d,d.bridges[0]).end,before.end);
-d.bridges=Array.from({length:30},(_,i)=>({...d.bridges[0],id:'bridge'+i}));d.decorations=Array.from({length:40},(_,i)=>({id:'tree'+i,kind:'tree',x:50+i*5,y:310,rotation:0}));assert.equal(x.validate(d),null);assert.deepEqual(x.counts(d),{print:1,wood:1});assert.deepEqual(x.parseDesign(JSON.parse(JSON.stringify(d))),d);
-const bad=structuredClone(d);bad.buildings[0].x=2;assert.match(x.validate(bad),/boundary/);assert.throws(()=>x.parseDesign(bad));const rotated=building('r','W6',90,135);assert.equal(x.polygonInside(x.footprint(rotated)),true);rotated.rotation=45;assert.equal(x.polygonInside(x.footprint(rotated)),false);
+d=x.emptyDesign();d.buildings=[building('a','W1',160,180),building('b','R1',350,180)];d.bridges=[{id:'bridge',from:'a',to:'b',width:16,height:30}];assert.equal(x.validate(d),null);const before=x.bridgeGeometry(d,d.bridges[0]);assert.ok(before.length>100);d.buildings[1].x+=20;assert.ok(x.bridgeGeometry(d,d.bridges[0]).length>before.length);d.buildings[1].rotation=90;assert.equal(x.validate(d),null);assert.notDeepEqual(x.bridgeGeometry(d,d.bridges[0]).end,before.end);
+d.bridges=Array.from({length:30},(_,i)=>({...d.bridges[0],id:'bridge'+i}));d.decorations=Array.from({length:40},(_,i)=>({id:'tree'+i,kind:'tree',x:160+i*5,y:285,rotation:0}));assert.equal(x.validate(d),null);assert.deepEqual(x.counts(d),{print:1,wood:1});assert.deepEqual(x.parseDesign(JSON.parse(JSON.stringify(d))),d);
+const bad=structuredClone(d);bad.buildings[0].x=2;assert.match(x.validate(bad),/boundary/);assert.throws(()=>x.parseDesign(bad));const rotated=building('r','W6',190,165);assert.equal(x.polygonInside(x.footprint(rotated)),true);rotated.rotation=45;assert.equal(x.polygonInside(x.footprint(rotated)),false);
 for(const mutate of [d=>d.buildings[0].modelId='__proto__',d=>d.buildings[0].x=NaN,d=>d.buildings[1].id='a',d=>d.bridges[0].to='missing',d=>d.board.width=600,d=>d.zones.push({id:'z',kind:'green',x:0,y:100,w:-10,d:10}),d=>d.roads.push({id:'r',kind:'road',width:16,points:[null,null]})]){const invalid=structuredClone(d);mutate(invalid);assert.throws(()=>x.parseDesign(invalid));}
 let roadTest=x.emptyDesign();roadTest.buildings=[building('house','W1',150,200)];roadTest.roads=[{id:'road',kind:'road',width:16,points:[{x:50,y:200},{x:280,y:200}]}];assert.deepEqual(x.blockedRoutes(roadTest),['W1']);assert.equal(x.roadInside({id:'edge',kind:'road',width:50,points:[{x:535.3338,y:99.3872},{x:535.3338,y:99.3872}]}),false);
 assert.equal(x.roadLength({points:[{x:0,y:0},{x:30,y:40},{x:30,y:60}]}),70);
-assert.ok(x.RIVER.every(p=>x.inside(p)));assert.equal(x.RIVER[1].x-x.RIVER[0].x,40);assert.ok(Math.abs(x.RIVER[2].y-x.RIVER[1].y-260)<1e-9);assert.equal(x.BRIDGE_DECK_THICKNESS,2);
-const legacy=x.emptyDesign();legacy.buildings=[building('old','R1',50,200)];legacy.roads=[{id:'old-road',kind:'road',width:16,points:[{x:90,y:100},{x:300,y:100}]}];assert.deepEqual(x.parseDesign(JSON.parse(JSON.stringify(legacy))),legacy);assert.deepEqual(x.riverOverlaps(legacy),['R1']);
+assert.ok(x.RIVER.every(p=>x.inside(p)));assert.equal(x.SITE[x.SITE.length-1].y-x.SITE[0].y,190);assert.ok(Math.abs((x.RIVER[1].x-x.RIVER[0].x)/(x.RIVER[2].y-x.RIVER[1].y)-40/260)<1e-9);assert.ok(Math.abs((Math.max(...x.SITE.map(p=>p.x))-x.SITE[0].x)/190-982/480)<1e-9);assert.equal(x.BRIDGE_DECK_THICKNESS,2);
+const legacy=x.emptyDesign();legacy.buildings=[building('old','R1',50,200)];legacy.roads=[{id:'old-road',kind:'road',width:16,points:[{x:90,y:100},{x:300,y:100}]}];assert.deepEqual(x.parseDesign(JSON.parse(JSON.stringify(legacy))),legacy);assert.ok(x.outsideSite(legacy).includes('old'));
 const viewport=load('lib/district-viewport.ts');for(const [width,height] of [[820,430],[1400,400],[390,500]]){const frame=viewport.planFrame(width,height,1);assert.ok(frame.width>=606&&frame.height>=313-1e-9);assert.ok(Math.abs(frame.width/frame.height-width/height)<1e-9);}
 const center={x:260,y:190},anchor={x:140,y:240};for(const next of [.01,.5,1.7,3,6,20]){const v=viewport.zoomAt(center,1.4,next,anchor);assert.ok(v.zoom>=.5&&v.zoom<=6);for(const axis of ['x','y'])assert.ok(Math.abs((anchor[axis]-v.center[axis])*v.zoom-(anchor[axis]-center[axis])*1.4)<1e-9);}
 console.log('District checks passed: 20 exact-size models, quotas, rotation/boundaries, bridge updates, unlimited extras, import validation, route overlap, mm lengths.');
@@ -57,3 +57,11 @@ for(const material of palette.PLA_MATERIALS){const coloured=x.emptyDesign();colo
 for(const invalidColour of ['__proto__','#f00','made-up-colour',null,{}]){const invalid=x.emptyDesign();invalid.buildings=[{...building('colour','R1',200,200),plaMaterialId:invalidColour}];assert.throws(()=>x.parseDesign(invalid));}
 const woodenPla=x.emptyDesign();woodenPla.buildings=[{...building('wood','W1',200,200),plaMaterialId:'matte-red'}];assert.throws(()=>x.parseDesign(woodenPla));
 console.log('PLA checks passed: ten colours persist in design files; invalid colours and PLA applied to wood are rejected.');
+
+// Existing outlying objects remain recoverable; new objects must use the revised site.
+const prior=x.emptyDesign();prior.buildings=[building('left','R1',50,200),building('right','R1',500,200)];
+assert.deepEqual(x.parseDesign(JSON.parse(JSON.stringify(prior))),prior);
+const repair=structuredClone(prior);repair.buildings[0].x=200;assert.equal(x.validateEdit(repair,prior),null);
+const invalidAddition=structuredClone(repair);invalidAddition.buildings.push(building('new-outside','R1',50,200));assert.match(x.validateEdit(invalidAddition,repair),/boundary/);
+repair.buildings[1].x=350;assert.equal(x.validate(repair),null);
+console.log('190 mm site checks passed: proportional outline, preserved building sizes and recoverable older layouts.');
